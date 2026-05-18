@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오빗 러닝크루 출석 관리 시스템 | Orbit Running Crew</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- ==========================================
+       DESKTOP SIDEBAR NAVIGATION
+       ========================================== -->
+  <aside class="sidebar">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <i class="fa-solid fa-person-running"></i>
+      </div>
+      <div class="logo-text">ORBIT RUN</div>
+      <span class="logo-badge">CREW</span>
+    </div>
+
+    <nav class="nav-menu">
+      <li class="nav-item active" data-tab="dashboard">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>크루 대시보드</span>
+      </li>
+      <li class="nav-item" data-tab="schedule">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>러닝 일정 관리</span>
+      </li>
+      <li class="nav-item" data-tab="crew">
+        <i class="fa-solid fa-users"></i>
+        <span>크루원 디렉토리</span>
+      </li>
+      <li class="nav-item" data-tab="analytics">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>출석 분석 & 통계</span>
+      </li>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>© 2026 ORBIT RUN CREW</p>
+      <p style="font-size: 0.65rem; margin-top: 4px; color: var(--accent-primary);">Live Attendance Tool</p>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       MOBILE BOTTOM NAVIGATION BAR
+       ========================================== -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-item active" data-tab="dashboard">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>홈</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="schedule">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>일정</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="crew">
+      <i class="fa-solid fa-users"></i>
+      <span>크루원</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="analytics">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>통계</span>
+    </div>
+  </nav>
+
+  <!-- ==========================================
+       MAIN CONTENT WRAPPER
+       ========================================== -->
+  <main class="main-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="main-header">
+      <div class="header-title-area">
+        <h2 id="page-title">크루 대시보드</h2>
+        <p id="page-subtitle">러닝크루 활동 현황과 출석 분석 데이터를 요약하여 보여줍니다.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="header-action-btn">
+          <i class="fa-solid fa-calendar-plus"></i>
+          <span>새 러닝 일정 만들기</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==========================================
+         TAB 1: DASHBOARD
+         ========================================== -->
+    <section id="dashboard-tab" class="tab-content active">
+      <!-- Quick Stats Widgets -->
+      <div class="stats-grid">
+        <div class="glass-card stat-widget card-accent-green">
+          <div class="stat-info">
+            <span class="stat-label">전체 등록 크루원</span>
+            <span class="stat-value" id="stat-total-crew">0명</span>
+            <span class="stat-trend positive">
+              <i class="fa-solid fa-circle-arrow-up"></i>
+              <span>이번 달 활발히 성장 중</span>
+            </span>
+          </div>
+          <div class="stat-icon-box green">
+            <i class="fa-solid fa-users"></i>
+          </div>
+        </div>
+
+        <div class="glass-card stat-widget card-accent-blue">
+          <div class="stat-info">
+            <span class="stat-label">이번 달 러닝 횟수</span>
+            <span class="stat-value" id="stat-total-runs">0회</span>
+            <span class="stat-trend positive">
+              <i class="fa-solid fa-person-running"></i>
+              <span>매주 2회 정기 러닝 진행</span>
+            </span>
+          </div>
+          <div class="stat-icon-box blue">
+            <i class="fa-solid fa-route"></i>
+          </div>
+        </div>
+
+        <div class="glass-card stat-widget">
+          <div class="stat-info">
+            <span class="stat-label">크루 평균 출석률</span>
+            <span class="stat-value" id="stat-avg-attendance">0%</span>
+            <span class="stat-trend neutral">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>지각/결석 실시간 자동 연산</span>
+            </span>
+          </div>
+          <div class="stat-icon-box orange">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid Layout -->
+      <div class="dashboard-grid">
+        <!-- Upcoming Session Card -->
+        <div class="glass-card section-card card-accent-green" id="upcoming-highlight-card">
+          <div class="section-title-bar">
+            <h3><i class="fa-solid fa-forward"></i> 다가오는 예정 러닝</h3>
+            <span class="run-status-indicator status-live" id="upcoming-status">D-DAY</span>
+          </div>
+          <div class="upcoming-content" id="upcoming-run-content">
+            <!-- Will be dynamically injected by JS -->
+          </div>
+        </div>
+
+        <!-- Hall of Fame / MVP Podium -->
+        <div class="glass-card section-card">
+          <div class="section-title-bar">
+            <h3><i class="fa-solid fa-crown" style="color: #f59e0b;"></i> 크루 명예의 전당 (MVP)</h3>
+          </div>
+          <div class="mvp-container" id="dashboard-mvp-list">
+            <!-- Dynamic podium cards here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 2: RUNNING SCHEDULE
+         ========================================== -->
+    <section id="schedule-tab" class="tab-content">
+      <!-- Search & Filters -->
+      <div class="action-filter-bar">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="schedule-search" class="form-control-input" placeholder="러닝 명칭 또는 코스 검색...">
+        </div>
+        <div class="filter-group" id="schedule-status-filters">
+          <span class="filter-badge active" data-filter="all">전체 일정</span>
+          <span class="filter-badge" data-filter="scheduled">진행 예정</span>
+          <span class="filter-badge" data-filter="completed">러닝 완료</span>
+        </div>
+      </div>
+
+      <!-- Schedule Cards Container -->
+      <div class="run-card-grid" id="run-cards-container">
+        <!-- Dynmically loaded run cards -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: CREW DIRECTORY
+         ========================================== -->
+    <section id="crew-tab" class="tab-content">
+      <!-- Search & Filters -->
+      <div class="action-filter-bar">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-user-gear"></i>
+          <input type="text" id="crew-search" class="form-control-input" placeholder="크루원 이름 또는 닉네임 검색...">
+        </div>
+        <div class="filter-group" id="crew-pace-filters">
+          <span class="filter-badge active" data-filter="all">전체 페이스</span>
+          <span class="filter-badge" data-filter="A">A그룹 (4분대)</span>
+          <span class="filter-badge" data-filter="B">B그룹 (5분대)</span>
+          <span class="filter-badge" data-filter="C">C그룹 (6분대)</span>
+          <span class="filter-badge" data-filter="D">D그룹 (7분이상)</span>
+        </div>
+      </div>
+
+      <!-- Crew Members Grid -->
+      <div class="crew-grid" id="crew-cards-container">
+        <!-- Dynamically loaded crew cards -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: ANALYTICS & STATS
+         ========================================== -->
+    <section id="analytics-tab" class="tab-content">
+      <div class="analytics-grid">
+        
+        <!-- Pace Distribution Chart -->
+        <div class="glass-card section-card card-accent-green">
+          <div class="section-title-bar">
+            <h3><i class="fa-solid fa-chart-simple"></i> 크루원 페이스 분포</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">실시간 분배 통계</span>
+          </div>
+          <div class="pace-chart-bar-container" id="pace-distribution-bars">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Attendance Rank Detail -->
+        <div class="glass-card section-card card-accent-blue">
+          <div class="section-title-bar">
+            <h3><i class="fa-solid fa-medal"></i> 크루 활동 기여도 분석</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">최다 참석자 분석</span>
+          </div>
+          <div class="mvp-container" id="analytics-member-ranking">
+            <!-- Full attendance rankings rendered by JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL: CREATE / EDIT RUNNING EVENT
+       ========================================== -->
+  <div class="modal-backdrop" id="run-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="run-modal-title"><i class="fa-solid fa-calendar-plus"></i> 새 러닝 일정 등록</h3>
+        <button class="modal-close-btn" onclick="closeModal('run-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="run-form" onsubmit="handleRunSubmit(event)">
+          <input type="hidden" id="run-form-id">
+          
+          <div class="form-group">
+            <label class="form-label" for="run-title">러닝 모임 이름</label>
+            <input type="text" id="run-title" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 반포 한강공원 야간 정기러닝" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="run-date">날짜</label>
+              <input type="date" id="run-date" class="form-control-input" style="padding-left: 1rem;" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="run-time">집결 시간</label>
+              <input type="time" id="run-time" class="form-control-input" style="padding-left: 1rem;" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="run-location">집결지 상세 주소 / 러닝 코스</label>
+            <input type="text" id="run-location" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 반포한강공원 달빛광장 편의점 앞 (반포대교 코스)" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="run-distance">러닝 거리 (km)</label>
+              <input type="number" id="run-distance" class="form-control-input" style="padding-left: 1rem;" min="1" max="50" step="0.1" placeholder="예) 5.5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="run-pace">권장 Pace 그룹</label>
+              <select id="run-pace" class="form-select" required>
+                <option value="ALL">전체 공통 (누구나 참여 가능)</option>
+                <option value="A">A그룹 위주 (4분 30초 내외 빠른 페이스)</option>
+                <option value="B">B그룹 위주 (5분 30초 내외 일반 페이스)</option>
+                <option value="C">C그룹 위주 (6분 30초 내외 여유로운 페이스)</option>
+                <option value="D">D그룹 위주 (7분 이상/초급 러너 페이스)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="run-capacity">모집 정원 (명)</label>
+            <input type="number" id="run-capacity" class="form-control-input" style="padding-left: 1rem;" min="2" max="100" placeholder="예) 20" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('run-modal')">취소</button>
+        <button type="submit" form="run-form" class="btn btn-primary">러닝 일정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: REGISTER / EDIT CREW MEMBER
+       ========================================== -->
+  <div class="modal-backdrop" id="member-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="member-modal-title"><i class="fa-solid fa-user-plus"></i> 새 크루원 등록</h3>
+        <button class="modal-close-btn" onclick="closeModal('member-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="member-form" onsubmit="handleMemberSubmit(event)">
+          <input type="hidden" id="member-form-id">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="member-name">이름 (실명)</label>
+              <input type="text" id="member-name" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 홍길동" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="member-nickname">크루 닉네임</label>
+              <input type="text" id="member-nickname" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 한강쾌속마" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="member-phone">연락처</label>
+              <input type="tel" id="member-phone" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 010-1234-5678" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="member-pace">대표 주력 페이스 그룹</label>
+              <select id="member-pace" class="form-select" required>
+                <option value="A">A그룹 (4분대 페이스 - 상급자)</option>
+                <option value="B" selected>B그룹 (5분대 페이스 - 중급자)</option>
+                <option value="C">C그룹 (6분대 페이스 - 일반러너)</option>
+                <option value="D">D그룹 (7분대 이상 페이스 - 비기너)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="member-bio">크루 한 줄 다짐/소개</label>
+            <input type="text" id="member-bio" class="form-control-input" style="padding-left: 1rem;" placeholder="예) 포기하지 않고 끝까지 완주하겠습니다!" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('member-modal')">취소</button>
+        <button type="submit" form="member-form" class="btn btn-primary">크루원 정보 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: INTERACTIVE LIVE ATTENDANCE CHECKER (CRITICAL CORE)
+       ========================================== -->
+  <div class="modal-backdrop" id="attendance-modal">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="attendance-modal-title"><i class="fa-solid fa-calendar-check"></i> 현장 출석 체크</h3>
+          <p id="attendance-modal-subtitle" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">러닝 일정에 참석 신청한 크루원들의 출석 현황을 체크합니다.</p>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('attendance-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem;">
+        
+        <!-- Live Run Meta Info -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div id="attendance-run-name" style="font-weight: 700; font-size: 1.05rem; color: #fff;">-</div>
+            <div id="attendance-run-meta" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">-</div>
+          </div>
+          <div style="text-align: right;">
+            <div id="attendance-run-stats" style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--accent-primary);">0/0명</div>
+            <div style="font-size: 0.65rem; color: var(--text-dark); text-transform: uppercase;">출석 완료율</div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <input type="text" id="attendance-search-input" class="form-control-input" style="padding: 0.6rem 1rem 0.6rem 2.4rem;" placeholder="이름 또는 닉네임으로 크루원 빠른 검색...">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-dark); font-size: 0.95rem;"></i>
+        </div>
+
+        <!-- Attendance Members List -->
+        <div class="attendance-grid" id="attendance-members-list-container" style="max-height: 40vh; overflow-y: auto; padding-right: 4px;">
+          <!-- Loaded dynamically by JS -->
+        </div>
+
+      </div>
+      <div class="modal-footer" style="background: rgba(15, 23, 42, 0.6); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">※ 변경된 출석 상태는 실시간으로 통계 및 랭킹에 반영됩니다.</span>
+        <button class="btn btn-primary btn-sm" onclick="closeModal('attendance-modal')">체크 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript file -->
+  <script src="app.js"></script>
+</body>
+</html>
