@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { mockStore } from '@/lib/mockStore'
+import { checkIsMock } from '@/lib/utils/mockCheck'
 
 export default function MockGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -17,7 +18,7 @@ export default function MockGuard({ children }: { children: React.ReactNode }) {
     if (!mounted) return
 
     // Mock 모드인지 체크
-    const isMock = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
+    const isMock = checkIsMock()
     if (!isMock) return // 실제 Supabase가 동작하는 환경은 Next.js Edge Middleware가 통제하므로 이탈
 
     const isLoggedIn = localStorage.getItem('src_is_logged_in') === 'true'

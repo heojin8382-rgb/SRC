@@ -2,8 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Mock 모드 감지 (Supabase가 세팅되지 않은 경우 미들웨어 전체 통과시키고 클라이언트 사이드 Mock 검증으로 이행)
-  const isMock = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
+  // Mock 모드 감지 (Supabase가 세팅되지 않았거나 쿠키로 강제 Mock 설정한 경우)
+  const isMock = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                 process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url' ||
+                 request.cookies.get('src_mock')?.value === 'true'
   if (isMock) {
     return NextResponse.next()
   }

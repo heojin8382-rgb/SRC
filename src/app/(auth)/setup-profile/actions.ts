@@ -53,6 +53,14 @@ export async function setupProfile(formData: FormData) {
     return { success: false, error: '프로필 저장 중 서버 오류가 발생했습니다.' }
   }
 
+  // 사전 등록 데이터 머지 진행 (RPC 호출)
+  const { data: merged, error: rpcError } = await supabase
+    .rpc('merge_preseeded_profile', { new_user_id: user.id, user_nickname: nickname })
+
+  if (rpcError) {
+    console.error('Pre-seeded profile merge failed:', rpcError)
+  }
+
   // 성공 시 대시보드로 이동 (대기 상태 회원은 미들웨어가 자동으로 /waiting 으로 보냄)
   redirect('/')
 }

@@ -13,7 +13,10 @@ export async function signInWithKakao() {
     provider: 'kakao',
     options: {
       redirectTo: `${origin}/auth/callback`,
-      // scopes: 'profile_nickname profile_image' // 카카오 비인증 앱 기준 안전 스코프
+      scopes: 'profile_nickname profile_image', // 카카오 비인증 앱 기준 안전 스코프
+      queryParams: {
+        prompt: 'login', // 항상 이메일/비번 입력창을 띄우도록 강제 설정
+      },
     },
   })
 
