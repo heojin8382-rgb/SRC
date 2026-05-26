@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { mockStore, Profile, RunningRecord } from '@/lib/mockStore'
 import { createClient } from '@/lib/supabase/client'
 import { calculateMonthlySurvival, SurvivalStatus } from '@/lib/utils/survival'
+import { checkIsMock } from '@/lib/utils/mockCheck'
 import { Flame, Trophy, PlusCircle, CheckCircle2, AlertTriangle, Trash2, Calendar, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
@@ -11,65 +12,88 @@ export default function DashboardPage() {
   const [records, setRecords] = useState<RunningRecord[]>([])
   const [survival, setSurvival] = useState<SurvivalStatus | null>(null)
   const [isMock, setIsMock] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // 컴포넌트 마운트 시 로컬 스토리지 또는 Supabase로부터 실시간 동적 바인딩
   useEffect(() => {
-    const mockCheck = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
+    const mockCheck = checkIsMock()
     setIsMock(mockCheck)
     loadData(mockCheck)
   }, [])
 
   const loadData = async (mockCheck?: boolean) => {
     const activeIsMock = mockCheck !== undefined ? mockCheck : isMock
+    setError(null)
     
-    if (activeIsMock) {
-      const activeProfile = mockStore.getProfile()
-      const activeRecords = mockStore.getRunningRecords()
-      
-      // 내 기록만 필터링하여 생존 조건 연산 수행
-      const myRecords = activeRecords.filter(rec => rec.user_id === activeProfile.id)
-      const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
+    try {
+      if (activeIsMock) {
+        const activeProfile = mockStore.getProfile()
+        const activeRecords = mockStore.getRunningRecords()
+        
+        // 내 기록만 필터링하여 생존 조건 연산 수행
+        const myRecords = activeRecords.filter(rec => rec.user_id === activeProfile.id)
+        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
 
-      setProfile(activeProfile)
-      setRecords(activeRecords)
-      setSurvival(survivalCalc)
-    } else {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+        setProfile(activeProfile)
+        setRecords(activeRecords)
+        setSurvival(survivalCalc)
+      } else {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setError('로그인 세션이 유효하지 않습니다. 다시 로그인해 주세요.')
+          return
+        }
 
-      const { data: activeProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
-      if (!activeProfile) return
+        const { data: activeProfile, error: profileErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        
+        if (profileErr) {
+          setError(`프로필 정보를 불러오는데 실패했습니다: ${profileErr.message}`)
+          return
+        }
+        
+        if (!activeProfile) {
+          setError('가입된 프로필이 존재하지 않습니다. 먼저 온보딩을 진행해 주세요.')
+          return
+        }
 
-      const { data: dbRecords } = await supabase
-        .from('running_records')
-        .select('*, profiles(nickname, avatar_url)')
-        .order('date', { ascending: false })
+        const { data: dbRecords, error: recordsErr } = await supabase
+          .from('running_records')
+          .select('*, profiles(nickname, avatar_url)')
+          .order('date', { ascending: false })
 
-      const formattedRecords = (dbRecords || []).map((rec: any) => ({
-        id: rec.id,
-        user_id: rec.user_id,
-        user_nickname: rec.profiles?.nickname || '신규 크루원',
-        user_avatar: rec.profiles?.avatar_url || '',
-        distance: Number(rec.distance),
-        location_id: rec.location_id || '',
-        location_name: rec.location_name,
-        date: rec.date,
-        type: rec.type,
-        is_pacer: rec.is_pacer
-      }))
+        if (recordsErr) {
+          setError(`러닝 기록을 불러오는데 실패했습니다: ${recordsErr.message}`)
+          return
+        }
 
-      const myRecords = formattedRecords.filter(rec => rec.user_id === activeProfile.id)
-      const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
+        const formattedRecords = (dbRecords || []).map((rec: any) => ({
+          id: rec.id,
+          user_id: rec.user_id,
+          user_nickname: rec.profiles?.nickname || '신규 크루원',
+          user_avatar: rec.profiles?.avatar_url || '',
+          distance: Number(rec.distance),
+          location_id: rec.location_id || '',
+          location_name: rec.location_name,
+          date: rec.date,
+          type: rec.type,
+          is_pacer: rec.is_pacer
+        }))
 
-      setProfile(activeProfile as Profile)
-      setRecords(formattedRecords)
-      setSurvival(survivalCalc)
+        const myRecords = formattedRecords.filter(rec => rec.user_id === activeProfile.id)
+        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
+
+        setProfile(activeProfile as Profile)
+        setRecords(formattedRecords)
+        setSurvival(survivalCalc)
+      }
+    } catch (e: any) {
+      console.error(e)
+      setError(`대시보드 데이터를 로드하는 중 예기치 못한 오류가 발생했습니다: ${e.message || String(e)}`)
     }
   }
 
@@ -94,9 +118,29 @@ export default function DashboardPage() {
     }
   }
 
+  if (error) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4 min-h-screen bg-[#EAF2FA]">
+        <div className="bg-white border border-rose-200 p-6 rounded-3xl max-w-sm shadow-xl flex flex-col items-center gap-3">
+          <AlertTriangle className="w-10 h-10 text-rose-500 animate-bounce" />
+          <h2 className="text-sm font-black text-slate-800">대시보드 로드 오류</h2>
+          <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+            {error}
+          </p>
+          <button
+            onClick={() => loadData()}
+            className="mt-2 w-full h-10 bg-[#2563EB] text-white hover:bg-[#2563EB]/95 font-extrabold text-xs rounded-xl shadow-sm cursor-pointer transition-all active:scale-[0.98]"
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!profile || !survival) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6 min-h-screen bg-[#EAF2FA]">
         <span className="text-xs text-slate-400 animate-pulse">대시보드 구성 중...</span>
       </div>
     )
