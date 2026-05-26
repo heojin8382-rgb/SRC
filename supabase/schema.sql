@@ -32,6 +32,8 @@ CREATE TABLE public.profiles (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,          -- Soft Delete용 플래그
     is_exempted BOOLEAN DEFAULT FALSE NOT NULL,        -- 운영자 수동 면제 플래그 (월 초기화 대상 제외)
     is_onboarded BOOLEAN DEFAULT FALSE NOT NULL,       -- 첫 로그인 후 실명/출생년도/성별 입력 완료 여부
+    can_view_admin BOOLEAN DEFAULT FALSE NOT NULL,     -- 어드민 전용창 조회 권한
+    can_edit_admin BOOLEAN DEFAULT FALSE NOT NULL,     -- 어드민 전용창 수정 권한
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
