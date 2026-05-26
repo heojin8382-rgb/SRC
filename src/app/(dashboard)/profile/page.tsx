@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [pb10k, setPb10k] = useState('')
   const [pbHalf, setPbHalf] = useState('')
   const [pbFull, setPbFull] = useState('')
+  const [showPb, setShowPb] = useState(true)
 
   // 프로필 정보 수정 관련 상태
   const [editName, setEditName] = useState('')
@@ -56,6 +57,7 @@ export default function ProfilePage() {
       const filteredMyRecords = activeRecords.filter(rec => rec.user_id === activeProfile.id)
       
       setProfile(activeProfile)
+      setShowPb(activeProfile.show_pb ?? true)
       setMyRecords(filteredMyRecords)
 
       // 각 종목별 기존 PB 바인딩
@@ -101,6 +103,7 @@ export default function ProfilePage() {
         .eq('user_id', user.id)
 
       setProfile(activeProfile as Profile)
+      setShowPb(activeProfile.show_pb ?? true)
       setMyRecords(formattedRecords)
 
       const pbMap = (dbPBs || []).reduce<Record<string, string>>((acc, pb: any) => ({ ...acc, [pb.category]: pb.record_time }), {})
@@ -156,6 +159,33 @@ export default function ProfilePage() {
       loadData()
     } catch {
       setErrorMsg('기록 업데이트 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleToggleShowPb = async () => {
+    if (!profile) return
+    const nextShowPb = !showPb
+    setShowPb(nextShowPb)
+
+    try {
+      const isMockMode = checkIsMock()
+      if (isMockMode) {
+        const updatedProfile = { ...profile, show_pb: nextShowPb }
+        mockStore.saveProfile(updatedProfile)
+        setProfile(updatedProfile)
+      } else {
+        const supabase = createClient()
+        const { error } = await supabase
+          .from('profiles')
+          .update({ show_pb: nextShowPb })
+          .eq('id', profile.id)
+
+        if (error) throw error
+        setProfile({ ...profile, show_pb: nextShowPb })
+      }
+    } catch {
+      alert('공개 설정 변경에 실패했습니다.')
+      setShowPb(showPb) // rollback
     }
   }
 
@@ -537,6 +567,26 @@ export default function ProfilePage() {
           공식 대회 최고 기록을 시:분:초(<strong className="text-slate-800">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
           예: <strong className="text-slate-800 font-bold">46분 15초</strong> ➔ <strong className="text-[#2563EB] font-bold">00:46:15</strong> | <strong className="text-slate-800 font-bold">3시간 45분</strong> ➔ <strong className="text-[#2563EB] font-bold">03:45:00</strong>
         </p>
+
+        <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200/80 rounded-2xl mb-4">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-black text-slate-800">크루원 PB 보드에 내 기록 공개</span>
+            <span className="text-[8px] text-slate-500 font-bold">비활성화 시 전체 랭킹 보드에서 내 최고 기록이 숨겨집니다.</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggleShowPb}
+            className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+              showPb ? 'bg-[#2563EB]' : 'bg-slate-300'
+            }`}
+          >
+            <div
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                showPb ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
 
         <form onSubmit={handleSavePBs} className="space-y-4">
           <div className="grid grid-cols-3 gap-3">

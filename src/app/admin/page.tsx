@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { mockStore, Member, Location, RunningRecord } from '@/lib/mockStore'
+import { mockStore, Member, Location, RunningRecord, Profile } from '@/lib/mockStore'
 import { createClient } from '@/lib/supabase/client'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { 
@@ -17,7 +17,7 @@ import {
   ListTodo
 } from 'lucide-react'
 
-type TabType = 'waiting' | 'exempted' | 'locations' | 'records'
+type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions'
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('waiting')
@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [newLocationName, setNewLocationName] = useState('')
   const [isMock, setIsMock] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
 
   useEffect(() => {
     const mockCheck = checkIsMock()
@@ -42,9 +43,23 @@ export default function AdminPage() {
       setMembers(mockStore.getMembers())
       setLocations(mockStore.getLocations().filter(l => l.is_active))
       setRecords(mockStore.getRunningRecords())
+      setCurrentProfile(mockStore.getProfile())
       setLoading(false)
     } else {
       const supabase = createClient()
+
+      // 내 프로필 상세 정보 조회
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        if (profile) {
+          setCurrentProfile(profile as Profile)
+        }
+      }
 
       // 1. 프로필 목록 조회
       const { data: dbProfiles } = await supabase
@@ -77,6 +92,8 @@ export default function AdminPage() {
           is_active: p.is_active,
           is_exempted: p.is_exempted,
           is_onboarded: p.is_onboarded,
+          can_view_admin: p.can_view_admin ?? false,
+          can_edit_admin: p.can_edit_admin ?? false,
           pbs: {} // 마라톤 PB는 필요 시 조회
         }))
         setMembers(formattedMembers)
@@ -106,8 +123,15 @@ export default function AdminPage() {
     }
   }
 
+  const isSuperAdmin = currentProfile?.role === 'ADMIN'
+  const hasEditPermission = isSuperAdmin || currentProfile?.can_edit_admin === true
+
   // 1. 가입 대기자 승인 처리
   const handleApproveMember = async (memberId: string) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     if (isMock) {
       mockStore.updateMemberRole(memberId, 'REGULAR')
       // 승인 후 온보딩 완료 처리 강제
@@ -139,6 +163,10 @@ export default function AdminPage() {
 
   // 1-2. 가입 대기자 거절/추방 (비활성화)
   const handleRejectMember = async (memberId: string) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     if (confirm('해당 가입 대기자를 거절(비활성화) 처리하시겠습니까?')) {
       if (isMock) {
         mockStore.updateMemberActive(memberId, false)
@@ -161,6 +189,10 @@ export default function AdminPage() {
 
   // 2. 부상 면제 상태 토글
   const handleToggleExemption = async (memberId: string, currentExempted: boolean) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     if (isMock) {
       mockStore.updateMemberExempted(memberId, !currentExempted)
       loadData()
@@ -183,6 +215,10 @@ export default function AdminPage() {
   const handleAddLocation = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newLocationName.trim()) return
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
 
     if (isMock) {
       mockStore.addLocation(newLocationName.trim())
@@ -209,6 +245,10 @@ export default function AdminPage() {
 
   // 3-2. 장소 삭제 (Soft Delete)
   const handleDeactivateLocation = async (locId: string) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     if (confirm('해당 러닝 장소를 비활성화하시겠습니까? 드롭다운 목록에서만 제외되며, 기존 러닝 스냅샷 기록에는 영향을 주지 않습니다.')) {
       if (isMock) {
         mockStore.deleteLocation(locId)
@@ -231,6 +271,10 @@ export default function AdminPage() {
 
   // 4. 러닝 인증 강제 삭제
   const handleDeleteRecord = async (recordId: string) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     if (confirm('이 인증 기록을 강제로 삭제하시겠습니까? 해당 멤버의 이번 달 생존 조건 수치가 즉시 조정됩니다.')) {
       if (isMock) {
         mockStore.deleteRunningRecord(recordId)
@@ -251,6 +295,40 @@ export default function AdminPage() {
     }
   }
 
+  // 5. 운영진 권한 변경 설정 (Super Admin 전용)
+  const handleTogglePermission = async (memberId: string, type: 'view' | 'edit', currentVal: boolean) => {
+    if (!isSuperAdmin) {
+      alert('최고 운영자만 권한 설정을 변경할 수 있습니다.')
+      return
+    }
+
+    const updateObj = type === 'view' 
+      ? { can_view_admin: !currentVal } 
+      : { can_edit_admin: !currentVal }
+
+    if (isMock) {
+      const target = members.find(m => m.id === memberId)
+      if (target) {
+        const newView = type === 'view' ? !currentVal : !!target.can_view_admin
+        const newEdit = type === 'edit' ? !currentVal : !!target.can_edit_admin
+        mockStore.updateMemberAdminPermissions(memberId, newView, newEdit)
+      }
+      loadData()
+    } else {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateObj)
+        .eq('id', memberId)
+
+      if (error) {
+        alert('권한 설정 변경에 실패했습니다.')
+      } else {
+        loadData()
+      }
+    }
+  }
+
   // 가입 대기중인 유저 필터링
   const waitingMembers = members.filter(m => m.role === 'WAITING')
   // 대기 유저를 제외한 실제 정식 멤버 목록
@@ -262,6 +340,10 @@ export default function AdminPage() {
     { key: 'locations', label: '장소 관리', icon: MapPin },
     { key: 'records', label: '기록 통합 관리', icon: ListTodo },
   ]
+
+  if (isSuperAdmin) {
+    tabItems.push({ key: 'permissions', label: '운영진 권한 설정', icon: ShieldAlert })
+  }
 
   if (loading && members.length === 0 && locations.length === 0) {
     return (
@@ -353,14 +435,24 @@ export default function AdminPage() {
 
                     <div className="flex items-center gap-2">
                       <button
+                        disabled={!hasEditPermission}
                         onClick={() => handleApproveMember(member.id)}
-                        className="py-1.5 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#2563EB] border border-blue-200 text-[9px] font-black tracking-wide cursor-pointer transition-colors active:scale-95 shadow-sm"
+                        className={`py-1.5 px-3 rounded-lg text-[9px] font-black tracking-wide cursor-pointer transition-colors active:scale-95 shadow-sm ${
+                          !hasEditPermission
+                            ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                            : 'bg-blue-50 hover:bg-blue-100 text-[#2563EB] border-blue-200'
+                        }`}
                       >
                         승인
                       </button>
                       <button
+                        disabled={!hasEditPermission}
                         onClick={() => handleRejectMember(member.id)}
-                        className="py-1.5 px-3 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[9px] font-black tracking-wide cursor-pointer transition-colors active:scale-95 shadow-sm"
+                        className={`py-1.5 px-3 rounded-lg text-[9px] font-black tracking-wide cursor-pointer transition-colors active:scale-95 shadow-sm ${
+                          !hasEditPermission
+                            ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                            : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'
+                        }`}
                       >
                         거절
                       </button>
@@ -419,11 +511,14 @@ export default function AdminPage() {
                     </div>
 
                     <button
+                      disabled={!hasEditPermission}
                       onClick={() => handleToggleExemption(member.id, member.is_exempted)}
                       className={`py-1.5 px-3 rounded-lg text-[9px] font-black tracking-wide cursor-pointer transition-all duration-200 active:scale-95 shadow-sm ${
-                        member.is_exempted
-                          ? 'bg-cyan-50 text-cyan-600 border border-cyan-200 hover:bg-cyan-100'
-                          : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+                        !hasEditPermission
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                          : member.is_exempted
+                            ? 'bg-cyan-50 text-cyan-600 border border-cyan-200 hover:bg-cyan-100'
+                            : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
                       }`}
                     >
                       {member.is_exempted ? '면제 취소' : '면제 등록'}
@@ -449,7 +544,12 @@ export default function AdminPage() {
               />
               <button
                 type="submit"
-                className="bg-[#2563EB] text-white font-black text-xs px-4 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all duration-300 active:scale-95 shadow-sm hover:bg-[#2563EB]/95"
+                disabled={!hasEditPermission}
+                className={`font-black text-xs px-4 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                  !hasEditPermission
+                    ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                    : 'bg-[#2563EB] text-white hover:bg-[#2563EB]/95'
+                }`}
               >
                 <Plus className="w-4 h-4" />
                 <span>추가</span>
@@ -480,8 +580,13 @@ export default function AdminPage() {
                     </div>
 
                     <button
+                      disabled={!hasEditPermission}
                       onClick={() => handleDeactivateLocation(loc.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                      className={`p-1.5 rounded-xl transition-colors ${
+                        !hasEditPermission
+                          ? 'opacity-30 cursor-not-allowed text-slate-350'
+                          : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer'
+                      }`}
                       title="장소 비활성화"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -556,8 +661,13 @@ export default function AdminPage() {
                         {rec.distance.toFixed(1)} km
                       </span>
                       <button
+                        disabled={!hasEditPermission}
                         onClick={() => handleDeleteRecord(rec.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                        className={`p-1.5 rounded-xl transition-colors ${
+                          !hasEditPermission
+                            ? 'opacity-30 cursor-not-allowed text-slate-350'
+                            : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer'
+                        }`}
                         title="기록 강제 삭제"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -569,13 +679,110 @@ export default function AdminPage() {
             )}
           </section>
         )}
+
+        {/* 운영진 권한 관리 탭 (최고 관리자 전용) */}
+        {activeTab === 'permissions' && isSuperAdmin && (
+          <section className="space-y-4 animate-fadeIn">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xs font-black text-slate-900">운영진 및 권한 부여 관리</h2>
+              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">
+                일반 크루원에게 어드민 페이지 조회 및 수정 권한을 개별적으로 설정합니다.
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {activeMembers.map((member) => {
+                const isMe = member.id === currentProfile?.id
+                return (
+                  <div 
+                    key={member.id}
+                    className="bg-white/80 border border-slate-200/80 p-4 rounded-2xl flex flex-col gap-3.5 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {member.avatar_url ? (
+                          <img 
+                            src={member.avatar_url} 
+                            alt="Avatar" 
+                            className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner">
+                            👤
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-slate-900">{member.nickname} {isMe && '(나)'}</span>
+                            <span className="text-[8px] text-slate-500 font-bold uppercase px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200">
+                              {member.role}
+                            </span>
+                          </div>
+                          <span className="text-[8px] text-slate-500 font-bold tracking-wider mt-0.5">
+                            실명: {member.real_name || '-'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 권한 토글 버튼들 */}
+                    {!isMe && (
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                        {/* 조회 권한 */}
+                        <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
+                          <span className="text-[9px] font-black text-slate-700">어드민 조회 권한</span>
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePermission(member.id, 'view', !!member.can_view_admin)}
+                            className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
+                              member.can_view_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
+                            }`}
+                          >
+                            <div
+                              className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                member.can_view_admin ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* 수정 권한 */}
+                        <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
+                          <span className="text-[9px] font-black text-slate-700">어드민 수정 권한</span>
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePermission(member.id, 'edit', !!member.can_edit_admin)}
+                            className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
+                              member.can_edit_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
+                            }`}
+                          >
+                            <div
+                              className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                member.can_edit_admin ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {isMe && (
+                      <span className="text-[9px] text-slate-400 font-bold block mt-1 text-center bg-slate-50 rounded-lg py-1 border border-slate-200/40">
+                        최고 관리자는 항상 모든 권한을 가집니다.
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* 4. 주의사항 안내 배너 */}
       <footer className="mt-auto bg-blue-50/50 border border-blue-200/50 p-3.5 rounded-2xl flex gap-2">
         <ShieldAlert className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
         <span className="text-[10px] text-slate-600 leading-relaxed font-semibold">
-          <strong className="text-slate-900">운영 권한 주의:</strong> 본 대시보드에서 처리되는 모든 데이터 변경(가입 승인, 면제 등록, 기록 강제 삭제 등)은 번복이 어려울 수 있으니 신중하게 관리해 주십시오.
+          <strong className="text-slate-900">운영 권한 주의:</strong> {hasEditPermission ? '본 대시보드에서 처리되는 모든 데이터 변경(가입 승인, 면제 등록, 기록 강제 삭제 등)은 번복이 어려울 수 있으니 신중하게 관리해 주십시오.' : '현재 조회 전용 권한입니다. 데이터 변경 권한이 필요한 경우 최고 관리자(ADMIN)에게 문의하세요.'}
         </span>
       </footer>
     </div>

@@ -67,13 +67,14 @@ export async function middleware(request: NextRequest) {
   // 2. 로그인 완료 사용자 프로필 확인 및 온보딩/역할 점검
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, is_onboarded, is_active')
+    .select('role, is_onboarded, is_active, can_view_admin')
     .eq('id', user.id)
     .single()
 
   const isOnboarded = profile?.is_onboarded ?? false
   const role = profile?.role ?? 'WAITING'
   const isActive = profile?.is_active ?? true
+  const canViewAdmin = profile?.can_view_admin ?? false
 
   // 2.1) 비활성화된 회원 (강퇴/탈퇴 등 Soft Deleted 유저)
   if (!isActive) {
@@ -109,7 +110,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2.5) 운영자 페이지 권한 제어
-  if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+  if (pathname.startsWith('/admin') && role !== 'ADMIN' && !canViewAdmin) {
     url.pathname = '/'
     return NextResponse.redirect(url)
   }

@@ -11,6 +11,9 @@ export interface Profile {
   is_active: boolean
   is_exempted: boolean
   is_onboarded: boolean
+  show_pb?: boolean
+  can_view_admin?: boolean
+  can_edit_admin?: boolean
 }
 
 export interface RunningRecord {
@@ -50,6 +53,9 @@ export interface Member {
   is_active: boolean
   is_exempted: boolean
   is_onboarded: boolean
+  show_pb?: boolean
+  can_view_admin?: boolean
+  can_edit_admin?: boolean
   pbs: {
     '10K'?: string
     'Half'?: string
@@ -216,7 +222,10 @@ export const mockStore = {
       role: 'REGULAR', // 기본 역할을 REGULAR로 가동하여 대시보드 바로 체험 가능하도록 함
       is_active: true,
       is_exempted: false,
-      is_onboarded: true
+      is_onboarded: true,
+      show_pb: true,
+      can_view_admin: false,
+      can_edit_admin: false
     }
     return getStorageItem<Profile>('src_profile', defaultProfile)
   },
@@ -381,6 +390,20 @@ export const mockStore = {
     } else {
       const otherMembers = getStorageItem<Member[]>('src_other_members', DEFAULT_MEMBERS)
       const updated = otherMembers.map(m => m.id === id ? { ...m, is_active } : m)
+      setStorageItem<Member[]>('src_other_members', updated)
+    }
+  },
+
+  updateMemberAdminPermissions(id: string, can_view_admin: boolean, can_edit_admin: boolean): void {
+    const profile = this.getProfile()
+    
+    if (id === profile.id) {
+      profile.can_view_admin = can_view_admin
+      profile.can_edit_admin = can_edit_admin
+      this.saveProfile(profile)
+    } else {
+      const otherMembers = getStorageItem<Member[]>('src_other_members', DEFAULT_MEMBERS)
+      const updated = otherMembers.map(m => m.id === id ? { ...m, can_view_admin, can_edit_admin } : m)
       setStorageItem<Member[]>('src_other_members', updated)
     }
   }

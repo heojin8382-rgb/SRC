@@ -68,6 +68,9 @@ export default function MembersPage() {
         is_active: p.is_active,
         is_exempted: p.is_exempted,
         is_onboarded: p.is_onboarded,
+        show_pb: p.show_pb ?? true,
+        can_view_admin: p.can_view_admin ?? false,
+        can_edit_admin: p.can_edit_admin ?? false,
         pbs: pbsByUserId[p.id] || {}
       }))
 
@@ -77,6 +80,10 @@ export default function MembersPage() {
 
   // 1. 역할군 토글 승인 핸들러
   const handleToggleRole = async (memberId: string, currentRole: Member['role']) => {
+    if (!profile || (profile.role !== 'ADMIN' && !profile.can_edit_admin)) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     const nextRole = currentRole === 'WAITING' ? 'REGULAR' : 'WAITING'
     const isMock = checkIsMock()
     if (isMock) {
@@ -98,6 +105,10 @@ export default function MembersPage() {
 
   // 2. 부상 면제 토글 핸들러
   const handleToggleExempted = async (memberId: string, currentExempted: boolean) => {
+    if (!profile || (profile.role !== 'ADMIN' && !profile.can_edit_admin)) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     const isMock = checkIsMock()
     if (isMock) {
       mockStore.updateMemberExempted(memberId, !currentExempted)
@@ -118,6 +129,10 @@ export default function MembersPage() {
 
   // 3. 계정 활성화 토글 핸들러
   const handleToggleActive = async (memberId: string, currentActive: boolean) => {
+    if (!profile || (profile.role !== 'ADMIN' && !profile.can_edit_admin)) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
     const isMock = checkIsMock()
     if (isMock) {
       mockStore.updateMemberActive(memberId, !currentActive)
@@ -138,9 +153,9 @@ export default function MembersPage() {
 
   if (!profile) return null
 
-  // 활성 장소 및 기록 필터링: 선택된 종목(10K/Half/Full) 기록이 있는 회원만 소팅
+  // 활성 장소 및 기록 필터링: 선택된 종목(10K/Half/Full) 기록이 있고 show_pb가 true인 회원만 소팅
   const rankedMembers = members
-    .filter(m => m.is_active && m.pbs && m.pbs[activeCategory])
+    .filter(m => m.is_active && (m.show_pb ?? true) && m.pbs && m.pbs[activeCategory])
     .map(m => ({
       ...m,
       pbTime: m.pbs[activeCategory] as string
@@ -165,8 +180,8 @@ export default function MembersPage() {
         </span>
       </header>
 
-      {/* 👑 A. ADMIN 전용 회원 승인 & 상태 제어 보드 */}
-      {profile.role === 'ADMIN' && (
+      {/* 👑 A. ADMIN/운영진 전용 회원 승인 & 상태 제어 보드 */}
+      {(profile.role === 'ADMIN' || profile.can_view_admin) && (
         <section className="bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 mb-6 shadow-sm z-10 relative overflow-hidden">
           <div className="absolute top-[-30%] left-[-20%] w-[120px] h-[120px] bg-blue-500/5 rounded-full blur-[30px]" />
           
@@ -177,7 +192,7 @@ export default function MembersPage() {
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#2563EB] animate-pulse" />
               <h2 className="text-xs font-black tracking-widest text-[#2563EB] uppercase">
-                어드민 전용 크루 권한 제어판
+                운영진 전용 크루 권한 제어판
               </h2>
             </div>
             <span className="text-[10px] text-[#2563EB] font-black">{isAdminPanelOpen ? '접기 ▲' : '열기 ▼'}</span>
@@ -186,7 +201,7 @@ export default function MembersPage() {
           {isAdminPanelOpen && (
             <div className="mt-4 space-y-3.5 border-t border-slate-200 pt-4">
               <p className="text-[10px] text-slate-500 leading-relaxed">
-                운영자 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 직접 통제할 수 있습니다.
+                운영진 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 관리할 수 있습니다. {! (profile.role === 'ADMIN' || profile.can_edit_admin) && <span className="text-rose-600 font-extrabold">(현재 조회 전용 권한입니다)</span>}
               </p>
 
               {members.map(m => {
@@ -222,11 +237,14 @@ export default function MembersPage() {
                       <div className="grid grid-cols-3 gap-2">
                         {/* 승인 토글 */}
                         <button
+                          disabled={!(profile.role === 'ADMIN' || profile.can_edit_admin)}
                           onClick={() => handleToggleRole(m.id, m.role)}
-                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border cursor-pointer transition-all duration-200 ${
-                            m.role === 'WAITING'
-                              ? 'bg-[#2563EB] text-white border-[#2563EB] hover:bg-[#2563EB]/90 shadow-[0_0_10px_rgba(37,99,235,0.15)]'
-                              : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300'
+                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
+                            !(profile.role === 'ADMIN' || profile.can_edit_admin)
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                              : 'cursor-pointer ' + (m.role === 'WAITING'
+                                  ? 'bg-[#2563EB] text-white border-[#2563EB] hover:bg-[#2563EB]/90 shadow-[0_0_10px_rgba(37,99,235,0.15)]'
+                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
                           }`}
                         >
                           {m.role === 'WAITING' ? '👍 가입승인' : '⏳ 대기전환'}
@@ -234,11 +252,14 @@ export default function MembersPage() {
 
                         {/* 부상면제 토글 */}
                         <button
+                          disabled={!(profile.role === 'ADMIN' || profile.can_edit_admin)}
                           onClick={() => handleToggleExempted(m.id, m.is_exempted)}
-                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border cursor-pointer transition-all duration-200 ${
-                            m.is_exempted
-                              ? 'bg-cyan-50 text-cyan-600 border-cyan-200'
-                              : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300'
+                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
+                            !(profile.role === 'ADMIN' || profile.can_edit_admin)
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                              : 'cursor-pointer ' + (m.is_exempted
+                                  ? 'bg-cyan-50 text-cyan-600 border-cyan-200'
+                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
                           }`}
                         >
                           {m.is_exempted ? '🩹 면제해제' : '🩹 부상면제'}
@@ -246,11 +267,14 @@ export default function MembersPage() {
 
                         {/* 강퇴/활성 토글 */}
                         <button
+                          disabled={!(profile.role === 'ADMIN' || profile.can_edit_admin)}
                           onClick={() => handleToggleActive(m.id, m.is_active)}
-                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border cursor-pointer transition-all duration-200 ${
-                            !m.is_active
-                              ? 'bg-rose-50 text-rose-600 border-rose-200'
-                              : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300'
+                          className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
+                            !(profile.role === 'ADMIN' || profile.can_edit_admin)
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                              : 'cursor-pointer ' + (!m.is_active
+                                  ? 'bg-rose-50 text-rose-600 border-rose-200'
+                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
                           }`}
                         >
                           {m.is_active ? '🚫 회원정지' : '✅ 정지해제'}
