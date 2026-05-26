@@ -111,13 +111,25 @@ export default function LoginPage() {
           </form>
 
           {/* 개발자 체험 모드 강제 활성화 버튼 */}
-          {!isMock && (
+          {!isMock ? (
             <button
               onClick={handleForceMockLogin}
               disabled={loading}
               className="mt-3 w-full h-11 bg-slate-50 border border-slate-200 hover:border-slate-350 hover:text-slate-800 text-slate-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer disabled:opacity-50"
             >
               개발자 체험 모드(Mock)로 시작하기
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                document.cookie = "src_mock=; path=/; max-age=0"
+                localStorage.removeItem('src_is_logged_in')
+                window.location.reload()
+              }}
+              disabled={loading}
+              className="mt-3 w-full h-11 bg-rose-50 border border-rose-250 hover:border-rose-350 text-rose-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer"
+            >
+              실제 서비스 모드(카카오 로그인)로 돌아가기
             </button>
           )}
 
