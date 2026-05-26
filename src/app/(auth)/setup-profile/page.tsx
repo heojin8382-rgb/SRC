@@ -64,10 +64,13 @@ export default function SetupProfilePage() {
 
     try {
       const res = await setupProfile(formData)
-      if (res && !res.success) {
+      if (res && res.success) {
+        window.location.href = '/'
+      } else if (res && !res.success) {
         setError(res.error || '프로필 저장에 실패했습니다.')
       }
-    } catch {
+    } catch (e) {
+      console.error(e)
       setError('예기치 못한 오류가 발생했습니다.')
     } finally {
       setPending(false)

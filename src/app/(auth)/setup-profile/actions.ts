@@ -35,32 +35,70 @@ export async function setupProfile(formData: FormData) {
   const shortYear = birthYear.toString().slice(-2)
   const nickname = `${realName}/${shortYear}/${gender}`
 
-  // profiles 테이블 업데이트
-  const { error } = await supabase
+  // profiles 존재 여부 및 최초 가입자 여부 확인 (셀프 힐링 및 유연성 확보)
+  const { data: existingProfile } = await supabase
     .from('profiles')
-    .update({
-      real_name: realName,
-      birth_year: birthYear,
-      gender: gender,
-      nickname: nickname,
-      is_onboarded: true,
-      // 최초 가입자 트리거에 의해 어드민 지정이 되지 않은 일반 유저는 WAITING 상태로 머물게 됨
-    })
+    .select('id')
     .eq('id', user.id)
+    .maybeSingle()
+
+  let error = null
+
+  if (existingProfile) {
+    // 이미 존재하는 경우 업데이트
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        real_name: realName,
+        birth_year: birthYear,
+        gender: gender,
+        nickname: nickname,
+        is_onboarded: true,
+      })
+      .eq('id', user.id)
+    error = updateError
+  } else {
+    // 프로필이 없는 경우 생성 (예: 트리거 미작동 대응)
+    const kakaoId = user.user_metadata?.sub || 
+                    user.app_metadata?.provider_ids?.[0] || 
+                    user.id
+
+    // 가입된 전체 프로필 수 조회하여 첫 번째 가입자면 ADMIN 지정
+    const { count } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+    
+    const assignedRole = (count === 0) ? 'ADMIN' : 'WAITING'
+
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        kakao_id: String(kakaoId),
+        real_name: realName,
+        birth_year: birthYear,
+        gender: gender,
+        nickname: nickname,
+        is_onboarded: true,
+        role: assignedRole,
+        is_active: true,
+        is_exempted: false,
+      })
+    error = insertError
+  }
 
   if (error) {
-    console.error('Onboarding profile update failed:', error)
+    console.error('Onboarding profile save failed:', error)
     return { success: false, error: '프로필 저장 중 서버 오류가 발생했습니다.' }
   }
 
   // 사전 등록 데이터 머지 진행 (RPC 호출)
-  const { data: merged, error: rpcError } = await supabase
+  const { error: rpcError } = await supabase
     .rpc('merge_preseeded_profile', { new_user_id: user.id, user_nickname: nickname })
 
   if (rpcError) {
     console.error('Pre-seeded profile merge failed:', rpcError)
   }
 
-  // 성공 시 대시보드로 이동 (대기 상태 회원은 미들웨어가 자동으로 /waiting 으로 보냄)
-  redirect('/')
+  return { success: true }
 }
