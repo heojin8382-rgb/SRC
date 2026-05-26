@@ -34,6 +34,7 @@ CREATE TABLE public.profiles (
     is_onboarded BOOLEAN DEFAULT FALSE NOT NULL,       -- 첫 로그인 후 실명/출생년도/성별 입력 완료 여부
     can_view_admin BOOLEAN DEFAULT FALSE NOT NULL,     -- 어드민 전용창 조회 권한
     can_edit_admin BOOLEAN DEFAULT FALSE NOT NULL,     -- 어드민 전용창 수정 권한
+    show_pb BOOLEAN DEFAULT TRUE NOT NULL,             -- 마라톤 PB 공개 여부
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
