@@ -210,35 +210,15 @@ export default function ProfilePage() {
     reader.readAsDataURL(file)
   }
 
-  // 회원 프로필 정보 수정 완료 핸들러
+  // 회원 프로필 정보 수정 완료 핸들러 (이름/나이/성별 수정 불가, 프로필 사진만 수정 가능)
   const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!profile) return
     setErrorMsg(null)
     setSuccessMsg(null)
 
-    if (!editName.trim()) {
-      setErrorMsg('이름(실명)을 입력해 주세요.')
-      return
-    }
-    if (!editBirthYear) {
-      setErrorMsg('출생년도를 선택해 주세요.')
-      return
-    }
-    if (!editGender) {
-      setErrorMsg('성별을 선택해 주세요.')
-      return
-    }
-
-    const shortYear = editBirthYear.slice(-2)
-    const nextNickname = `${editName.trim()}/${shortYear}/${editGender}`
-
     const updatedProfile = {
       ...profile,
-      real_name: editName.trim(),
-      birth_year: parseInt(editBirthYear, 10),
-      gender: editGender,
-      nickname: nextNickname,
       avatar_url: editAvatarUrl.trim()
     }
 
@@ -246,7 +226,7 @@ export default function ProfilePage() {
       const isMockMode = checkIsMock()
       if (isMockMode) {
         mockStore.saveProfile(updatedProfile)
-        setSuccessMsg('회원 프로필 정보가 안전하게 변경되었습니다! ⚙️')
+        setSuccessMsg('프로필 이미지가 안전하게 변경되었습니다! ⚙️')
         setTimeout(() => setSuccessMsg(null), 3000)
         setIsEditing(false)
         loadData()
@@ -255,10 +235,6 @@ export default function ProfilePage() {
         const { error } = await supabase
           .from('profiles')
           .update({
-            real_name: editName.trim(),
-            birth_year: parseInt(editBirthYear, 10),
-            gender: editGender,
-            nickname: nextNickname,
             avatar_url: editAvatarUrl.trim()
           })
           .eq('id', profile.id)
@@ -266,7 +242,7 @@ export default function ProfilePage() {
         if (error) {
           setErrorMsg('서버 프로필 수정에 실패했습니다.')
         } else {
-          setSuccessMsg('회원 프로필 정보가 안전하게 변경되었습니다! ⚙️')
+          setSuccessMsg('프로필 이미지가 안전하게 변경되었습니다! ⚙️')
           setTimeout(() => setSuccessMsg(null), 3000)
           setIsEditing(false)
           loadData()
@@ -453,27 +429,32 @@ export default function ProfilePage() {
               />
             </div>
 
-            {/* 실명 입력 */}
+            {/* 고유 식별 정보 변경 불가 안내 */}
+            <div className="p-3.5 bg-amber-50 border border-amber-200/80 text-amber-800 text-[10px] rounded-2xl font-bold leading-relaxed shadow-sm">
+              ⚠️ 이름, 나이, 성별 정보는 최초 가입 시 기입되는 카카오 계정 고유 정보로 가입 후 임의 변경이 불가합니다. 개명 등의 사유로 수정이 필요하신 경우 최고 관리자에게 문의바랍니다.
+            </div>
+
+            {/* 실명 입력 (비활성화) */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-700 block">이름 (실명)</label>
+              <label className="text-[10px] font-bold text-slate-400 block">이름 (실명)</label>
               <input
                 type="text"
                 placeholder="예: 홍길동"
                 maxLength={10}
                 value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] rounded-xl px-3 text-xs outline-none text-slate-800 font-semibold"
+                disabled
+                className="w-full h-11 bg-slate-100 border border-slate-200 rounded-xl px-3 text-xs outline-none text-slate-400 font-semibold cursor-not-allowed"
               />
             </div>
 
-            {/* 출생년도 및 성별 */}
+            {/* 출생년도 및 성별 (비활성화) */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-700 block">출생년도</label>
+                <label className="text-[10px] font-bold text-slate-400 block">출생년도</label>
                 <select
                   value={editBirthYear}
-                  onChange={(e) => setEditBirthYear(e.target.value)}
-                  className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] rounded-xl px-2 text-xs outline-none text-slate-800 font-semibold cursor-pointer"
+                  disabled
+                  className="w-full h-11 bg-slate-100 border border-slate-200 rounded-xl px-2 text-xs outline-none text-slate-400 font-semibold cursor-not-allowed appearance-none"
                 >
                   <option value="">년도 선택</option>
                   {Array.from({ length: 66 }, (_, i) => 2015 - i).map((year) => (
@@ -483,26 +464,26 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-700 block">성별</label>
+                <label className="text-[10px] font-bold text-slate-400 block">성별</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setEditGender('남')}
-                    className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    disabled
+                    className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-not-allowed ${
                       editGender === '남'
-                        ? 'border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]'
-                        : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-slate-350'
+                        ? 'border-slate-350 bg-slate-100 text-slate-400 font-black'
+                        : 'border-slate-150 bg-slate-50/30 text-slate-300'
                     }`}
                   >
                     남성
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditGender('여')}
-                    className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    disabled
+                    className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-not-allowed ${
                       editGender === '여'
-                        ? 'border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]'
-                        : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-slate-350'
+                        ? 'border-slate-350 bg-slate-100 text-slate-400 font-black'
+                        : 'border-slate-150 bg-slate-50/30 text-slate-300'
                     }`}
                   >
                     여성
