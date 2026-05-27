@@ -191,7 +191,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {profile.role === 'ADMIN' && (
+        {(profile.role === 'ADMIN' || profile.can_view_admin) && (
           <Link
             href="/admin"
             className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shadow-sm hover:scale-105 active:scale-95 transition-all text-slate-500 hover:text-slate-800 cursor-pointer"

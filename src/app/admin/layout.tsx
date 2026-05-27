@@ -24,7 +24,7 @@ export default function AdminLayout({
       
       if (isMock) {
         const profile = mockStore.getProfile()
-        if (profile.role !== 'ADMIN') {
+        if (profile.role !== 'ADMIN' && !profile.can_view_admin) {
           router.replace('/')
         } else {
           setAuthorized(true)
@@ -40,11 +40,11 @@ export default function AdminLayout({
 
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, can_view_admin')
           .eq('id', user.id)
           .single()
 
-        if (!profile || profile.role !== 'ADMIN') {
+        if (!profile || (profile.role !== 'ADMIN' && !profile.can_view_admin)) {
           router.replace('/')
         } else {
           setAuthorized(true)
