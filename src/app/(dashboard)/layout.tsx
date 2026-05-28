@@ -74,9 +74,9 @@ export default async function DashboardLayout({
         - PC 웹 브라우저에서도 최대 가로 폭 480px(max-w-md)로 모바일 앱 기기 형태로 중앙에 렌더링함
       */}
       <div className="w-full max-w-md bg-background border-x border-slate-200/80 min-h-screen pb-24 relative flex flex-col shadow-[0_8px_50px_rgba(15,23,42,0.06)] z-10">
-        {/* Unified Nike Run Club Style Premium Blue Header */}
-        <header className="bg-[#2563EB] py-5 px-6 border-b border-blue-700 flex items-center justify-center shrink-0">
-          <img src="/logo.png" alt="SRC Logo" className="h-14 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
+        {/* Unified Nike Run Club Style Premium Light Blue Header */}
+        <header className="bg-[#38BDF8] py-3 px-6 border-b border-[#0EA5E9] flex items-center justify-center shrink-0">
+          <img src="/logo.png" alt="SRC Logo" className="h-20 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
         </header>
 
         {children}
