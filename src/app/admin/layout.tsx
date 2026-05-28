@@ -101,9 +101,9 @@ export default function AdminLayout({
 
       {/* 모바일 퍼스트 쉘 */}
       <div className="w-full max-w-md bg-background border-x border-slate-200/80 min-h-screen pb-10 relative flex flex-col shadow-[0_8px_50px_rgba(15,23,42,0.06)] z-10">
-        {/* Unified Nike Run Club Style Premium Black Header */}
-        <header className="bg-black py-5 px-6 border-b border-zinc-900 flex items-center justify-center shrink-0">
-          <img src="/logo.png" alt="SRC Logo" className="h-14 w-auto object-contain" />
+        {/* Unified Nike Run Club Style Premium Blue Header */}
+        <header className="bg-[#2563EB] py-5 px-6 border-b border-blue-700 flex items-center justify-center shrink-0">
+          <img src="/logo.png" alt="SRC Logo" className="h-14 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
         </header>
 
         {/* 어드민 상단 헤더 */}
