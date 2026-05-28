@@ -348,12 +348,7 @@ export default function ProfilePage() {
   return (
     <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       
-      {/* 프리미엄 로고 헤더 */}
-      <div className="flex justify-center mb-6 pt-2">
-        <div className="bg-black py-2.5 px-6 rounded-2xl border border-slate-800 shadow-md flex items-center justify-center">
-          <img src="/logo.png" alt="SRC Logo" className="h-6 w-auto object-contain" />
-        </div>
-      </div>
+
 
       {/* 타이틀 헤더 */}
       <header className="flex items-center justify-between mb-6 z-10 relative">

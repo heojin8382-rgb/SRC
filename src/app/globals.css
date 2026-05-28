@@ -21,6 +21,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Nike Grid Background Pattern */
+.nike-grid-bg {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
 /* Custom Micro-Animations for UI/UX Detailing */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
