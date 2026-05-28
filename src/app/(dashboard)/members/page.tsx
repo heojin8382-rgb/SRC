@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { mockStore, Profile, Member } from '@/lib/mockStore'
+import { mockStore, Profile, Member, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Shield } from 'lucide-react'
+import { Trophy, Shield, Award } from 'lucide-react'
+import { getBadgesForUser } from '@/lib/utils/badges'
 
 type Category = '10K' | 'Half' | 'Full'
 
@@ -12,6 +13,10 @@ export default function MembersPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [members, setMembers] = useState<Member[]>([])
   const [activeCategory, setActiveCategory] = useState<Category>('10K')
+  
+  // All records list to calculate badges
+  const [allRecords, setAllRecords] = useState<RunningRecord[]>([])
+  const [hasPbsMap, setHasPbsMap] = useState<Record<string, boolean>>({})
 
   // 어드민 제어판 관리 전용 아코디언 상태
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false)
@@ -25,6 +30,14 @@ export default function MembersPage() {
     if (isMock) {
       setProfile(mockStore.getProfile())
       setMembers(mockStore.getMembers())
+      setAllRecords(mockStore.getRunningRecords())
+
+      // Mock PBs mapping
+      const pbsMapping: Record<string, boolean> = {}
+      mockStore.getMembers().forEach(m => {
+        pbsMapping[m.id] = Object.keys(m.pbs || {}).length > 0
+      })
+      setHasPbsMap(pbsMapping)
     } else {
       const supabase = createClient()
       
@@ -50,12 +63,39 @@ export default function MembersPage() {
         .from('marathon_pbs')
         .select('*')
 
+      // Fetch all running records to calculate badges
+      const { data: recordsList } = await supabase
+        .from('running_records')
+        .select('user_id, distance, is_pacer')
+
+      const formattedRecords: RunningRecord[] = (recordsList || []).map((r: any) => ({
+        id: '',
+        user_id: r.user_id,
+        user_nickname: '',
+        user_avatar: '',
+        distance: Number(r.distance),
+        location_id: '',
+        location_name: '',
+        date: '',
+        type: 'PERSONAL',
+        is_pacer: r.is_pacer
+      }))
+      setAllRecords(formattedRecords)
+
       // Map profiles and their PBs
       const pbsByUserId = (pbsList || []).reduce<Record<string, Record<string, string>>>((acc, pb: any) => {
         if (!acc[pb.user_id]) acc[pb.user_id] = {}
         acc[pb.user_id][pb.category] = pb.record_time
         return acc;
       }, {})
+
+      const pbsMapping: Record<string, boolean> = {}
+      if (pbsList) {
+        pbsList.forEach((pb: any) => {
+          pbsMapping[pb.user_id] = true
+        })
+      }
+      setHasPbsMap(pbsMapping)
 
       const mappedMembers: Member[] = (profilesList || []).map((p: any) => ({
         id: p.id,
@@ -164,16 +204,20 @@ export default function MembersPage() {
     .sort((a, b) => a.pbTime.localeCompare(b.pbTime))
 
   return (
-    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none">
-      {/* 배경 은은한 광원 효과 */}
-      <div className="absolute top-[-10%] left-[-15%] w-[70%] h-[40%] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[-15%] w-[60%] h-[45%] bg-emerald-500/3 rounded-full blur-[100px] pointer-events-none" />
+    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
+      
+      {/* 프리미엄 로고 헤더 */}
+      <div className="flex justify-center mb-6 pt-2">
+        <div className="bg-black py-2.5 px-6 rounded-2xl border border-slate-800 shadow-md flex items-center justify-center">
+          <img src="/logo.png" alt="SRC Logo" className="h-6 w-auto object-contain" />
+        </div>
+      </div>
 
       {/* 타이틀 헤더 */}
       <header className="flex items-center justify-between mb-6 z-10 relative">
         <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-[#2563EB] animate-pulse" />
-          <h1 className="text-base font-black tracking-tight text-slate-900">크루원 PB 보드</h1>
+          <Trophy className="w-5 h-5 text-[#2563EB]" />
+          <h1 className="text-base font-black tracking-tight text-slate-800">크루원 PB 보드</h1>
         </div>
         <span className="text-[9px] text-slate-500 font-extrabold tracking-widest uppercase">
           Personal Best
@@ -182,15 +226,13 @@ export default function MembersPage() {
 
       {/* 👑 A. ADMIN/운영진 전용 회원 승인 & 상태 제어 보드 */}
       {(profile.role === 'ADMIN' || profile.can_view_admin) && (
-        <section className="bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 mb-6 shadow-sm z-10 relative overflow-hidden">
-          <div className="absolute top-[-30%] left-[-20%] w-[120px] h-[120px] bg-blue-500/5 rounded-full blur-[30px]" />
-          
+        <section className="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative overflow-hidden">
           <button
             onClick={() => setIsAdminPanelOpen(!isAdminPanelOpen)}
             className="w-full flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#2563EB] animate-pulse" />
+              <Shield className="w-4 h-4 text-[#2563EB]" />
               <h2 className="text-xs font-black tracking-widest text-[#2563EB] uppercase">
                 운영진 전용 크루 권한 제어판
               </h2>
@@ -200,7 +242,7 @@ export default function MembersPage() {
 
           {isAdminPanelOpen && (
             <div className="mt-4 space-y-3.5 border-t border-slate-200 pt-4">
-              <p className="text-[10px] text-slate-500 leading-relaxed">
+              <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
                 운영진 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 관리할 수 있습니다. {! (profile.role === 'ADMIN' || profile.can_edit_admin) && <span className="text-rose-600 font-extrabold">(현재 조회 전용 권한입니다)</span>}
               </p>
 
@@ -210,7 +252,7 @@ export default function MembersPage() {
                 return (
                   <div 
                     key={m.id} 
-                    className="p-3.5 bg-slate-50/50 border border-slate-200/60 rounded-2xl flex flex-col gap-3 shadow-inner"
+                    className="p-3.5 bg-white border border-slate-200 rounded-2xl flex flex-col gap-3 shadow-sm"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
@@ -243,8 +285,8 @@ export default function MembersPage() {
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
                               ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (m.role === 'WAITING'
-                                  ? 'bg-[#2563EB] text-white border-[#2563EB] hover:bg-[#2563EB]/90 shadow-[0_0_10px_rgba(37,99,235,0.15)]'
-                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
+                                  ? 'bg-[#2563EB] text-white border-[#2563EB] hover:bg-[#2563EB]/90 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.role === 'WAITING' ? '👍 가입승인' : '⏳ 대기전환'}
@@ -258,8 +300,8 @@ export default function MembersPage() {
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
                               ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (m.is_exempted
-                                  ? 'bg-cyan-50 text-cyan-600 border-cyan-200'
-                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
+                                  ? 'bg-cyan-50 text-cyan-650 border-cyan-250 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.is_exempted ? '🩹 면제해제' : '🩹 부상면제'}
@@ -273,8 +315,8 @@ export default function MembersPage() {
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
                               ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (!m.is_active
-                                  ? 'bg-rose-50 text-rose-600 border-rose-200'
-                                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-300')
+                                  ? 'bg-rose-50 text-rose-650 border-rose-250 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.is_active ? '🚫 회원정지' : '✅ 정지해제'}
@@ -316,66 +358,86 @@ export default function MembersPage() {
         </div>
 
         {rankedMembers.length === 0 ? (
-          <div className="flex-1 min-h-[220px] bg-white/80 border border-slate-200/50 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
-            <span className="text-sm">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
-            <span className="text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-wider">Update PB in my profile page</span>
+          <div className="flex-1 min-h-[220px] bg-slate-50 border border-slate-250 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
+            <span className="text-xs font-black text-slate-600">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
+            <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {rankedMembers.map((m, index) => {
               const rank = index + 1
               
               // 상위 3인 메달 데코레이션 스타일
               const rankDecor: Record<number, { label: string; bg: string; text: string; border: string }> = {
-                1: { label: '🥇 1st', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200' },
-                2: { label: '🥈 2nd', bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200' },
-                3: { label: '🥉 3rd', bg: 'bg-amber-100/50', text: 'text-amber-700', border: 'border-amber-200' },
+                1: { label: '🥇 1st', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-250' },
+                2: { label: '🥈 2nd', bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-250' },
+                3: { label: '🥉 3rd', bg: 'bg-amber-50/70', text: 'text-amber-700', border: 'border-amber-200' },
               }
 
               const decor = rankDecor[rank]
 
+              // Calculate runner badges dynamically
+              const runnerRecords = allRecords.filter(r => r.user_id === m.id)
+              const runnerBadges = getBadgesForUser(runnerRecords, hasPbsMap[m.id] || false)
+
               return (
                 <div
                   key={m.id}
-                  className={`bg-white/85 backdrop-blur-md border rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all duration-300 hover:bg-white/95 ${
-                    decor ? `border-2 ${decor.border} shadow-[0_0_15px_rgba(251,191,36,0.06)]` : 'border-slate-200/60'
+                  className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm transition-all duration-300 hover:bg-slate-50/30 ${
+                    decor ? `border-2 ${decor.border} shadow-sm` : 'border-slate-200'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    {/* 순위 마킹 */}
-                    <div className="w-11 flex items-center justify-center shrink-0">
-                      {decor ? (
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${decor.bg} ${decor.text} border ${decor.border}`}>
-                          {decor.label}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-black text-slate-400">{rank}위</span>
-                      )}
-                    </div>
-
-                    {/* 아바타 */}
-                    {m.avatar_url ? (
-                      <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner">👤</div>
-                    )}
-
-                    {/* 이름 & 역할 및 페이서 풍선 */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-black text-slate-900">{m.nickname}</span>
-                        {/* 페이서 전용 🎈 표시 */}
-                        {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
-                        {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* 순위 마킹 */}
+                      <div className="w-11 flex items-center justify-center shrink-0">
+                        {decor ? (
+                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${decor.bg} ${decor.text} border ${decor.border}`}>
+                            {decor.label}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-black text-slate-400">{rank}위</span>
+                        )}
                       </div>
-                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{activeCategory} 최고 기록</span>
+
+                      {/* 아바타 */}
+                      {m.avatar_url ? (
+                        <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner shrink-0">👤</div>
+                      )}
+
+                      {/* 이름 & 역할 및 페이서 풍선 */}
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-black text-slate-900">{m.nickname}</span>
+                          {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
+                          {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
+                        </div>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{activeCategory} 최고 기록</span>
+                      </div>
                     </div>
+
+                    {/* PB 타임 레코드 */}
+                    <span className="text-xs font-black tracking-wider text-[#2563EB] bg-blue-50 border border-blue-100 px-3.5 py-1 rounded-xl">
+                      {m.pbTime}
+                    </span>
                   </div>
 
-                  {/* PB 타임 레코드 */}
-                  <span className="text-xs font-black tracking-wider text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-3.5 py-1 rounded-xl">
-                    {m.pbTime}
-                  </span>
+                  {/* Runner's Badges Grid inside card */}
+                  {runnerBadges.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pl-14">
+                      {runnerBadges.map(badge => (
+                        <span 
+                          key={badge.id}
+                          className="inline-block text-[8px] font-black px-1.5 py-0.2 rounded bg-slate-50 border border-slate-200 text-slate-655"
+                          title={badge.name}
+                        >
+                          {badge.emoji} {badge.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             })}

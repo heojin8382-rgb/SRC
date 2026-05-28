@@ -39,10 +39,10 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-[#A5C9FF] via-[#E2EAF8] to-[#7CB0FF] text-slate-900 flex justify-center w-full relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-tr from-[#F8FAFC] via-[#E2E8F0] to-[#F8FAFC] text-slate-900 flex justify-center w-full relative overflow-hidden">
       {/* Ambient background glows */}
-      <div className="absolute top-[-10%] left-[-20%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none animate-pulseGlow" />
-      <div className="absolute bottom-[-10%] right-[-20%] w-[500px] h-[500px] bg-emerald-500/4 rounded-full blur-[120px] pointer-events-none animate-pulseGlow" />
+      <div className="absolute top-[-10%] left-[-20%] w-[500px] h-[500px] bg-blue-500/3 rounded-full blur-[120px] pointer-events-none animate-pulseGlow" />
+      <div className="absolute bottom-[-10%] right-[-20%] w-[500px] h-[500px] bg-emerald-500/2 rounded-full blur-[120px] pointer-events-none animate-pulseGlow" />
 
       {/* 
         모바일 퍼스트 쉘 (Mobile-First Shell)

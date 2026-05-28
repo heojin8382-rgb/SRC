@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { mockStore, Profile, Location } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft } from 'lucide-react'
+import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft, Camera, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export default function RecordPage() {
@@ -19,6 +19,8 @@ export default function RecordPage() {
   const [date, setDate] = useState('')
   const [type, setType] = useState<'PERSONAL' | 'REGULAR'>('PERSONAL')
   const [isPacer, setIsPacer] = useState(false)
+  const [proofImageFile, setProofImageFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
 
   // 검증 및 통신 상태값
   const [error, setError] = useState<string | null>(null)
@@ -135,15 +137,15 @@ export default function RecordPage() {
 
     const isMock = checkIsMock()
     if (isMock) {
-      setTimeout(() => {
-        // mockStore에 기록 삽입
+      const saveRecord = (imageUrl?: string) => {
         mockStore.addRunningRecord({
           distance: finalDistance,
           location_id: selectedLoc.id,
           location_name: selectedLoc.name,
           date: date,
           type: type,
-          is_pacer: type === 'REGULAR' ? isPacer : false
+          is_pacer: type === 'REGULAR' ? isPacer : false,
+          proof_image_url: imageUrl || ''
         })
 
         setPending(false)
@@ -153,10 +155,43 @@ export default function RecordPage() {
         setTimeout(() => {
           router.push('/')
         }, 1000)
-      }, 800)
+      }
+
+      if (proofImageFile) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          saveRecord(reader.result as string)
+        }
+        reader.readAsDataURL(proofImageFile)
+      } else {
+        saveRecord()
+      }
     } else {
       try {
         const supabase = createClient()
+        let uploadedUrl = ''
+
+        if (proofImageFile) {
+          const fileExt = proofImageFile.name.split('.').pop()
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+          const filePath = `${profile.id}/${fileName}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('running-proofs')
+            .upload(filePath, proofImageFile, {
+              cacheControl: '3600',
+              upsert: false
+            })
+
+          if (uploadError) throw uploadError
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('running-proofs')
+            .getPublicUrl(filePath)
+          
+          uploadedUrl = publicUrl
+        }
+
         const { error: dbError } = await supabase
           .from('running_records')
           .insert([{
@@ -166,7 +201,8 @@ export default function RecordPage() {
             location_name: selectedLoc.name,
             date: date,
             type: type,
-            is_pacer: type === 'REGULAR' ? isPacer : false
+            is_pacer: type === 'REGULAR' ? isPacer : false,
+            proof_image_url: uploadedUrl
           }])
         if (dbError) throw dbError
 
@@ -354,6 +390,57 @@ export default function RecordPage() {
                 </button>
               </div>
             )}
+
+            {/* 6. 러닝 인증샷 첨부 */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+                러닝 기록 인증 사진 (선택)
+              </label>
+              
+              {previewUrl ? (
+                <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-50 p-2 flex flex-col items-center">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full max-h-48 object-contain rounded-xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProofImageFile(null)
+                      setPreviewUrl('')
+                    }}
+                    className="mt-2 text-[10px] font-black text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100 cursor-pointer"
+                  >
+                    사진 삭제
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/25 transition-all duration-300">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400">
+                    <Camera className="w-6 h-6 mb-2 text-slate-400" />
+                    <p className="text-[10px] font-black tracking-wide">러닝 인증 화면 캡처 또는 운동 사진 업로드</p>
+                    <p className="text-[8px] text-slate-400 mt-1 uppercase font-black tracking-widest">PNG, JPG up to 5MB</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0]
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('사진 크기는 5MB 이하여야 합니다.')
+                          return
+                        }
+                        setProofImageFile(file)
+                        setPreviewUrl(URL.createObjectURL(file))
+                      }
+                    }}
+                  />
+                </label>
+              )}
+            </div>
 
             {/* 에러 피드백 */}
             {error && (

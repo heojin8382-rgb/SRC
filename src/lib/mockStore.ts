@@ -27,6 +27,16 @@ export interface RunningRecord {
   date: string // YYYY-MM-DD
   type: 'PERSONAL' | 'REGULAR'
   is_pacer: boolean
+  proof_image_url?: string
+  likes?: string[] // user_ids of users who liked
+  comments?: {
+    id: string
+    user_id: string
+    user_nickname: string
+    user_avatar: string
+    comment_text: string
+    created_at: string
+  }[]
 }
 
 export interface Location {
@@ -260,8 +270,13 @@ export const mockStore = {
 
   // 3. 러닝 기록 관리
   getRunningRecords(): RunningRecord[] {
-    // 내 기록과 타인 시드 기록을 병합하여 로드
-    const myRecords = getStorageItem<RunningRecord[]>('src_my_records', [
+    if (typeof window === 'undefined') return [];
+    const initialized = localStorage.getItem('src_running_records_all_v2')
+    if (initialized) {
+      return getStorageItem<RunningRecord[]>('src_running_records_all_v2', [])
+    }
+
+    const myRecords = [
       {
         id: 'my-rec-1',
         user_id: 'mock-current-user',
@@ -272,7 +287,9 @@ export const mockStore = {
         location_name: '광교호수공원',
         date: '2026-05-12',
         type: 'PERSONAL',
-        is_pacer: false
+        is_pacer: false,
+        likes: [],
+        comments: []
       },
       {
         id: 'my-rec-2',
@@ -284,32 +301,103 @@ export const mockStore = {
         location_name: '수원종합운동장',
         date: '2026-05-15',
         type: 'REGULAR',
-        is_pacer: false
+        is_pacer: false,
+        likes: [],
+        comments: []
       }
-    ])
-    return [...myRecords, ...DEFAULT_RECORDS].sort((a, b) => b.date.localeCompare(a.date))
+    ] as RunningRecord[]
+
+    const seedRecords = DEFAULT_RECORDS.map(rec => ({
+      ...rec,
+      likes: [],
+      comments: []
+    })) as RunningRecord[]
+
+    const all = [...myRecords, ...seedRecords].sort((a, b) => b.date.localeCompare(a.date))
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', all)
+    return all
   },
 
-  addRunningRecord(record: Omit<RunningRecord, 'id' | 'user_id' | 'user_nickname' | 'user_avatar'>): RunningRecord {
+  addRunningRecord(record: Omit<RunningRecord, 'id' | 'user_id' | 'user_nickname' | 'user_avatar' | 'likes' | 'comments'>): RunningRecord {
     const profile = this.getProfile()
-    const myRecords = getStorageItem<RunningRecord[]>('src_my_records', [])
+    const allRecords = this.getRunningRecords()
     
     const newRecord: RunningRecord = {
       ...record,
       id: `rec-${Date.now()}`,
       user_id: profile.id,
       user_nickname: profile.nickname,
-      user_avatar: profile.avatar_url
+      user_avatar: profile.avatar_url,
+      likes: [],
+      comments: []
     }
 
-    setStorageItem<RunningRecord[]>('src_my_records', [newRecord, ...myRecords])
+    const updated = [newRecord, ...allRecords]
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
     return newRecord
   },
 
   deleteRunningRecord(id: string): void {
-    const myRecords = getStorageItem<RunningRecord[]>('src_my_records', [])
-    const filtered = myRecords.filter(rec => rec.id !== id)
-    setStorageItem<RunningRecord[]>('src_my_records', filtered)
+    const allRecords = this.getRunningRecords()
+    const filtered = allRecords.filter(rec => rec.id !== id)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', filtered)
+  },
+
+  toggleLikeRunningRecord(recordId: string, userId: string): void {
+    const allRecords = this.getRunningRecords()
+    const updated = allRecords.map(rec => {
+      if (rec.id === recordId) {
+        const currentLikes = rec.likes || []
+        const hasLiked = currentLikes.includes(userId)
+        return {
+          ...rec,
+          likes: hasLiked ? currentLikes.filter(id => id !== userId) : [...currentLikes, userId]
+        }
+      }
+      return rec
+    })
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+  },
+
+  addCommentToRunningRecord(recordId: string, userId: string, text: string): void {
+    const allRecords = this.getRunningRecords()
+    const members = this.getMembers()
+    const commenter = members.find(m => m.id === userId) || this.getProfile()
+
+    const updated = allRecords.map(rec => {
+      if (rec.id === recordId) {
+        const currentComments = rec.comments || []
+        const newComment = {
+          id: `cmt-${Date.now()}`,
+          user_id: userId,
+          user_nickname: commenter.nickname,
+          user_avatar: commenter.avatar_url,
+          comment_text: text,
+          created_at: new Date().toISOString()
+        }
+        return {
+          ...rec,
+          comments: [...currentComments, newComment]
+        }
+      }
+      return rec
+    })
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+  },
+
+  deleteCommentFromRunningRecord(recordId: string, commentId: string): void {
+    const allRecords = this.getRunningRecords()
+    const updated = allRecords.map(rec => {
+      if (rec.id === recordId) {
+        const currentComments = rec.comments || []
+        return {
+          ...rec,
+          comments: currentComments.filter(c => c.id !== commentId)
+        }
+      }
+      return rec
+    })
+    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
   },
 
   // 4. 내 마라톤 PB 관리
