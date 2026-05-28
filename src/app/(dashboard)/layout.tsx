@@ -42,26 +42,26 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-[#050505] text-slate-900 flex justify-center w-full relative overflow-hidden nike-grid-bg">
       {/* Dynamic Island style background typography for desktop */}
       <div className="hidden lg:flex fixed left-[8%] top-1/2 -translate-y-1/2 flex-col gap-1 pointer-events-none select-none z-0">
-        <span className="text-[110px] font-black text-zinc-900/30 uppercase tracking-tighter leading-none select-none">
+        <span className="text-[90px] font-black text-zinc-900/10 uppercase tracking-tighter leading-none select-none">
           SUWON
         </span>
-        <span className="text-[110px] font-black text-[#84CC16]/95 uppercase tracking-tighter leading-none select-none drop-shadow-[0_0_30px_rgba(132,204,22,0.15)]">
+        <span className="text-[90px] font-black text-[#84CC16]/25 uppercase tracking-tighter leading-none select-none">
           RUNNING
         </span>
-        <span className="text-[110px] font-black text-zinc-900/30 uppercase tracking-tighter leading-none select-none">
+        <span className="text-[90px] font-black text-zinc-900/10 uppercase tracking-tighter leading-none select-none">
           CREW
         </span>
       </div>
 
       <div className="hidden lg:flex fixed right-[8%] top-1/2 -translate-y-1/2 flex-col gap-1 pointer-events-none select-none z-0 text-right">
-        <span className="text-[110px] font-black text-zinc-900/30 uppercase tracking-tighter leading-none select-none">
+        <span className="text-[90px] font-black text-zinc-900/10 uppercase tracking-tighter leading-none select-none">
           RUN
         </span>
-        <span className="text-[110px] font-black text-zinc-900/30 uppercase tracking-tighter leading-none select-none">
-          OR
+        <span className="text-[90px] font-black text-[#84CC16]/25 uppercase tracking-tighter leading-none select-none">
+          TOGETHER
         </span>
-        <span className="text-[110px] font-black text-[#84CC16]/95 uppercase tracking-tighter leading-none select-none drop-shadow-[0_0_30px_rgba(132,204,22,0.15)]">
-          DIE
+        <span className="text-[90px] font-black text-zinc-900/10 uppercase tracking-tighter leading-none select-none">
+          GROW
         </span>
       </div>
 
