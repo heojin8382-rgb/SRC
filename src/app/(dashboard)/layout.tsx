@@ -75,8 +75,17 @@ export default async function DashboardLayout({
       */}
       <div className="w-full max-w-md bg-background border-x border-slate-200/80 min-h-screen pb-24 relative flex flex-col shadow-[0_8px_50px_rgba(15,23,42,0.06)] z-10">
         {/* Unified Nike Run Club Style Premium Light Blue Header */}
-        <header className="bg-[#38BDF8] py-3 px-6 border-b border-[#0EA5E9] flex items-center justify-center shrink-0">
-          <img src="/logo.png" alt="SRC Logo" className="h-20 w-auto object-contain" style={{ mixBlendMode: 'screen' }} />
+        <header className="bg-[#38BDF8] py-4 px-6 border-b border-[#0EA5E9] flex items-center justify-center shrink-0 overflow-hidden">
+          <img 
+            src="/logo.png" 
+            alt="SRC Logo" 
+            className="h-20 w-auto object-contain" 
+            style={{ 
+              mixBlendMode: 'screen',
+              transform: 'scale(2.3)',
+              filter: 'brightness(1.35) contrast(1.15)'
+            }} 
+          />
         </header>
 
         {children}
