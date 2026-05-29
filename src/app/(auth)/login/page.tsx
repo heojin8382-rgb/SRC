@@ -9,10 +9,19 @@ import { Flame } from 'lucide-react'
 export default function LoginPage() {
   const [isMock, setIsMock] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showDevButton, setShowDevButton] = useState(false)
 
   useEffect(() => {
     // 환경변수 및 쿠키 감지를 통해 브라우저에서 Mock 모드 식별
     setIsMock(checkIsMock())
+    
+    // Only show dev bypass options in local development or via ?dev=true query parameter
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const isDevEnv = process.env.NODE_ENV === 'development'
+      const hasDevParam = params.get('dev') === 'true'
+      setShowDevButton(isDevEnv || hasDevParam)
+    }
   }, [])
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -111,26 +120,28 @@ export default function LoginPage() {
           </form>
 
           {/* 개발자 체험 모드 강제 활성화 버튼 */}
-          {!isMock ? (
-            <button
-              onClick={handleForceMockLogin}
-              disabled={loading}
-              className="mt-3 w-full h-11 bg-slate-50 border border-slate-200 hover:border-slate-350 hover:text-slate-800 text-slate-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer disabled:opacity-50"
-            >
-              개발자 체험 모드(Mock)로 시작하기
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                document.cookie = "src_mock=; path=/; max-age=0"
-                localStorage.removeItem('src_is_logged_in')
-                window.location.reload()
-              }}
-              disabled={loading}
-              className="mt-3 w-full h-11 bg-rose-50 border border-rose-250 hover:border-rose-350 text-rose-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer"
-            >
-              실제 서비스 모드(카카오 로그인)로 돌아가기
-            </button>
+          {(showDevButton || isMock) && (
+            !isMock ? (
+              <button
+                onClick={handleForceMockLogin}
+                disabled={loading}
+                className="mt-3 w-full h-11 bg-slate-50 border border-slate-200 hover:border-slate-350 hover:text-slate-800 text-slate-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer disabled:opacity-50"
+              >
+                개발자 체험 모드(Mock)로 시작하기
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  document.cookie = "src_mock=; path=/; max-age=0"
+                  localStorage.removeItem('src_is_logged_in')
+                  window.location.reload()
+                }}
+                disabled={loading}
+                className="mt-3 w-full h-11 bg-rose-50 border border-rose-250 hover:border-rose-350 text-rose-600 text-[10px] font-bold tracking-wider rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer"
+              >
+                실제 서비스 모드(카카오 로그인)로 돌아가기
+              </button>
+            )
           )}
 
           <div className="mt-7 flex items-center gap-2">
