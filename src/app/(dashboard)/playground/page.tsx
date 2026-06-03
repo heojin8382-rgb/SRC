@@ -30,7 +30,13 @@ const RANDOM_MISSIONS: Mission[] = [
   { id: 'm5', category: 'POSE', title: '발도장 도장깨기 📸', text: '달리기 직후 크루원들과 둥글게 모여 러닝화 앞코를 맞대고 항공샷 발도장 사진을 찍어 업로드하세요!', difficulty: '쉬움' },
   { id: 'm6', category: 'PACE', title: '제로 페이스 맞추기 ⏱️', text: '오늘 내 평균 페이스의 초 단위를 0으로 끝내보세요. (예: 평균 페이스 5분 40초, 6분 10초 등)', difficulty: '어려움' },
   { id: 'm7', category: 'POSE', title: '볼트 세레머니 ⚡', text: '러닝 인증 사진으로 양손을 대각선 하늘로 찌르는 번개 볼트 세레머니 포즈를 취하고 사진을 찍으세요!', difficulty: '쉬움' },
-  { id: 'm8', category: 'DISTANCE', title: '삼각 런 📐', text: 'GPS 맵 상에 깔끔한 삼각형 모양이 그려지도록 경로를 설계해서 달리고 인증샷을 올려보세요.', difficulty: '어려움' }
+  { id: 'm8', category: 'DISTANCE', title: '삼각 런 📐', text: 'GPS 맵 상에 깔끔한 삼각형 모양이 그려지도록 경로를 설계해서 달리고 인증샷을 올려보세요.', difficulty: '어려움' },
+  { id: 'm9', category: 'POSE', title: '반사 거울 단체 샷 🪞', text: '오늘 러닝 중 코스에 있는 도로 반사 거울(볼록거울 등)을 발견하면, 크루원들과 다 함께 거울 셀카를 찍고 인증하세요!', difficulty: '쉬움' },
+  { id: 'm10', category: 'POSE', title: '그림자 워리어 👤', text: '가로등 불빛이나 노을을 등지고 크루원들과 길게 늘어선 그림자 단체 샷을 찍어 인증하세요!', difficulty: '쉬움' },
+  { id: 'm11', category: 'POSE', title: '공중 부양 점프 샷 🤸‍♀️', text: '러닝 코스의 랜드마크 앞에서 크루원 모두가 공중에 떠 있는 타이밍을 맞춰 단체 점프 샷을 촬영하세요!', difficulty: '보통' },
+  { id: 'm12', category: 'POSE', title: '물약 충전! 포션 건배 🥤', text: '달리기가 끝난 뒤 시원한 음료수나 스포츠 음료 병을 모아 중앙에서 짠! 하는 건배 샷을 찍고 인증하세요!', difficulty: '쉬움' },
+  { id: 'm13', category: 'DISTANCE', title: '러키 세븐 런 7️⃣', text: '오늘 최종 러닝 거리를 소수점 둘째 자리까지 정확하게 7.77km로 완성하고 스크린샷을 업로드하세요.', difficulty: '어려움' },
+  { id: 'm14', category: 'DISTANCE', title: '생일 축하 런 🎂', text: '오늘 달리는 거리의 소수점 이하 단위를 내 생일 일자로 맞춰서 완료하세요! (예: 15일생이면 5.15km, 7일생이면 6.07km)', difficulty: '보통' }
 ]
 
 export default function PlaygroundPage() {
