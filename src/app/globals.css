@@ -3,15 +3,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0B0F19; /* Deep Space Slate */
-  --foreground: #F8FAFC; /* Slate-50 */
+  --background: #FFFFFF; /* Pure White */
+  --foreground: #0F172A; /* Slate-900 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-brand-neon: #D4FF3F;
-  --color-brand-aqua: #06B6D4;
+  --color-brand-neon: #2563EB; /* Royal Blue */
+  --color-brand-aqua: #0EA5E9; /* Sky Blue */
   --font-sans: 'Outfit', 'SUIT', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
@@ -23,26 +23,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Glassmorphism Card Style */
+/* Glassmorphism Card Style - Light Mode */
 .glass-card {
-  background: rgba(17, 24, 39, 0.45);
+  background: #FFFFFF !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03) !important;
 }
 
-/* Nike Grid Background Pattern for Dark Mode */
+/* Nike Grid Background Pattern for Light Mode */
 .nike-grid-bg {
   background-size: 50px 50px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.02) 1px, transparent 1px) !important;
 }
 
-/* Hollow Text Stroke for Dark Mode */
+/* Hollow Text Stroke for Light Mode */
 .text-outline-white {
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.15);
-  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(15, 23, 42, 0.06) !important;
+  color: transparent !important;
 }
 
 /* Custom Micro-Animations for UI/UX Detailing */
@@ -204,4 +205,173 @@ body {
   animation: particleFade var(--duration, 0.8s) cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
   box-shadow: 0 0 8px currentColor;
 }
+
+/* ==================== Premium Light Theme Overrides ==================== */
+
+/* 1. Mobile Shell Container */
+div.w-full.max-w-md {
+  background: #F8FAFC !important; /* Soft slate/white container background */
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 10px 50px rgba(15, 23, 42, 0.04) !important;
+  color: #0F172A !important;
+}
+
+/* 2. Text Colors Override inside container */
+div.w-full.max-w-md .text-white,
+div.w-full.max-w-md h1.text-white,
+div.w-full.max-w-md h2.text-white,
+div.w-full.max-w-md h3.text-white,
+div.w-full.max-w-md span.text-white,
+div.w-full.max-w-md p.text-white,
+div.w-full.max-w-md strong.text-white {
+  color: #0F172A !important;
+}
+
+div.w-full.max-w-md .text-slate-400 {
+  color: #64748B !important; /* Slate-500 */
+}
+
+div.w-full.max-w-md .text-slate-500 {
+  color: #475569 !important; /* Slate-600 */
+}
+
+div.w-full.max-w-md .text-slate-550 {
+  color: #475569 !important;
+}
+
+/* 3. Brand Neon Button text readability */
+div.w-full.max-w-md .bg-brand-neon,
+div.w-full.max-w-md button.bg-brand-neon,
+div.w-full.max-w-md a.bg-brand-neon {
+  color: #FFFFFF !important;
+}
+
+div.w-full.max-w-md button.bg-brand-neon:hover {
+  background-color: #1D4ED8 !important;
+}
+
+/* 4. Navigation & Bottom Nav elements */
+div.w-full.max-w-md nav {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+}
+
+div.w-full.max-w-md nav button {
+  color: #475569 !important;
+}
+
+div.w-full.max-w-md nav button.bg-brand-neon {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+}
+
+div.w-full.max-w-md nav.fixed.bottom-0 {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.04) !important;
+}
+
+div.w-full.max-w-md nav.fixed.bottom-0 span {
+  color: #64748B !important;
+}
+
+div.w-full.max-w-md nav.fixed.bottom-0 span.text-brand-neon {
+  color: #2563EB !important;
+}
+
+/* 5. Headers & Logo Filter (Turn logo into blue on white background) */
+div.w-full.max-w-md header {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+div.w-full.max-w-md header img {
+  filter: brightness(0) saturate(100%) invert(21%) sepia(87%) saturate(2250%) hue-rotate(211deg) brightness(98%) contrast(96%) !important;
+  mix-blend-mode: normal !important;
+  transform: scale(1.6) !important; /* Elegant size on white background */
+}
+
+/* 6. Form Fields & Inputs */
+div.w-full.max-w-md input,
+div.w-full.max-w-md select,
+div.w-full.max-w-md textarea {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+div.w-full.max-w-md input::placeholder,
+div.w-full.max-w-md textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+div.w-full.max-w-md input:focus,
+div.w-full.max-w-md select:focus,
+div.w-full.max-w-md textarea:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* 7. Red/Rose Elements adjustment (e.g. Banned list) */
+div.w-full.max-w-md .bg-rose-950\/30,
+div.w-full.max-w-md .bg-rose-950\/40,
+div.w-full.max-w-md .bg-rose-955\/30,
+div.w-full.max-w-md .bg-rose-955\/40 {
+  background-color: #FFF1F2 !important;
+}
+
+div.w-full.max-w-md .text-rose-400,
+div.w-full.max-w-md .text-rose-455 {
+  color: #E11D48 !important;
+}
+
+div.w-full.max-w-md .border-rose-900\/30,
+div.w-full.max-w-md .border-rose-900\/50 {
+  border-color: #FECDD3 !important;
+}
+
+/* 8. Slogans & Background Watermarks */
+span.text-slate-100 {
+  color: #0F172A !important;
+  opacity: 0.06 !important;
+}
+
+span.text-brand-neon {
+  color: #2563EB !important;
+  opacity: 0.08 !important;
+  text-shadow: none !important;
+}
+
+div.w-full.max-w-md .text-brand-neon {
+  color: #2563EB !important;
+  opacity: 1 !important;
+}
+
+/* 9. Miscellaneous dark styling items cleanup */
+div.w-full.max-w-md .bg-slate-900,
+div.w-full.max-w-md .bg-slate-900\/40,
+div.w-full.max-w-md .bg-slate-950\/60,
+div.w-full.max-w-md .bg-slate-955\/40,
+div.w-full.max-w-md .bg-slate-955\/60 {
+  background-color: #FFFFFF !important; /* Set standard panels to white */
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* Exception for dark elements we want to keep dark but clear */
+div.w-full.max-w-md .border-white\/5,
+div.w-full.max-w-md .border-white\/10 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Fix for setup-profile specific background classes */
+main.bg-slate-950 {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Fix for loading spinner layout bg */
+.min-h-screen.bg-\[\#0B0F19\] {
+  background-color: #F8FAFC !important;
+}
+
 
