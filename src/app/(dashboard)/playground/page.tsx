@@ -39,9 +39,68 @@ const RANDOM_MISSIONS: Mission[] = [
   { id: 'm14', category: 'DISTANCE', title: '생일 축하 런 🎂', text: '오늘 달리는 거리의 소수점 이하 단위를 내 생일 일자로 맞춰서 완료하세요! (예: 15일생이면 5.15km, 7일생이면 6.07km)', difficulty: '보통' }
 ]
 
+const GACHA_ITEMS = [
+  {
+    id: 'g1',
+    name: '☕ 크루장과의 1:1 티타임 권',
+    grade: 'LEGENDARY',
+    desc: '커피와 케이크는 크루장 사비로 제공됩니다! 다음 벙 후 티타임을 가져보세요.',
+    emoji: '👑',
+    color: 'from-amber-400 to-yellow-500 text-yellow-950 border-yellow-300'
+  },
+  {
+    id: 'g2',
+    name: '🎈 원하는 페이서와 1:1 러닝권',
+    grade: 'EPIC',
+    desc: '내가 원하는 페이서와 단둘이 코스와 속도를 정해 1:1 맞춤 트레이닝 러닝을 뜁니다.',
+    emoji: '🎈',
+    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
+  },
+  {
+    id: 'g3',
+    name: '📸 크루 전담 작가의 인생샷 보정권',
+    grade: 'EPIC',
+    desc: '크루 공식 포토그래퍼가 당첨자의 러닝 사진 중 한 장을 A컷 화보급으로 정밀 보정해 드립니다.',
+    emoji: '📸',
+    color: 'from-pink-400 to-rose-500 text-rose-950 border-rose-300'
+  },
+  {
+    id: 'g4',
+    name: '🩹 부상 면제 생존권 (1주권)',
+    grade: 'RARE',
+    desc: '이번 주에 달리지 못하더라도 출석 생존 조건을 통과한 것으로 자동 면제 처리해 드립니다.',
+    emoji: '🩹',
+    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
+  },
+  {
+    id: 'g5',
+    name: '🍪 다음 정기 벙 간식 선택권',
+    grade: 'RARE',
+    desc: '다음 벙 종료 후 제공되는 보급 간식 메뉴(도넛, 바나나, 스포츠음료 등)의 브랜드를 내가 선택합니다.',
+    emoji: '🍪',
+    color: 'from-emerald-400 to-green-500 text-green-950 border-green-300'
+  },
+  {
+    id: 'g6',
+    name: '🙌 벙 집결지 하이파이브 환영대장 권',
+    grade: 'COMMON',
+    desc: '이색 당첨! 다음 정기 벙 집결지 입구에 서서 집결하는 모든 크루원들과 하이파이브를 하며 에너지를 나눠줍니다.',
+    emoji: '🙌',
+    color: 'from-slate-350 to-slate-500 text-slate-900 border-slate-300'
+  },
+  {
+    id: 'g7',
+    name: '🏃‍♂️ 아쉬운 꽝: 건강을 위해 100m 보너스 런',
+    grade: 'COMMON',
+    desc: '아쉽게도 꽝입니다! 하지만 러너답게 오늘 달리기 목표에서 100m 보너스를 더 달리고 인증해 볼까요?',
+    emoji: '👟',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  }
+]
+
 export default function PlaygroundPage() {
   const router = useRouter()
-  const [activeGame, setActiveGame] = useState<'roulette' | 'mission' | 'lottery'>('roulette')
+  const [activeGame, setActiveGame] = useState<'roulette' | 'mission' | 'lottery' | 'gacha'>('roulette')
   const [profile, setProfile] = useState<any>(null)
   const [members, setMembers] = useState<GameMember[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -69,6 +128,12 @@ export default function PlaygroundPage() {
   const [pacerPending, setPacerPending] = useState(false)
   const [pacerSuccess, setPacerSuccess] = useState(false)
 
+  // 4. Gacha States
+  const [points, setPoints] = useState<number>(300)
+  const [gachaSpinning, setGachaSpinning] = useState(false)
+  const [gachaResult, setGachaResult] = useState<any | null>(null)
+  const [gachaHistory, setGachaHistory] = useState<any[]>([])
+
   useEffect(() => {
     loadData()
     // Load active challenge from storage
@@ -76,6 +141,22 @@ export default function PlaygroundPage() {
     if (saved) {
       try {
         setActiveChallenge(JSON.parse(saved))
+      } catch (e) {}
+    }
+
+    // Load points & gacha history
+    const savedPoints = localStorage.getItem('src_user_points')
+    if (savedPoints) {
+      setPoints(Number(savedPoints))
+    } else {
+      localStorage.setItem('src_user_points', '300')
+      setPoints(300)
+    }
+
+    const savedHistory = localStorage.getItem('src_gacha_history')
+    if (savedHistory) {
+      try {
+        setGachaHistory(JSON.parse(savedHistory))
       } catch (e) {}
     }
   }, [])
@@ -390,6 +471,63 @@ export default function PlaygroundPage() {
     }
   }
 
+  // Gacha point logic
+  const handleEarnPoints = (amount: number) => {
+    const nextPoints = points + amount
+    setPoints(nextPoints)
+    localStorage.setItem('src_user_points', String(nextPoints))
+    triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2, 'fire')
+    alert(`🎉 미션 완료 보상으로 ${amount} 코인을 획득했습니다! 현재 코인: ${nextPoints}개`)
+  }
+
+  const handleDrawGacha = (e: React.MouseEvent) => {
+    if (gachaSpinning) return
+    if (points < 100) {
+      alert('코인이 부족합니다! 미션을 가상 완료하거나 러닝에 참여해 코인을 모아보세요.')
+      return
+    }
+
+    const nextPoints = points - 100
+    setPoints(nextPoints)
+    localStorage.setItem('src_user_points', String(nextPoints))
+
+    setGachaSpinning(true)
+    setGachaResult(null)
+    triggerReactionParticles(e.clientX, e.clientY, 'lightning')
+
+    setTimeout(() => {
+      const rand = Math.random() * 100
+      let chosen: any
+      if (rand < 5) {
+        chosen = GACHA_ITEMS[0] // 티타임
+      } else if (rand < 12) {
+        chosen = GACHA_ITEMS[1] // 페이서
+      } else if (rand < 20) {
+        chosen = GACHA_ITEMS[2] // 보정권
+      } else if (rand < 35) {
+        chosen = GACHA_ITEMS[3] // 면제권
+      } else if (rand < 50) {
+        chosen = GACHA_ITEMS[4] // 간식 선택
+      } else if (rand < 70) {
+        chosen = GACHA_ITEMS[5] // 하이파이브
+      } else {
+        chosen = GACHA_ITEMS[6] // 꽝
+      }
+
+      setGachaResult(chosen)
+      setGachaSpinning(false)
+
+      const newHistory = [{ ...chosen, timestamp: new Date().toLocaleTimeString('ko-KR') }, ...gachaHistory].slice(0, 10)
+      setGachaHistory(newHistory)
+      localStorage.setItem('src_gacha_history', JSON.stringify(newHistory))
+
+      if (chosen.grade === 'LEGENDARY' || chosen.grade === 'EPIC') {
+        triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2, 'fire')
+        triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2 - 50, 'clap')
+      }
+    }, 2000)
+  }
+
   const handleToggleSelect = (id: string) => {
     if (spinning || drawingLottery) return
     setSelectedIds(prev => 
@@ -427,9 +565,9 @@ export default function PlaygroundPage() {
       </header>
 
       {/* 2. 게임 선택 세그먼트 제어기 */}
-      <section className="bg-slate-100 border border-slate-200 p-1.5 rounded-2xl grid grid-cols-3 gap-1.5 mb-6 shadow-inner z-10 relative">
+      <section className="bg-slate-100 border border-slate-200 p-1.5 rounded-2xl grid grid-cols-4 gap-1.5 mb-6 shadow-inner z-10 relative">
         <button
-          disabled={spinning || drawingLottery}
+          disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('roulette')}
           className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
             activeGame === 'roulette'
@@ -440,7 +578,7 @@ export default function PlaygroundPage() {
           🥤 음료 룰렛
         </button>
         <button
-          disabled={spinning || drawingLottery}
+          disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('mission')}
           className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
             activeGame === 'mission'
@@ -451,7 +589,7 @@ export default function PlaygroundPage() {
           🏃‍♂️ 미션 뽑기
         </button>
         <button
-          disabled={spinning || drawingLottery}
+          disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('lottery')}
           className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
             activeGame === 'lottery'
@@ -460,6 +598,17 @@ export default function PlaygroundPage() {
           }`}
         >
           🎈 역할 추첨
+        </button>
+        <button
+          disabled={spinning || drawingLottery || gachaSpinning}
+          onClick={() => setActiveGame('gacha')}
+          className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+            activeGame === 'gacha'
+              ? 'bg-[#2563EB] text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-800 disabled:opacity-50'
+          }`}
+        >
+          🪙 코인 뽑기
         </button>
       </section>
 
@@ -725,8 +874,135 @@ export default function PlaygroundPage() {
             </div>
           )}
 
-          {/* ==================== C. 공통 설정 영역 (Game 1, 3에서만 노출) ==================== */}
-          {activeGame !== 'mission' && (
+          {/* ==================== GAME 4: 코인 뽑기방 (Gacha) ==================== */}
+          {activeGame === 'gacha' && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* 코인 지갑 HUD */}
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-3xl p-5 flex items-center justify-between shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center font-black text-xl text-white">
+                    🪙
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] text-amber-100 font-extrabold uppercase tracking-widest">My Crew Points</span>
+                    <h4 className="text-sm font-black text-white tracking-tight">보유 코인: {points} COIN</h4>
+                  </div>
+                </div>
+                
+                {/* 시뮬레이터 버튼 */}
+                <button
+                  type="button"
+                  onClick={() => handleEarnPoints(100)}
+                  className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
+                >
+                  ⚡ 가상 미션 완료 (+100)
+                </button>
+              </div>
+
+              {/* 캡슐 머신 본체 */}
+              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="text-center mb-4">
+                  <h3 className="text-xs font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
+                  <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 100 coins to spin for rare prizes</p>
+                </div>
+
+                {/* 캡슐 머신 그래픽 영역 */}
+                <div className="w-48 h-48 bg-white border border-slate-200 rounded-3xl relative flex flex-col items-center justify-center p-4 shadow-inner overflow-hidden">
+                  {gachaSpinning ? (
+                    <div className="flex flex-col items-center gap-3">
+                      {/* Bouncing capsules simulation */}
+                      <div className="flex gap-2.5 animate-bounce">
+                        <span className="text-3xl filter drop-shadow">🔴</span>
+                        <span className="text-3xl filter drop-shadow">🔵</span>
+                        <span className="text-3xl filter drop-shadow">🟡</span>
+                      </div>
+                      <span className="text-xs font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
+                    </div>
+                  ) : gachaResult ? (
+                    <div className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full">
+                      <div className="text-4xl filter drop-shadow animate-wiggle">🎁</div>
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
+                        gachaResult.grade === 'LEGENDARY'
+                          ? 'bg-amber-100 text-amber-700 border-amber-300'
+                          : gachaResult.grade === 'EPIC'
+                          ? 'bg-purple-100 text-purple-700 border-purple-300'
+                          : gachaResult.grade === 'RARE'
+                          ? 'bg-blue-100 text-blue-700 border-blue-300'
+                          : 'bg-slate-100 text-slate-500 border-slate-200'
+                      }`}>
+                        {gachaResult.grade}
+                      </span>
+                      
+                      <h4 className="text-xs font-black text-slate-800 tracking-tight leading-snug">
+                        {gachaResult.name}
+                      </h4>
+                      <p className="text-[9px] text-slate-500 leading-relaxed font-semibold px-2">
+                        {gachaResult.desc}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center flex flex-col gap-2 text-slate-400">
+                      <div className="text-4xl">🎪</div>
+                      <span className="text-[10px] font-bold">1회 뽑기당 100 코인이 사용됩니다.</span>
+                    </div>
+                  )}
+
+                  {/* 믹싱 실시간 발광 백그라운드 효과 */}
+                  {gachaSpinning && (
+                    <div className="absolute inset-0 bg-orange-500/5 backdrop-blur-[1px] animate-pulse" />
+                  )}
+                </div>
+
+                <button
+                  disabled={gachaSpinning || points < 100}
+                  onClick={(e) => handleDrawGacha(e)}
+                  className={`mt-6 w-44 h-11 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
+                    gachaSpinning
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : points < 100
+                      ? 'bg-slate-100 text-slate-350 border border-slate-200 cursor-not-allowed shadow-none'
+                      : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-850 active:scale-97 cursor-pointer hover:shadow-lg'
+                  }`}
+                >
+                  {gachaSpinning ? '추첨 중...' : '코인으로 뽑기 🎲'}
+                </button>
+              </section>
+
+              {/* 최근 뽑기 내역 */}
+              <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3.5">
+                <h3 className="text-xs font-black text-slate-800">📜 최근 당첨 내역 (최대 10개)</h3>
+                
+                {gachaHistory.length === 0 ? (
+                  <p className="text-[10px] text-slate-400 text-center py-4">아직 당첨 이력이 없습니다. 첫 뽑기를 완료하세요!</p>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {gachaHistory.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[10px] font-black text-slate-800">{item.name}</span>
+                          <span className="text-[8px] text-slate-400 font-medium">{item.timestamp} 당첨</span>
+                        </div>
+                        <span className={`text-[7px] font-black px-1.5 py-0.2 rounded border uppercase ${
+                          item.grade === 'LEGENDARY'
+                            ? 'bg-amber-100 text-amber-600 border-amber-250'
+                            : item.grade === 'EPIC'
+                            ? 'bg-purple-100 text-purple-600 border-purple-250'
+                            : item.grade === 'RARE'
+                            ? 'bg-blue-100 text-blue-600 border-blue-250'
+                            : item.grade === 'slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                          {item.grade}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
+
+          {/* ==================== C. 공통 설정 영역 (Game 1, 3, 4에서 가리기 위해 condition 수정) ==================== */}
+          {activeGame !== 'mission' && activeGame !== 'gacha' && (
             <>
               {activeGame === 'roulette' && (
                 <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
