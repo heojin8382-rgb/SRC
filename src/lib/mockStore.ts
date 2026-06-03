@@ -29,12 +29,6 @@ export interface RunningRecord {
   is_pacer: boolean
   proof_image_url?: string
   likes?: string[] // user_ids of users who liked
-  reactions?: {
-    '🔥'?: string[]
-    '⚡'?: string[]
-    '👏'?: string[]
-  }
-  created_at?: string
   comments?: {
     id: string
     user_id: string
@@ -295,8 +289,6 @@ export const mockStore = {
         type: 'PERSONAL',
         is_pacer: false,
         likes: [],
-        reactions: { '🔥': [], '⚡': [], '👏': [] },
-        created_at: '2026-05-12T05:30:00.000Z', // Early bird test (05:30 AM)
         comments: []
       },
       {
@@ -311,21 +303,13 @@ export const mockStore = {
         type: 'REGULAR',
         is_pacer: false,
         likes: [],
-        reactions: { '🔥': [], '⚡': [], '👏': [] },
-        created_at: '2026-05-15T22:15:00.000Z', // Night owl test (22:15 PM)
         comments: []
       }
     ] as RunningRecord[]
 
-    const seedRecords = DEFAULT_RECORDS.map((rec, idx) => ({
+    const seedRecords = DEFAULT_RECORDS.map(rec => ({
       ...rec,
       likes: [],
-      reactions: { '🔥': [], '⚡': [], '👏': [] },
-      created_at: idx === 0 
-        ? '2026-05-15T06:15:00.000Z'
-        : idx === 1
-        ? '2026-05-16T21:45:00.000Z'
-        : '2026-05-17T18:00:00.000Z',
       comments: []
     })) as RunningRecord[]
 
@@ -334,7 +318,7 @@ export const mockStore = {
     return all
   },
 
-  addRunningRecord(record: Omit<RunningRecord, 'id' | 'user_id' | 'user_nickname' | 'user_avatar' | 'likes' | 'reactions' | 'created_at' | 'comments'>): RunningRecord {
+  addRunningRecord(record: Omit<RunningRecord, 'id' | 'user_id' | 'user_nickname' | 'user_avatar' | 'likes' | 'comments'>): RunningRecord {
     const profile = this.getProfile()
     const allRecords = this.getRunningRecords()
     
@@ -345,8 +329,6 @@ export const mockStore = {
       user_nickname: profile.nickname,
       user_avatar: profile.avatar_url,
       likes: [],
-      reactions: { '🔥': [], '⚡': [], '👏': [] },
-      created_at: new Date().toISOString(),
       comments: []
     }
 
@@ -370,27 +352,6 @@ export const mockStore = {
         return {
           ...rec,
           likes: hasLiked ? currentLikes.filter(id => id !== userId) : [...currentLikes, userId]
-        }
-      }
-      return rec
-    })
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
-  },
-
-  toggleReactionRunningRecord(recordId: string, userId: string, emoji: '🔥' | '⚡' | '👏'): void {
-    const allRecords = this.getRunningRecords()
-    const updated = allRecords.map(rec => {
-      if (rec.id === recordId) {
-        const reactions = rec.reactions || { '🔥': [], '⚡': [], '👏': [] }
-        const emojiList = reactions[emoji] || []
-        const hasReacted = emojiList.includes(userId)
-        
-        return {
-          ...rec,
-          reactions: {
-            ...reactions,
-            [emoji]: hasReacted ? emojiList.filter(id => id !== userId) : [...emojiList, userId]
-          }
         }
       }
       return rec

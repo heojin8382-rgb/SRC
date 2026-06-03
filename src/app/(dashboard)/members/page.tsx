@@ -204,13 +204,15 @@ export default function MembersPage() {
     .sort((a, b) => a.pbTime.localeCompare(b.pbTime))
 
   return (
-    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-transparent">
+    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       
+
+
       {/* 타이틀 헤더 */}
       <header className="flex items-center justify-between mb-6 z-10 relative">
         <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-brand-neon" />
-          <h1 className="text-base font-black tracking-tight text-white">크루원 PB 보드</h1>
+          <Trophy className="w-5 h-5 text-[#2563EB]" />
+          <h1 className="text-base font-black tracking-tight text-slate-800">크루원 PB 보드</h1>
         </div>
         <span className="text-[9px] text-slate-500 font-extrabold tracking-widest uppercase">
           Personal Best
@@ -219,24 +221,24 @@ export default function MembersPage() {
 
       {/* 👑 A. ADMIN/운영진 전용 회원 승인 & 상태 제어 보드 */}
       {(profile.role === 'ADMIN' || profile.can_view_admin) && (
-        <section className="bg-slate-900/40 border border-white/5 rounded-3xl p-5 mb-6 shadow-md z-10 relative overflow-hidden">
+        <section className="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative overflow-hidden">
           <button
             onClick={() => setIsAdminPanelOpen(!isAdminPanelOpen)}
             className="w-full flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-brand-neon" />
-              <h2 className="text-xs font-black tracking-widest text-brand-neon uppercase">
+              <Shield className="w-4 h-4 text-[#2563EB]" />
+              <h2 className="text-xs font-black tracking-widest text-[#2563EB] uppercase">
                 운영진 전용 크루 권한 제어판
               </h2>
             </div>
-            <span className="text-[10px] text-brand-neon font-black">{isAdminPanelOpen ? '접기 ▲' : '열기 ▼'}</span>
+            <span className="text-[10px] text-[#2563EB] font-black">{isAdminPanelOpen ? '접기 ▲' : '열기 ▼'}</span>
           </button>
 
           {isAdminPanelOpen && (
-            <div className="mt-4 space-y-3.5 border-t border-white/5 pt-4">
-              <p className="text-[10px] text-slate-400 leading-relaxed font-semibold">
-                운영진 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 관리할 수 있습니다. {! (profile.role === 'ADMIN' || profile.can_edit_admin) && <span className="text-rose-455 font-extrabold">(현재 조회 전용 권한입니다)</span>}
+            <div className="mt-4 space-y-3.5 border-t border-slate-200 pt-4">
+              <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
+                운영진 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 관리할 수 있습니다. {! (profile.role === 'ADMIN' || profile.can_edit_admin) && <span className="text-rose-600 font-extrabold">(현재 조회 전용 권한입니다)</span>}
               </p>
 
               {members.map(m => {
@@ -245,24 +247,24 @@ export default function MembersPage() {
                 return (
                   <div 
                     key={m.id} 
-                    className="p-3.5 bg-slate-950/60 border border-white/5 rounded-2xl flex flex-col gap-3 shadow-sm"
+                    className="p-3.5 bg-white border border-slate-200 rounded-2xl flex flex-col gap-3 shadow-sm"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         {m.avatar_url ? (
-                          <img src={m.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-white/10" />
+                          <img src={m.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-slate-200" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-xs border border-white/10 text-slate-400">👤</div>
+                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs border border-slate-200">👤</div>
                         )}
                         <div className="flex flex-col">
-                          <span className="text-xs font-black text-white">{m.nickname} {isMe && '(나)'}</span>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">역할: {m.role} / 상태: {m.is_active ? '정상' : '정지'}</span>
+                          <span className="text-xs font-black text-slate-900">{m.nickname} {isMe && '(나)'}</span>
+                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">역할: {m.role} / 상태: {m.is_active ? '정상' : '정지'}</span>
                         </div>
                       </div>
 
                       {/* 면제 배지 */}
                       {m.is_exempted && (
-                        <span className="text-[8px] font-black tracking-wider bg-brand-aqua/10 text-brand-aqua border border-brand-aqua/20 px-2 py-0.5 rounded-full">
+                        <span className="text-[8px] font-black tracking-wider bg-cyan-50 text-cyan-600 border border-cyan-200 px-2 py-0.5 rounded-full">
                           🩹 면제
                         </span>
                       )}
@@ -276,10 +278,10 @@ export default function MembersPage() {
                           onClick={() => handleToggleRole(m.id, m.role)}
                           className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
-                              ? 'opacity-40 cursor-not-allowed bg-slate-900 text-slate-500 border-white/5'
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (m.role === 'WAITING'
-                                  ? 'bg-brand-neon text-slate-900 border-brand-neon hover:bg-brand-neon/90 shadow-sm'
-                                  : 'bg-slate-900 border-white/10 text-slate-350 hover:border-white/20 hover:text-white')
+                                  ? 'bg-[#2563EB] text-white border-[#2563EB] hover:bg-[#2563EB]/90 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.role === 'WAITING' ? '👍 가입승인' : '⏳ 대기전환'}
@@ -291,10 +293,10 @@ export default function MembersPage() {
                           onClick={() => handleToggleExempted(m.id, m.is_exempted)}
                           className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
-                              ? 'opacity-40 cursor-not-allowed bg-slate-900 text-slate-500 border-white/5'
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (m.is_exempted
-                                  ? 'bg-brand-aqua/10 text-brand-aqua border-brand-aqua/20 shadow-sm'
-                                  : 'bg-slate-900 border-white/10 text-slate-350 hover:border-white/20 hover:text-white')
+                                  ? 'bg-cyan-50 text-cyan-650 border-cyan-250 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.is_exempted ? '🩹 면제해제' : '🩹 부상면제'}
@@ -306,10 +308,10 @@ export default function MembersPage() {
                           onClick={() => handleToggleActive(m.id, m.is_active)}
                           className={`py-2 rounded-xl text-[9px] font-black tracking-wider uppercase border transition-all duration-200 ${
                             !(profile.role === 'ADMIN' || profile.can_edit_admin)
-                              ? 'opacity-40 cursor-not-allowed bg-slate-900 text-slate-500 border-white/5'
+                              ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                               : 'cursor-pointer ' + (!m.is_active
-                                  ? 'bg-rose-950/40 text-rose-400 border-rose-900/50 shadow-sm'
-                                  : 'bg-slate-900 border-white/10 text-slate-350 hover:border-white/20 hover:text-white')
+                                  ? 'bg-rose-50 text-rose-650 border-rose-250 shadow-sm'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-350')
                           }`}
                         >
                           {m.is_active ? '🚫 회원정지' : '✅ 정지해제'}
@@ -325,15 +327,15 @@ export default function MembersPage() {
       )}
 
       {/* 2. 카테고리 3대 종목 선택 세그먼트 */}
-      <section className="bg-slate-950/60 border border-white/5 p-1.5 rounded-2xl grid grid-cols-3 gap-1.5 mb-6 shadow-inner z-10 relative">
+      <section className="bg-slate-100 border border-slate-200 p-1.5 rounded-2xl grid grid-cols-3 gap-1.5 mb-6 shadow-inner z-10 relative">
         {(['10K', 'Half', 'Full'] as Category[]).map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`py-2.5 rounded-xl text-xs font-black tracking-widest transition-all duration-300 cursor-pointer ${
               activeCategory === cat
-                ? 'bg-brand-neon text-slate-900 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#2563EB] text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             {cat}
@@ -342,18 +344,18 @@ export default function MembersPage() {
       </section>
 
       {/* 3. 랭킹 순위 리스트 */}
-      <section className="flex-1 flex flex-col z-10 relative pb-10">
+      <section className="flex-1 flex flex-col z-10 relative">
         <div className="flex justify-between items-center mb-4">
-          <span className="text-[10px] text-slate-400 tracking-widest font-black uppercase">RANKING BOARD</span>
-          <span className="text-[9px] text-brand-aqua bg-brand-aqua/10 border border-brand-aqua/20 px-2.5 py-0.5 rounded-full font-black tracking-wider">
+          <span className="text-[10px] text-slate-500 tracking-widest font-black uppercase">RANKING BOARD</span>
+          <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
             기록 보유 {rankedMembers.length}명
           </span>
         </div>
 
         {rankedMembers.length === 0 ? (
-          <div className="flex-1 min-h-[220px] bg-slate-900/40 border border-white/5 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
-            <span className="text-xs font-black text-slate-400">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
-            <span className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
+          <div className="flex-1 min-h-[220px] bg-slate-50 border border-slate-250 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
+            <span className="text-xs font-black text-slate-600">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
+            <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
           </div>
         ) : (
           <div className="space-y-3.5">
@@ -362,9 +364,9 @@ export default function MembersPage() {
               
               // 상위 3인 메달 데코레이션 스타일
               const rankDecor: Record<number, { label: string; bg: string; text: string; border: string }> = {
-                1: { label: '🥇 1st', bg: 'bg-amber-955/40', text: 'text-amber-400', border: 'border-amber-900/50 shadow-[0_0_12px_rgba(245,158,11,0.15)]' },
-                2: { label: '🥈 2nd', bg: 'bg-slate-800/40', text: 'text-slate-300', border: 'border-slate-700/50 shadow-[0_0_12px_rgba(148,163,184,0.1)]' },
-                3: { label: '🥉 3rd', bg: 'bg-amber-900/20', text: 'text-amber-500', border: 'border-amber-900/30 shadow-[0_0_8px_rgba(245,158,11,0.08)]' },
+                1: { label: '🥇 1st', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-250' },
+                2: { label: '🥈 2nd', bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-250' },
+                3: { label: '🥉 3rd', bg: 'bg-amber-50/70', text: 'text-amber-700', border: 'border-amber-200' },
               }
 
               const decor = rankDecor[rank]
@@ -376,8 +378,8 @@ export default function MembersPage() {
               return (
                 <div
                   key={m.id}
-                  className={`glass-card rounded-2xl p-4 flex flex-col gap-2.5 shadow-md transition-all duration-300 hover:bg-slate-900/30 ${
-                    decor ? `border-2 ${decor.border}` : 'border-white/5'
+                  className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm transition-all duration-300 hover:bg-slate-50/30 ${
+                    decor ? `border-2 ${decor.border} shadow-sm` : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -389,21 +391,21 @@ export default function MembersPage() {
                             {decor.label}
                           </span>
                         ) : (
-                          <span className="text-[10px] font-black text-slate-500">{rank}위</span>
+                          <span className="text-[10px] font-black text-slate-400">{rank}위</span>
                         )}
                       </div>
 
                       {/* 아바타 */}
                       {m.avatar_url ? (
-                        <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+                        <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0" />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-xs text-slate-500 shadow-inner shrink-0">👤</div>
+                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner shrink-0">👤</div>
                       )}
 
                       {/* 이름 & 역할 및 페이서 풍선 */}
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-black text-white">{m.nickname}</span>
+                          <span className="text-xs font-black text-slate-900">{m.nickname}</span>
                           {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
                           {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
                         </div>
@@ -412,7 +414,7 @@ export default function MembersPage() {
                     </div>
 
                     {/* PB 타임 레코드 */}
-                    <span className="text-xs font-black tracking-wider text-brand-neon bg-brand-neon/10 border border-brand-neon/20 px-3.5 py-1 rounded-xl shadow-[0_0_8px_rgba(212,255,63,0.15)]">
+                    <span className="text-xs font-black tracking-wider text-[#2563EB] bg-blue-50 border border-blue-100 px-3.5 py-1 rounded-xl">
                       {m.pbTime}
                     </span>
                   </div>
@@ -423,7 +425,7 @@ export default function MembersPage() {
                       {runnerBadges.map(badge => (
                         <span 
                           key={badge.id}
-                          className="inline-block text-[8px] font-black px-1.5 py-0.2 rounded bg-slate-900 border border-white/5 text-slate-300"
+                          className="inline-block text-[8px] font-black px-1.5 py-0.2 rounded bg-slate-50 border border-slate-200 text-slate-655"
                           title={badge.name}
                         >
                           {badge.emoji} {badge.name}
