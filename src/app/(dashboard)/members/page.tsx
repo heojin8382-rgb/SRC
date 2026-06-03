@@ -21,6 +21,9 @@ export default function MembersPage() {
   // 어드민 제어판 관리 전용 아코디언 상태
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false)
 
+  // 랭킹보드 아코디언 상태
+  const [isRankingOpen, setIsRankingOpen] = useState(true)
+
   useEffect(() => {
     loadData()
   }, [])
@@ -346,13 +349,22 @@ export default function MembersPage() {
       {/* 3. 랭킹 순위 리스트 */}
       <section className="flex-1 flex flex-col z-10 relative">
         <div className="flex justify-between items-center mb-4">
-          <span className="text-[10px] text-slate-500 tracking-widest font-black uppercase">RANKING BOARD</span>
+          <button
+            onClick={() => setIsRankingOpen(!isRankingOpen)}
+            className="flex items-center gap-1.5 text-[10px] text-slate-550 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
+          >
+            <span>RANKING BOARD</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isRankingOpen ? '▲' : '▼'}
+            </span>
+          </button>
           <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
             기록 보유 {rankedMembers.length}명
           </span>
         </div>
 
-        {rankedMembers.length === 0 ? (
+        {isRankingOpen && (
+          rankedMembers.length === 0 ? (
           <div className="flex-1 min-h-[220px] bg-slate-50 border border-slate-250 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
             <span className="text-xs font-black text-slate-600">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
             <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
@@ -437,6 +449,7 @@ export default function MembersPage() {
               )
             })}
           </div>
+        )
         )}
       </section>
     </div>

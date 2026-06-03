@@ -74,6 +74,9 @@ export default function DashboardPage() {
   const [currentTipIdx, setCurrentTipIdx] = useState(0)
   const [tipFade, setTipFade] = useState(true)
 
+  // 피드 아코디언 상태
+  const [isFeedOpen, setIsFeedOpen] = useState(true)
+
   const handleShuffleTip = (e: React.MouseEvent<HTMLButtonElement>) => {
     setTipFade(false)
     triggerReactionParticles(e.clientX, e.clientY, 'clap')
@@ -679,15 +682,22 @@ export default function DashboardPage() {
       {/* 6. 실시간 크루 인증 피드 */}
       <section className="flex-1 flex flex-col select-none z-10 relative">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-[9px] font-black text-slate-550 tracking-widest uppercase">
-            실시간 크루 인증 피드
-          </span>
+          <button
+            onClick={() => setIsFeedOpen(!isFeedOpen)}
+            className="flex items-center gap-1.5 text-[9px] font-black text-slate-550 hover:text-slate-700 tracking-widest uppercase cursor-pointer"
+          >
+            <span>실시간 크루 인증 피드</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isFeedOpen ? '▲' : '▼'}
+            </span>
+          </button>
           <span className="text-[8px] text-blue-650 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full font-black tracking-wider">
             5월 총 {records.length}개
           </span>
         </div>
 
-        {records.length === 0 ? (
+        {isFeedOpen && (
+          records.length === 0 ? (
           <div className="flex-1 min-h-[180px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
             <span className="text-xs font-bold text-slate-500">📪 이번 달 등록된 러닝 기록이 없습니다.</span>
             <span className="text-[8px] text-slate-400 mt-1.5 uppercase font-black tracking-widest">Start the first run today</span>
@@ -911,6 +921,7 @@ export default function DashboardPage() {
               )
             })}
           </div>
+        )
         )}
       </section>
     </div>

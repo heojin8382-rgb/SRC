@@ -45,6 +45,9 @@ export default function ProfilePage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  // 아코디언 접기/펼치기 상태
+  const [isRecordsOpen, setIsRecordsOpen] = useState(true)
+
   useEffect(() => {
     loadData()
   }, [])
@@ -736,13 +739,22 @@ export default function ProfilePage() {
       {/* 4. 내 기록 리스트 히스토리 피드 */}
       <section className="flex-1 flex flex-col z-10 relative select-none pb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-[10px] text-slate-500 tracking-widest font-black uppercase">내 러닝 활동 기록</span>
+          <button
+            onClick={() => setIsRecordsOpen(!isRecordsOpen)}
+            className="flex items-center gap-1.5 text-[10px] text-slate-500 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
+          >
+            <span>내 러닝 활동 기록</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isRecordsOpen ? '▲' : '▼'}
+            </span>
+          </button>
           <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
             {myRecords.length}회
           </span>
         </div>
 
-        {myRecords.length === 0 ? (
+        {isRecordsOpen && (
+          myRecords.length === 0 ? (
           <div className="flex-1 min-h-[160px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
             <span className="text-xs font-black text-slate-600">📪 이번 달 등록하신 내 활동 이력이 없습니다.</span>
             <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Register your runs on dashboard</span>
@@ -794,6 +806,7 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
+        )
         )}
       </section>
     </div>
