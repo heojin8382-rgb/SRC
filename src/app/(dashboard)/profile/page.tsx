@@ -12,6 +12,19 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [myRecords, setMyRecords] = useState<RunningRecord[]>([])
   const [hasPbs, setHasPbs] = useState(false)
+  const [currentYearMonth, setCurrentYearMonth] = useState('2026-06')
+  const [currentMonthDisplay, setCurrentMonthDisplay] = useState('6월')
+  const [lastDayDisplay, setLastDayDisplay] = useState('30일')
+
+  useEffect(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = now.getMonth() + 1
+    setCurrentYearMonth(`${y}-${String(m).padStart(2, '0')}`)
+    setCurrentMonthDisplay(`${m}월`)
+    const lastDay = new Date(y, m, 0).getDate()
+    setLastDayDisplay(`${lastDay}일`)
+  }, [])
 
   const handleSignOut = async () => {
     if (confirm('로그아웃 하시겠습니까? 세션이 초기화되고 로그인 화면으로 이동합니다.')) {
@@ -289,8 +302,9 @@ export default function ProfilePage() {
   if (!profile) return null
 
   // 이번 달 누적 거리 및 출석일 통계 연산
-  const totalDistance = myRecords.reduce((acc, rec) => acc + rec.distance, 0)
-  const uniqueDates = Array.from(new Set(myRecords.map(rec => rec.date))).length
+  const currentMonthRecords = myRecords.filter(rec => rec.date.startsWith(currentYearMonth))
+  const totalDistance = currentMonthRecords.reduce((acc, rec) => acc + rec.distance, 0)
+  const uniqueDates = Array.from(new Set(currentMonthRecords.map(rec => rec.date))).length
 
   const roleLabels: Record<string, string> = {
     WAITING: '대기회원 ⏳',
@@ -315,13 +329,13 @@ export default function ProfilePage() {
 
   const maxChartDist = Math.max(...last7Days.map(d => d.distance), 1)
 
-  // 5월 한달간 누적 마라톤 성장 곡선 데이터 (가로축 날짜순 누적)
-  const mayRecordsSorted = [...myRecords]
-    .filter(r => r.date.startsWith('2026-05'))
+  // 이번 달 누적 마라톤 성장 곡선 데이터 (가로축 날짜순 누적)
+  const currentMonthRecordsSorted = [...myRecords]
+    .filter(r => r.date.startsWith(currentYearMonth))
     .sort((a, b) => a.date.localeCompare(b.date))
   
   let cumulativeSum = 0
-  const cumulativeData = mayRecordsSorted.map(r => {
+  const cumulativeData = currentMonthRecordsSorted.map(r => {
     cumulativeSum += r.distance
     return { date: r.date.slice(8), value: cumulativeSum }
   })
@@ -574,7 +588,7 @@ export default function ProfilePage() {
           >
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-blue-600" />
-              <span>5월 누적 마라톤 성장 곡선</span>
+              <span>{currentMonthDisplay} 누적 마라톤 성장 곡선</span>
             </div>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isGrowthCurveOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -625,9 +639,9 @@ export default function ProfilePage() {
               )}
             </svg>
             <div className="flex justify-between w-full text-[8px] font-black text-slate-400 mt-2 tracking-wider">
-              <span>5월 1일</span>
+              <span>{currentMonthDisplay} 1일</span>
               <span>누적 합계: {cumulativeSum.toFixed(1)} km</span>
-              <span>5월 31일</span>
+              <span>{currentMonthDisplay} {lastDayDisplay}</span>
             </div>
           </div>
         )}

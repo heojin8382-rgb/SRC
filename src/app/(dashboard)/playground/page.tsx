@@ -195,6 +195,16 @@ export default function PlaygroundPage() {
   const [useDistanceWeight, setUseDistanceWeight] = useState(true)
   const [loading, setLoading] = useState(true)
   const [gameSearchTerm, setGameSearchTerm] = useState('')
+  const [currentYearMonth, setCurrentYearMonth] = useState('2026-06')
+  const [currentMonthDisplay, setCurrentMonthDisplay] = useState('6월')
+
+  useEffect(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = now.getMonth() + 1
+    setCurrentYearMonth(`${y}-${String(m).padStart(2, '0')}`)
+    setCurrentMonthDisplay(`${m}월`)
+  }, [])
 
   // 1. Roulette States
   const [spinning, setSpinning] = useState(false)
@@ -250,6 +260,9 @@ export default function PlaygroundPage() {
 
   const loadData = async () => {
     setLoading(true)
+    const now = new Date()
+    const targetMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
     try {
       const isMock = checkIsMock()
       let userId: string | null = null
@@ -263,7 +276,7 @@ export default function PlaygroundPage() {
         
         const distMap: Record<string, number> = {}
         activeMembers.forEach(m => {
-          const myRecs = activeRecords.filter(r => r.user_id === m.id)
+          const myRecs = activeRecords.filter(r => r.user_id === m.id && r.date.startsWith(targetMonth))
           distMap[m.id] = myRecs.reduce((sum, r) => sum + r.distance, 0)
         })
         setMemberDistances(distMap)
@@ -289,12 +302,14 @@ export default function PlaygroundPage() {
 
         const { data: recordsList } = await supabase
           .from('running_records')
-          .select('user_id, distance')
+          .select('user_id, distance, date')
 
         const distMap: Record<string, number> = {}
         if (recordsList) {
           recordsList.forEach((r: any) => {
-            distMap[r.user_id] = (distMap[r.user_id] || 0) + Number(r.distance)
+            if (r.date && r.date.startsWith(targetMonth)) {
+              distMap[r.user_id] = (distMap[r.user_id] || 0) + Number(r.distance)
+            }
           })
         }
         setMemberDistances(distMap)
@@ -1259,7 +1274,7 @@ export default function PlaygroundPage() {
                             <div className="flex flex-col gap-0.5">
                               <span className="text-[10px] font-black text-slate-800">{m.nickname}</span>
                               <span className="text-[7.5px] text-slate-400 font-extrabold uppercase tracking-wide">
-                                5월: {dist.toFixed(1)}k
+                                {currentMonthDisplay}: {dist.toFixed(1)}k
                               </span>
                             </div>
                           </div>

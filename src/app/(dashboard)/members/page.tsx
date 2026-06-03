@@ -14,6 +14,14 @@ export default function MembersPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [members, setMembers] = useState<Member[]>([])
   const [activeCategory, setActiveCategory] = useState<Category>('10K')
+  const [currentYearMonth, setCurrentYearMonth] = useState('2026-06')
+
+  useEffect(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    setCurrentYearMonth(`${y}-${m}`)
+  }, [])
   
   // All records list to calculate badges
   const [allRecords, setAllRecords] = useState<RunningRecord[]>([])
@@ -401,7 +409,7 @@ export default function MembersPage() {
                           {/* 월간 생존 정보 배지 (운영자 전용 뷰어) */}
                           {(() => {
                             const memberRecords = allRecords.filter(r => r.user_id === m.id)
-                            const survival = calculateMonthlySurvival(memberRecords, m.is_exempted, '2026-05')
+                            const survival = calculateMonthlySurvival(memberRecords, m.is_exempted, currentYearMonth)
                             
                             return (
                               <div className="flex items-center gap-1.5 mt-1">
@@ -774,7 +782,7 @@ export default function MembersPage() {
                               
                               {/* 월간 생존 현황 미니 배지 */}
                               {(() => {
-                                const survival = calculateMonthlySurvival(runnerRecords, m.is_exempted, '2026-05')
+                                const survival = calculateMonthlySurvival(runnerRecords, m.is_exempted, currentYearMonth)
                                 return survival.exempted ? (
                                   <span className="text-[7px] font-black bg-cyan-50 text-cyan-650 border border-cyan-150 px-1 py-0.2 rounded" title="부상 면제">
                                     🩹 면제

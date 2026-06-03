@@ -22,8 +22,12 @@ export interface SurvivalStatus {
 export function calculateMonthlySurvival(
   userRecords: RunningRecord[],
   isExempted: boolean,
-  targetYearMonth: string = '2026-05'
+  targetYearMonth: string = ''
 ): SurvivalStatus {
+  if (!targetYearMonth) {
+    const d = new Date()
+    targetYearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  }
   // 1. 면제자(Exempted)는 무조건 생존 처리
   if (isExempted) {
     return {

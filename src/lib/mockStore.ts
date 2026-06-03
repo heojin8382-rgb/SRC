@@ -164,45 +164,55 @@ const DEFAULT_MEMBERS: Member[] = [
   }
 ]
 
-// 기본 인증 피드 시드 데이터 (2026년 5월 기준)
-const DEFAULT_RECORDS: RunningRecord[] = [
-  {
-    id: 'rec-1',
-    user_id: 'user-pacer',
-    user_nickname: '이페이서/98/남',
-    user_avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    distance: 5.2,
-    location_id: 'loc-1',
-    location_name: '광교호수공원',
-    date: '2026-05-15',
-    type: 'REGULAR',
-    is_pacer: true
-  },
-  {
-    id: 'rec-2',
-    user_id: 'user-regular1',
-    user_nickname: '박정회원/94/여',
-    user_avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    distance: 4.8,
-    location_id: 'loc-3',
-    location_name: '만석공원',
-    date: '2026-05-16',
-    type: 'PERSONAL',
-    is_pacer: false
-  },
-  {
-    id: 'rec-3',
-    user_id: 'user-admin1',
-    user_nickname: '황운영/88/남',
-    user_avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
-    distance: 10.0,
-    location_id: 'loc-2',
-    location_name: '수원종합운동장',
-    date: '2026-05-17',
-    type: 'REGULAR',
-    is_pacer: false
-  }
-]
+const getMockYearMonth = () => {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  return `${y}-${m}`
+}
+
+// 기본 인증 피드 시드 데이터 (동적 월 기준)
+const getDynamicDefaultRecords = (): RunningRecord[] => {
+  const ym = getMockYearMonth()
+  return [
+    {
+      id: 'rec-1',
+      user_id: 'user-pacer',
+      user_nickname: '이페이서/98/남',
+      user_avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+      distance: 5.2,
+      location_id: 'loc-1',
+      location_name: '광교호수공원',
+      date: `${ym}-15`,
+      type: 'REGULAR',
+      is_pacer: true
+    },
+    {
+      id: 'rec-2',
+      user_id: 'user-regular1',
+      user_nickname: '박정회원/94/여',
+      user_avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+      distance: 4.8,
+      location_id: 'loc-3',
+      location_name: '만석공원',
+      date: `${ym}-16`,
+      type: 'PERSONAL',
+      is_pacer: false
+    },
+    {
+      id: 'rec-3',
+      user_id: 'user-admin1',
+      user_nickname: '황운영/88/남',
+      user_avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
+      distance: 10.0,
+      location_id: 'loc-2',
+      location_name: '수원종합운동장',
+      date: `${ym}-17`,
+      type: 'REGULAR',
+      is_pacer: false
+    }
+  ]
+}
 
 // 로컬 스토리지 초기화 및 로드 함수
 function getStorageItem<T>(key: string, defaultValue: T): T {
@@ -271,11 +281,12 @@ export const mockStore = {
   // 3. 러닝 기록 관리
   getRunningRecords(): RunningRecord[] {
     if (typeof window === 'undefined') return [];
-    const initialized = localStorage.getItem('src_running_records_all_v2')
+    const initialized = localStorage.getItem('src_running_records_all_v3')
     if (initialized) {
-      return getStorageItem<RunningRecord[]>('src_running_records_all_v2', [])
+      return getStorageItem<RunningRecord[]>('src_running_records_all_v3', [])
     }
 
+    const ym = getMockYearMonth()
     const myRecords = [
       {
         id: 'my-rec-1',
@@ -285,7 +296,7 @@ export const mockStore = {
         distance: 5.5,
         location_id: 'loc-1',
         location_name: '광교호수공원',
-        date: '2026-05-12',
+        date: `${ym}-12`,
         type: 'PERSONAL',
         is_pacer: false,
         likes: [],
@@ -299,7 +310,7 @@ export const mockStore = {
         distance: 7.2,
         location_id: 'loc-2',
         location_name: '수원종합운동장',
-        date: '2026-05-15',
+        date: `${ym}-15`,
         type: 'REGULAR',
         is_pacer: false,
         likes: [],
@@ -307,14 +318,14 @@ export const mockStore = {
       }
     ] as RunningRecord[]
 
-    const seedRecords = DEFAULT_RECORDS.map(rec => ({
+    const seedRecords = getDynamicDefaultRecords().map(rec => ({
       ...rec,
       likes: [],
       comments: []
     })) as RunningRecord[]
 
     const all = [...myRecords, ...seedRecords].sort((a, b) => b.date.localeCompare(a.date))
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', all)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', all)
     return all
   },
 
@@ -333,14 +344,14 @@ export const mockStore = {
     }
 
     const updated = [newRecord, ...allRecords]
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', updated)
     return newRecord
   },
 
   deleteRunningRecord(id: string): void {
     const allRecords = this.getRunningRecords()
     const filtered = allRecords.filter(rec => rec.id !== id)
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', filtered)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', filtered)
   },
 
   toggleLikeRunningRecord(recordId: string, userId: string): void {
@@ -356,7 +367,7 @@ export const mockStore = {
       }
       return rec
     })
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', updated)
   },
 
   addCommentToRunningRecord(recordId: string, userId: string, text: string): void {
@@ -382,7 +393,7 @@ export const mockStore = {
       }
       return rec
     })
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', updated)
   },
 
   deleteCommentFromRunningRecord(recordId: string, commentId: string): void {
@@ -397,7 +408,7 @@ export const mockStore = {
       }
       return rec
     })
-    setStorageItem<RunningRecord[]>('src_running_records_all_v2', updated)
+    setStorageItem<RunningRecord[]>('src_running_records_all_v3', updated)
   },
 
   // 4. 내 마라톤 PB 관리

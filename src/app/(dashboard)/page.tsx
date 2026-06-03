@@ -63,6 +63,16 @@ export default function DashboardPage() {
   const [survival, setSurvival] = useState<SurvivalStatus | null>(null)
   const [isMock, setIsMock] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentYearMonth, setCurrentYearMonth] = useState('2026-06')
+  const [currentMonthDisplay, setCurrentMonthDisplay] = useState('6월')
+
+  useEffect(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = now.getMonth() + 1
+    setCurrentYearMonth(`${y}-${String(m).padStart(2, '0')}`)
+    setCurrentMonthDisplay(`${m}월`)
+  }, [])
 
   // Social Interaction states
   const [likes, setLikes] = useState<DBLike[]>([])
@@ -128,8 +138,12 @@ export default function DashboardPage() {
         const activeRecords = mockStore.getRunningRecords()
         
         // 내 기록만 필터링하여 생존 조건 연산 수행
+        const now = new Date()
+        const y = now.getFullYear()
+        const m = String(now.getMonth() + 1).padStart(2, '0')
+        const targetMonth = `${y}-${m}`
         const myRecords = activeRecords.filter(rec => rec.user_id === activeProfile.id)
-        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
+        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, targetMonth)
 
         setProfile(activeProfile)
         setRecords(activeRecords)
@@ -210,8 +224,13 @@ export default function DashboardPage() {
           })
         }
 
+        const now = new Date()
+        const y = now.getFullYear()
+        const m = String(now.getMonth() + 1).padStart(2, '0')
+        const dbTargetMonth = `${y}-${m}`
+
         const myRecords = formattedRecords.filter(rec => rec.user_id === activeProfile.id)
-        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, '2026-05')
+        const survivalCalc = calculateMonthlySurvival(myRecords, activeProfile.is_exempted, dbTargetMonth)
 
         setProfile(activeProfile as Profile)
         setRecords(formattedRecords)
@@ -499,7 +518,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase">Survival Status</span>
-                <h2 className="text-xs font-black tracking-wide text-slate-800">5월 생존 리포트</h2>
+                <h2 className="text-xs font-black tracking-wide text-slate-800">{currentMonthDisplay} 생존 리포트</h2>
               </div>
             </div>
             <span className={`text-[8px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full border transition-all duration-350 ${
@@ -858,22 +877,23 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2">
               <span>실시간 크루 인증 피드</span>
               <span className="text-[8px] text-blue-650 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full font-black tracking-wider normal-case">
-                5월 총 {records.length}개
+                {currentMonthDisplay} 총 {records.filter(r => r.date.startsWith(currentYearMonth)).length}개
               </span>
             </div>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isFeedOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
-        {isFeedOpen && (
-          records.length === 0 ? (
-          <div className="flex-1 min-h-[180px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
-            <span className="text-xs font-bold text-slate-500">📪 이번 달 등록된 러닝 기록이 없습니다.</span>
-            <span className="text-[8px] text-slate-400 mt-1.5 uppercase font-black tracking-widest">Start the first run today</span>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {records.map((rec) => {
+        {isFeedOpen && (() => {
+          const currentMonthRecords = records.filter(r => r.date.startsWith(currentYearMonth))
+          return currentMonthRecords.length === 0 ? (
+            <div className="flex-1 min-h-[180px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
+              <span className="text-xs font-bold text-slate-500">📪 이번 달 등록된 러닝 기록이 없습니다.</span>
+              <span className="text-[8px] text-slate-400 mt-1.5 uppercase font-black tracking-widest">Start the first run today</span>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {currentMonthRecords.map((rec) => {
               const isMine = rec.user_id === profile.id
               const recordLikes = likes.filter(l => l.record_id === rec.id)
               const hasLiked = likes.some(l => l.record_id === rec.id && l.user_id === profile.id)
@@ -1088,10 +1108,10 @@ export default function DashboardPage() {
                   )}
                 </div>
               )
-            })}
-          </div>
-        )
-        )}
+              })}
+            </div>
+          )
+        })()}
       </section>
     </div>
   )
