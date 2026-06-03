@@ -14,7 +14,8 @@ import {
   Sparkles, 
   Smile, 
   ShieldAlert,
-  ListTodo
+  ListTodo,
+  Search
 } from 'lucide-react'
 
 type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions'
@@ -28,6 +29,11 @@ export default function AdminPage() {
   const [isMock, setIsMock] = useState(false)
   const [loading, setLoading] = useState(true)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
+  const [adminSearchTerm, setAdminSearchTerm] = useState('')
+
+  useEffect(() => {
+    setAdminSearchTerm('')
+  }, [activeTab])
 
   useEffect(() => {
     const mockCheck = checkIsMock()
@@ -389,6 +395,26 @@ export default function AdminPage() {
   // 비활성화(정지/강퇴)된 크루원 목록
   const inactiveMembers = members.filter(m => !m.is_active)
 
+  const filteredWaitingMembers = waitingMembers.filter(m =>
+    m.nickname.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (m.real_name && m.real_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+  )
+
+  const filteredActiveMembers = activeMembers.filter(m =>
+    m.nickname.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (m.real_name && m.real_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+  )
+
+  const filteredInactiveMembers = inactiveMembers.filter(m =>
+    m.nickname.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (m.real_name && m.real_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+  )
+
+  const filteredRecords = records.filter(r =>
+    r.user_nickname.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (r.location_name && r.location_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+  )
+
   const tabItems = [
     { key: 'waiting', label: `가입 대기 (${waitingMembers.length})`, icon: UserCheck },
     { key: 'exempted', label: '부상 면제 관리', icon: HeartPulse },
@@ -443,6 +469,32 @@ export default function AdminPage() {
         })}
       </nav>
 
+      {/* 검색 바 (장소 관리 탭이 아닐 때만 표시) */}
+      {activeTab !== 'locations' && (
+        <div className="relative z-15">
+          <input
+            type="text"
+            placeholder={
+              activeTab === 'records'
+                ? '이름/닉네임/장소명으로 기록 검색...'
+                : '이름/닉네임으로 크루원 검색...'
+            }
+            value={adminSearchTerm}
+            onChange={(e) => setAdminSearchTerm(e.target.value)}
+            className="w-full h-9 pl-9 pr-8 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs outline-none focus:border-[#2563EB] transition-all text-slate-800 font-semibold"
+          />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+          {adminSearchTerm && (
+            <button
+              onClick={() => setAdminSearchTerm('')}
+              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 font-extrabold text-[10px] cursor-pointer"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
       {/* 3. 탭 상세 컨텐츠 */}
       <div className="flex-1 flex flex-col min-h-[300px]">
         {/* 가입 대기자 탭 */}
@@ -455,15 +507,19 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {waitingMembers.length === 0 ? (
+            {filteredWaitingMembers.length === 0 ? (
               <div className="bg-white/80 border border-slate-200/50 rounded-3xl py-12 px-6 flex flex-col items-center justify-center text-center shadow-sm">
                 <Smile className="w-6 h-6 text-slate-400 mb-2" />
-                <span className="text-xs font-bold text-slate-500">대기 중인 신규 가입자가 없습니다.</span>
-                <span className="text-[8px] text-slate-400 uppercase font-black tracking-widest mt-1">All clean for now</span>
+                <span className="text-xs font-bold text-slate-500">
+                  {waitingMembers.length === 0 ? '대기 중인 신규 가입자가 없습니다.' : '검색 결과가 없습니다.'}
+                </span>
+                {waitingMembers.length === 0 && (
+                  <span className="text-[8px] text-slate-400 uppercase font-black tracking-widest mt-1">All clean for now</span>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
-                {waitingMembers.map((member) => (
+                {filteredWaitingMembers.map((member) => (
                   <div 
                     key={member.id}
                     className="bg-white/80 border border-slate-200/80 p-4 rounded-2xl flex items-center justify-between shadow-sm"
@@ -529,13 +585,15 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {activeMembers.length === 0 ? (
+            {filteredActiveMembers.length === 0 ? (
               <div className="bg-white/80 border border-slate-200/50 rounded-3xl py-12 px-6 flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-xs font-bold text-slate-400">등록된 정식 회원이 없습니다.</span>
+                <span className="text-xs font-bold text-slate-400">
+                  {activeMembers.length === 0 ? '등록된 정식 회원이 없습니다.' : '검색 결과가 없습니다.'}
+                </span>
               </div>
             ) : (
               <div className="space-y-3">
-                {activeMembers.map((member) => (
+                {filteredActiveMembers.map((member) => (
                   <div 
                     key={member.id}
                     className="bg-white/80 border border-slate-200/80 p-4 rounded-2xl flex items-center justify-between shadow-sm"
@@ -597,7 +655,7 @@ export default function AdminPage() {
             )}
 
             {/* 정지 및 강퇴된 회원 관리 섹션 */}
-            {inactiveMembers.length > 0 && (
+            {filteredInactiveMembers.length > 0 && (
               <div className="mt-8 pt-6 border-t border-slate-200/60 space-y-4">
                 <div className="flex flex-col gap-1">
                   <h3 className="text-xs font-black text-rose-600">정지 / 강퇴 회원 목록</h3>
@@ -606,7 +664,7 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <div className="space-y-3">
-                  {inactiveMembers.map((member) => (
+                  {filteredInactiveMembers.map((member) => (
                     <div 
                       key={member.id}
                       className="p-4 rounded-2xl flex items-center justify-between shadow-sm border border-rose-100 bg-rose-50/10 animate-fadeIn"
@@ -733,13 +791,15 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {records.length === 0 ? (
+            {filteredRecords.length === 0 ? (
               <div className="bg-white/80 border border-slate-200/50 rounded-3xl py-12 px-6 flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-xs font-bold text-slate-400">인증 기록이 전혀 존재하지 않습니다.</span>
+                <span className="text-xs font-bold text-slate-400">
+                  {records.length === 0 ? '인증 기록이 전혀 존재하지 않습니다.' : '검색 결과가 없습니다.'}
+                </span>
               </div>
             ) : (
               <div className="space-y-3">
-                {records.map((rec) => (
+                {filteredRecords.map((rec) => (
                   <div 
                     key={rec.id}
                     className="bg-white/85 border border-slate-200/80 p-4 rounded-2xl flex items-center justify-between shadow-sm"
@@ -815,90 +875,94 @@ export default function AdminPage() {
               </span>
             </div>
 
-            <div className="space-y-3">
-              {activeMembers.map((member) => {
-                const isMe = member.id === currentProfile?.id
-                return (
-                  <div 
-                    key={member.id}
-                    className="bg-white/80 border border-slate-200/80 p-4 rounded-2xl flex flex-col gap-3.5 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {member.avatar_url ? (
-                          <img 
-                            src={member.avatar_url} 
-                            alt="Avatar" 
-                            className="w-9 h-9 rounded-full object-cover border border-slate-200"
-                          />
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner">
-                            👤
-                          </div>
-                        )}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black text-slate-900">{member.nickname} {isMe && '(나)'}</span>
-                            <span className="text-[8px] text-slate-500 font-bold uppercase px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200">
-                              {member.role}
+            {filteredActiveMembers.length === 0 ? (
+              <p className="text-[10px] text-slate-400 text-center py-6">검색 결과가 없습니다.</p>
+            ) : (
+              <div className="space-y-3">
+                {filteredActiveMembers.map((member) => {
+                  const isMe = member.id === currentProfile?.id
+                  return (
+                    <div 
+                      key={member.id}
+                      className="bg-white/80 border border-slate-200/80 p-4 rounded-2xl flex flex-col gap-3.5 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {member.avatar_url ? (
+                            <img 
+                              src={member.avatar_url} 
+                              alt="Avatar" 
+                              className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner">
+                              👤
+                            </div>
+                          )}
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-black text-slate-900">{member.nickname} {isMe && '(나)'}</span>
+                              <span className="text-[8px] text-slate-500 font-bold uppercase px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200">
+                                {member.role}
+                              </span>
+                            </div>
+                            <span className="text-[8px] text-slate-500 font-bold tracking-wider mt-0.5">
+                              실명: {member.real_name || '-'}
                             </span>
                           </div>
-                          <span className="text-[8px] text-slate-500 font-bold tracking-wider mt-0.5">
-                            실명: {member.real_name || '-'}
-                          </span>
                         </div>
                       </div>
+
+                      {/* 권한 토글 버튼들 */}
+                      {!isMe && (
+                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                          {/* 조회 권한 */}
+                          <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
+                            <span className="text-[9px] font-black text-slate-700">어드민 조회 권한</span>
+                            <button
+                              type="button"
+                              onClick={() => handleTogglePermission(member.id, 'view', !!member.can_view_admin)}
+                              className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
+                                member.can_view_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
+                              }`}
+                            >
+                              <div
+                                className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                  member.can_view_admin ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          {/* 수정 권한 */}
+                          <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
+                            <span className="text-[9px] font-black text-slate-700">어드민 수정 권한</span>
+                            <button
+                              type="button"
+                              onClick={() => handleTogglePermission(member.id, 'edit', !!member.can_edit_admin)}
+                              className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
+                                member.can_edit_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
+                              }`}
+                            >
+                              <div
+                                className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                  member.can_edit_admin ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {isMe && (
+                        <span className="text-[9px] text-slate-400 font-bold block mt-1 text-center bg-slate-50 rounded-lg py-1 border border-slate-200/40">
+                          최고 관리자는 항상 모든 권한을 가집니다.
+                        </span>
+                      )}
                     </div>
-
-                    {/* 권한 토글 버튼들 */}
-                    {!isMe && (
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                        {/* 조회 권한 */}
-                        <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
-                          <span className="text-[9px] font-black text-slate-700">어드민 조회 권한</span>
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePermission(member.id, 'view', !!member.can_view_admin)}
-                            className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
-                              member.can_view_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
-                            }`}
-                          >
-                            <div
-                              className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
-                                member.can_view_admin ? 'translate-x-4' : 'translate-x-0'
-                              }`}
-                            />
-                          </button>
-                        </div>
-
-                        {/* 수정 권한 */}
-                        <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl border border-slate-200/50">
-                          <span className="text-[9px] font-black text-slate-700">어드민 수정 권한</span>
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePermission(member.id, 'edit', !!member.can_edit_admin)}
-                            className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors duration-200 ${
-                              member.can_edit_admin ? 'bg-[#2563EB]' : 'bg-slate-300'
-                            }`}
-                          >
-                            <div
-                              className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
-                                member.can_edit_admin ? 'translate-x-4' : 'translate-x-0'
-                              }`}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {isMe && (
-                      <span className="text-[9px] text-slate-400 font-bold block mt-1 text-center bg-slate-50 rounded-lg py-1 border border-slate-200/40">
-                        최고 관리자는 항상 모든 권한을 가집니다.
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )}
           </section>
         )}
       </div>
