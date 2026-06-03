@@ -581,25 +581,27 @@ export default function DashboardPage() {
                     </span>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2 text-[10px] text-slate-500">
-                    <div className="flex gap-1.5 items-center text-amber-600 font-black tracking-wider uppercase text-[9px]">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                      <span>달성 필요 조건 (택 1):</span>
+                  <div className="bg-rose-50/40 border border-rose-200 p-3 rounded-2xl flex flex-col gap-2 shadow-sm animate-pulse">
+                    <div className="flex items-center gap-1.5 text-rose-650 font-black text-[10px] tracking-wider">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
+                      <span>⚠️ 생존 조건 미달 상태 (방출 경고)</span>
                     </div>
-                    <ul className="space-y-1.5 pl-0.5">
-                      <li className="flex items-start gap-1.5 leading-relaxed">
-                        <span className="text-blue-500 mt-1 shrink-0">•</span>
-                        <span>
-                          <strong className="text-slate-700 font-extrabold">벙 위주:</strong> 정기런 {survival.remainingRegularForA}회 + 아무 러닝 {survival.remainingTotalForA}회 추가
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-1.5 leading-relaxed">
-                        <span className="text-blue-500 mt-1 shrink-0">•</span>
-                        <span>
-                          <strong className="text-slate-700 font-extrabold">개인런 위주:</strong> 아무 러닝 {survival.remainingTotalForB}회 추가
-                        </span>
-                      </li>
-                    </ul>
+                    <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
+                      이번 달 생존 기준을 달성하지 못했습니다. 아래 조건 중 하나를 충족하지 못하면 다음 달 멤버십 유지(출석)가 어려울 수 있으니 서둘러 인증해 주세요!
+                    </p>
+                    <div className="flex flex-col gap-1 text-[9.5px] pt-1 text-slate-500">
+                      <div className="font-extrabold text-slate-700">남은 필요 조건 (택 1):</div>
+                      <ul className="space-y-1 pl-1">
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-blue-500 font-extrabold">•</span>
+                          <span>정기 벙 {survival.remainingRegularForA}회 + 추가 러닝 {survival.remainingTotalForA}회</span>
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-blue-500 font-extrabold">•</span>
+                          <span>개인 러닝 {survival.remainingTotalForB}회</span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 )}
               </div>

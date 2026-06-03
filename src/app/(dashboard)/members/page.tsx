@@ -6,6 +6,7 @@ import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
 import { Trophy, Shield, Award, ChevronDown, Search } from 'lucide-react'
 import { getBadgesForUser } from '@/lib/utils/badges'
+import { calculateMonthlySurvival } from '@/lib/utils/survival'
 
 type Category = '10K' | 'Half' | 'Full'
 
@@ -81,7 +82,7 @@ export default function MembersPage() {
       // Fetch all running records to calculate badges and location stats
       const { data: recordsList } = await supabase
         .from('running_records')
-        .select('user_id, distance, is_pacer, location_name')
+        .select('user_id, distance, is_pacer, location_name, date, type')
 
       const formattedRecords: RunningRecord[] = (recordsList || []).map((r: any) => ({
         id: '',
@@ -91,8 +92,8 @@ export default function MembersPage() {
         distance: Number(r.distance),
         location_id: '',
         location_name: r.location_name || '',
-        date: '',
-        type: 'PERSONAL',
+        date: r.date || '',
+        type: r.type || 'PERSONAL',
         is_pacer: r.is_pacer
       }))
       setAllRecords(formattedRecords)
@@ -396,6 +397,30 @@ export default function MembersPage() {
                         <div className="flex flex-col">
                           <span className="text-xs font-black text-slate-900">{m.nickname} {isMe && '(나)'}</span>
                           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">역할: {m.role} / 상태: {m.is_active ? '정상' : '정지'}</span>
+                          
+                          {/* 월간 생존 정보 배지 (운영자 전용 뷰어) */}
+                          {(() => {
+                            const memberRecords = allRecords.filter(r => r.user_id === m.id)
+                            const survival = calculateMonthlySurvival(memberRecords, m.is_exempted, '2026-05')
+                            
+                            return (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                {survival.exempted ? (
+                                  <span className="text-[8px] font-black bg-cyan-50 text-cyan-600 border border-cyan-150 px-1.5 py-0.2 rounded-md">
+                                    🩹 부상 면제
+                                  </span>
+                                ) : survival.survived ? (
+                                  <span className="text-[8px] font-black bg-emerald-50 text-emerald-600 border border-emerald-150 px-1.5 py-0.2 rounded-md">
+                                    🔥 생존 완료 ({survival.totalDays}일)
+                                  </span>
+                                ) : (
+                                  <span className="text-[8px] font-black bg-rose-50 text-rose-600 border border-rose-150 px-1.5 py-0.2 rounded-md" title={`정기 ${survival.remainingRegularForA}회 또는 총 ${survival.remainingTotalForB}일 추가 필요`}>
+                                    ⚠️ 생존 미달 (정기 {survival.remainingRegularForA}회/총 {survival.remainingTotalForA}일 남음)
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          })()}
                         </div>
                       </div>
 
@@ -746,6 +771,24 @@ export default function MembersPage() {
                               <span className="text-xs font-black text-slate-900">{m.nickname}</span>
                               {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
                               {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
+                              
+                              {/* 월간 생존 현황 미니 배지 */}
+                              {(() => {
+                                const survival = calculateMonthlySurvival(runnerRecords, m.is_exempted, '2026-05')
+                                return survival.exempted ? (
+                                  <span className="text-[7px] font-black bg-cyan-50 text-cyan-650 border border-cyan-150 px-1 py-0.2 rounded" title="부상 면제">
+                                    🩹 면제
+                                  </span>
+                                ) : survival.survived ? (
+                                  <span className="text-[7px] font-black bg-emerald-50 text-emerald-650 border border-emerald-150 px-1 py-0.2 rounded" title="생존 완료">
+                                    🔥 생존
+                                  </span>
+                                ) : (
+                                  <span className="text-[7px] font-black bg-rose-50 text-rose-650 border border-rose-150 px-1 py-0.2 rounded" title={`생존 기준 미달: 정기 ${survival.remainingRegularForA}회/총 ${survival.remainingTotalForA}일 남음`}>
+                                    ⚠️ 미달
+                                  </span>
+                                )
+                              })()}
                             </div>
                             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{activeCategory} 최고 기록</span>
                           </div>
