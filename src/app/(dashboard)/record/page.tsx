@@ -30,8 +30,16 @@ export default function RecordPage() {
   // 날짜 선택 범위 제약용
   const [minDate, setMinDate] = useState('')
   const [maxDate, setMaxDate] = useState('')
+  const [activeMission, setActiveMission] = useState<any>(null)
 
   useEffect(() => {
+    const saved = localStorage.getItem('src_active_mission')
+    if (saved) {
+      try {
+        setActiveMission(JSON.parse(saved))
+      } catch (e) {}
+    }
+
     const loadInitialData = async () => {
       const isMock = checkIsMock()
       let activeProfile: Profile | null = null
@@ -250,6 +258,19 @@ export default function RecordPage() {
           오늘 달리신 러닝 상세 데이터를 제출해 주세요.<br />
           제출 즉시 <strong className="text-slate-800 font-bold">월간 생존 알고리즘</strong>이 작동되어 반영됩니다.
         </p>
+
+        {/* 활성 미션 알림 팁 */}
+        {activeMission && (
+          <div className="mb-5 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-250 rounded-2xl flex items-center justify-between text-[10px] text-slate-700 leading-relaxed font-bold animate-fadeIn">
+            <div className="flex gap-2">
+              <span className="text-sm">🎯</span>
+              <div>
+                <span className="text-[8px] text-amber-600 uppercase tracking-widest block font-extrabold">도전 중인 러닝 미션</span>
+                <span className="font-extrabold text-slate-800">{activeMission.title}</span>: {activeMission.text}
+              </div>
+            </div>
+          </div>
+        )}
 
         {success ? (
           <div className="py-12 flex flex-col items-center justify-center gap-4 text-center animate-scaleUp">

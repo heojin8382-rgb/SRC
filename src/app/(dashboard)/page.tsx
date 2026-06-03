@@ -70,6 +70,16 @@ export default function DashboardPage() {
   const [newCommentText, setNewCommentText] = useState('')
   const [hasPbsMap, setHasPbsMap] = useState<Record<string, boolean>>({})
 
+  // active mission state
+  const [activeMission, setActiveMission] = useState<any>(null)
+
+  const handleAbandonMission = () => {
+    if (confirm('현재 도전 중인 랜덤 미션을 포기하시겠습니까?')) {
+      localStorage.removeItem('src_active_mission')
+      setActiveMission(null)
+    }
+  }
+
   // Tip/Joke widget states
   const [currentTipIdx, setCurrentTipIdx] = useState(0)
   const [tipFade, setTipFade] = useState(true)
@@ -97,6 +107,13 @@ export default function DashboardPage() {
     setIsMock(mockCheck)
     loadData(mockCheck)
     setCurrentTipIdx(Math.floor(Math.random() * RUNNING_TIPS.length))
+
+    const saved = localStorage.getItem('src_active_mission')
+    if (saved) {
+      try {
+        setActiveMission(JSON.parse(saved))
+      } catch (e) {}
+    }
   }, [])
 
   const loadData = async (mockCheck?: boolean) => {
@@ -447,6 +464,28 @@ export default function DashboardPage() {
           </Link>
         )}
       </header>
+
+      {/* 활성화된 랜덤 러닝 미션 알림 */}
+      {activeMission && (
+        <section className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-250 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn z-10 relative">
+          <div className="flex items-start gap-3 flex-1">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+              🎯
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] text-amber-600 font-extrabold uppercase tracking-widest">Active Crew Mission</span>
+              <h4 className="text-xs font-black text-slate-800 tracking-tight">{activeMission.title}</h4>
+              <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">{activeMission.text}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleAbandonMission}
+            className="text-[9px] font-black text-rose-500 bg-rose-50 border border-rose-100 hover:bg-rose-100/60 px-2 py-1 rounded-xl cursor-pointer transition-colors shrink-0 ml-3"
+          >
+            미션 포기
+          </button>
+        </section>
+      )}
 
       {/* 2. 월간 생존(활동) 카운터 & 게이지 보드 (Strava Vibe) */}
       <div className={survival.survived ? 'glowing-survived-card-wrapper mb-6' : 'mb-6'}>
