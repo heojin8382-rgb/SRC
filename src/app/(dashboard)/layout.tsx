@@ -40,7 +40,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex justify-center w-full relative overflow-hidden nike-grid-bg">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F8FAFC] flex justify-center w-full relative overflow-hidden nike-grid-bg">
       {/* Dynamic Island style background typography for desktop */}
       <div className="hidden lg:flex fixed left-[8%] top-1/2 -translate-y-1/2 flex-col gap-1 pointer-events-none select-none z-0">
         <span className="text-[90px] font-black text-outline-white uppercase tracking-tighter leading-none select-none">
