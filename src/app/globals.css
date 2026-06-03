@@ -189,3 +189,52 @@ body {
 .text-base {
   font-size: 18px !important;
 }
+
+/* Hologram Badge Card Effects */
+.hologram-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+}
+
+.hologram-shine-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--shine-x, 50%) var(--shine-y, 50%),
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(212, 255, 63, 0.08) 25%,
+    rgba(6, 182, 212, 0.08) 50%,
+    transparent 80%
+  );
+  mix-blend-mode: color-dodge;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hologram-card:hover .hologram-shine-overlay {
+  opacity: 1;
+}
+
+/* Neon Particle Animation */
+@keyframes particleFade {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+  }
+}
+
+.neon-particle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 9999;
+  animation: particleFade var(--duration, 0.8s) cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  box-shadow: 0 0 8px currentColor;
+}

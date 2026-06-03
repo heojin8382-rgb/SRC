@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import BottomNav from '@/components/layout/bottom-nav'
 import RoleSwitcher from '@/components/layout/role-switcher'
+import ParticleContainer from '@/components/ui/ParticleContainer'
 import { cookies } from 'next/headers'
 
 export default async function DashboardLayout({
@@ -92,6 +93,7 @@ export default async function DashboardLayout({
         <BottomNav />
         {/* 개발용 플로팅 역할 체인저 */}
         <RoleSwitcher />
+        <ParticleContainer />
       </div>
     </div>
   )

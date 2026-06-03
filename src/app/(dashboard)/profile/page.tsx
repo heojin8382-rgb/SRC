@@ -5,7 +5,8 @@ import { mockStore, Profile, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
 import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles } from 'lucide-react'
-import { getBadgesForUser } from '@/lib/utils/badges'
+import { getBadgesForUser, getBadgesStatusForUser } from '@/lib/utils/badges'
+import BadgeCard from '@/components/ui/BadgeCard'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -342,8 +343,8 @@ export default function ProfilePage() {
     areaPoints += ` ${svgWidth},${svgHeight}`
   }
 
-  // 배지 리스트 산출
-  const myBadges = getBadgesForUser(myRecords, hasPbs)
+  // 배지 리스트 산출 (전체 배지 획득 유무 포함)
+  const myBadges = getBadgesStatusForUser(myRecords, hasPbs)
 
   return (
     <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
@@ -623,24 +624,19 @@ export default function ProfilePage() {
           <h3 className="text-xs font-black text-slate-800">내 러너 배지 보관함</h3>
         </div>
         
-        {myBadges.length === 0 ? (
-          <p className="text-[10px] text-slate-400 font-black text-center py-2 uppercase tracking-wide">아직 획득한 배지가 없습니다.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {myBadges.map(badge => (
-              <div 
-                key={badge.id}
-                className={`flex items-center gap-2 p-3 rounded-2xl border text-[10px] font-black tracking-wide shadow-sm transition-transform hover:scale-102 ${badge.color}`}
-              >
-                <span className="text-lg">{badge.emoji}</span>
-                <div className="flex flex-col">
-                  <span>{badge.name}</span>
-                  <span className="text-[8px] opacity-75 font-semibold mt-0.5">달성 완료</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-3">
+          {myBadges.map(badge => (
+            <BadgeCard
+              key={badge.id}
+              id={badge.id}
+              name={badge.name}
+              emoji={badge.emoji}
+              description={badge.description}
+              color={badge.color}
+              isUnlocked={badge.isUnlocked}
+            />
+          ))}
+        </div>
       </section>
 
       {/* 3. 마라톤 3대 최고 기록 (PB) 설정 관리 폼 */}
