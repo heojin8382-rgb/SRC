@@ -47,9 +47,9 @@ export default function ProfilePage() {
 
   // 아코디언 접기/펼치기 상태
   const [isRecordsOpen, setIsRecordsOpen] = useState(true)
-  const [isGrowthCurveOpen, setIsGrowthCurveOpen] = useState(true)
-  const [isBadgesOpen, setIsBadgesOpen] = useState(true)
-  const [isPbFormOpen, setIsPbFormOpen] = useState(true)
+  const [isGrowthCurveOpen, setIsGrowthCurveOpen] = useState(false)
+  const [isBadgesOpen, setIsBadgesOpen] = useState(false)
+  const [isPbFormOpen, setIsPbFormOpen] = useState(false)
 
   useEffect(() => {
     loadData()

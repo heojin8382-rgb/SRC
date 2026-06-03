@@ -19,7 +19,8 @@ import {
   Send, 
   Award,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  ChevronDown
 } from 'lucide-react'
 import Link from 'next/link'
 import { getBadgesForUser } from '@/lib/utils/badges'
@@ -85,7 +86,7 @@ export default function DashboardPage() {
   const [tipFade, setTipFade] = useState(true)
 
   // 피드 아코디언 상태
-  const [isFeedOpen, setIsFeedOpen] = useState(true)
+  const [isFeedOpen, setIsFeedOpen] = useState(false)
 
   const handleShuffleTip = (e: React.MouseEvent<HTMLButtonElement>) => {
     setTipFade(false)
@@ -747,16 +748,16 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setIsFeedOpen(!isFeedOpen)}
-            className="flex items-center gap-1.5 text-[9px] font-black text-slate-550 hover:text-slate-700 tracking-widest uppercase cursor-pointer"
+            className="w-full flex items-center justify-between text-[9px] font-black text-slate-550 hover:text-slate-700 tracking-widest uppercase cursor-pointer"
           >
-            <span>실시간 크루 인증 피드</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isFeedOpen ? '▲' : '▼'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span>실시간 크루 인증 피드</span>
+              <span className="text-[8px] text-blue-650 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full font-black tracking-wider normal-case">
+                5월 총 {records.length}개
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isFeedOpen ? 'rotate-180' : ''}`} />
           </button>
-          <span className="text-[8px] text-blue-650 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full font-black tracking-wider">
-            5월 총 {records.length}개
-          </span>
         </div>
 
         {isFeedOpen && (

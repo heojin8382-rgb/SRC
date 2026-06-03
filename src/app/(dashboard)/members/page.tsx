@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { mockStore, Profile, Member, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Shield, Award } from 'lucide-react'
+import { Trophy, Shield, Award, ChevronDown } from 'lucide-react'
 import { getBadgesForUser } from '@/lib/utils/badges'
 
 type Category = '10K' | 'Half' | 'Full'
@@ -22,7 +22,7 @@ export default function MembersPage() {
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false)
 
   // 랭킹보드 아코디언 상태
-  const [isRankingOpen, setIsRankingOpen] = useState(true)
+  const [isRankingOpen, setIsRankingOpen] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -235,7 +235,7 @@ export default function MembersPage() {
                 운영진 전용 크루 권한 제어판
               </h2>
             </div>
-            <span className="text-[10px] text-[#2563EB] font-black">{isAdminPanelOpen ? '접기 ▲' : '열기 ▼'}</span>
+            <ChevronDown className={`w-4 h-4 text-[#2563EB] transition-transform duration-300 ${isAdminPanelOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {isAdminPanelOpen && (
@@ -351,16 +351,16 @@ export default function MembersPage() {
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => setIsRankingOpen(!isRankingOpen)}
-            className="flex items-center gap-1.5 text-[10px] text-slate-550 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
+            className="w-full flex items-center justify-between text-[10px] text-slate-555 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
           >
-            <span>RANKING BOARD</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isRankingOpen ? '▲' : '▼'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span>RANKING BOARD</span>
+              <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider normal-case">
+                기록 보유 {rankedMembers.length}명
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isRankingOpen ? 'rotate-180' : ''}`} />
           </button>
-          <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
-            기록 보유 {rankedMembers.length}명
-          </span>
         </div>
 
         {isRankingOpen && (
