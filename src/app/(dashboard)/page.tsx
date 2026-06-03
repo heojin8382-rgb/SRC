@@ -647,6 +647,30 @@ export default function DashboardPage() {
         </Link>
       </section>
 
+      {/* 5.5. 복불복 게임 존 바로가기 배너 */}
+      <section className="mb-6 z-10 relative">
+        <Link
+          href="/playground"
+          className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-3xl p-5 flex items-center justify-between overflow-hidden shadow-md group cursor-pointer hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-700/80 to-pink-500/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform" />
+          
+          <div className="relative z-10 flex flex-col gap-1">
+            <span className="text-[8px] text-pink-200 font-extrabold uppercase tracking-widest">Crew Game Zone</span>
+            <h3 className="text-xs font-black tracking-wide flex items-center gap-1.5 text-white">
+              <span>🎲 크루 복불복 오락실 오픈!</span>
+              <span className="bg-rose-500 text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase text-white tracking-normal animate-pulse">NEW</span>
+            </h3>
+            <span className="text-[9px] text-indigo-100 font-medium">오늘 음료수 쏠 당첨자를 룰렛으로 골라보세요.</span>
+          </div>
+          
+          <div className="relative z-10 w-9 h-9 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-bold text-lg group-hover:rotate-12 transition-transform shadow-inner text-white">
+            👉
+          </div>
+        </Link>
+      </section>
+
       {/* 오늘의 러닝 동반자 (Inspiring Advice/Quote/Joke Card) */}
       <section className="bg-gradient-to-r from-blue-50/45 via-indigo-50/20 to-emerald-50/45 border border-slate-200/80 rounded-3xl p-4.5 mb-6 shadow-sm relative overflow-hidden select-none animate-fadeIn">
         <div className="absolute top-[-20%] right-[-10%] w-24 h-24 bg-blue-100/10 rounded-full blur-2xl pointer-events-none" />
