@@ -27,9 +27,17 @@ export default function MembersPage() {
   const [rankingSearchTerm, setRankingSearchTerm] = useState('')
   const [isStatsOpen, setIsStatsOpen] = useState(false)
   const [selectedBracket, setSelectedBracket] = useState<{ key: string; gender: '남' | '여' } | null>(null)
+  const [membersCoins, setMembersCoins] = useState<Record<string, number>>({})
 
   useEffect(() => {
     loadData()
+    // Load coins mapping on mount
+    const saved = localStorage.getItem('src_members_coins')
+    if (saved) {
+      try {
+        setMembersCoins(JSON.parse(saved))
+      } catch (e) {}
+    }
   }, [])
 
   const loadData = async () => {
@@ -195,6 +203,19 @@ export default function MembersPage() {
       } else {
         loadData()
       }
+    }
+  }
+
+  const handleModifyCoins = (memberId: string, amount: number) => {
+    const current = membersCoins[memberId] || 0
+    const nextCoins = Math.max(0, current + amount)
+    const newCoinsMap = { ...membersCoins, [memberId]: nextCoins }
+    setMembersCoins(newCoinsMap)
+    localStorage.setItem('src_members_coins', JSON.stringify(newCoinsMap))
+
+    // If it's the current user, sync to their point wallet too
+    if (memberId === profile?.id) {
+      localStorage.setItem('src_user_points', String(nextCoins))
     }
   }
 
@@ -434,6 +455,32 @@ export default function MembersPage() {
                         </button>
                       </div>
                     )}
+
+                    {/* 코인 지급 섹션 (운영자 전용) */}
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-slate-500 font-bold">🪙 보유 코인:</span>
+                        <span className="text-xs font-black text-amber-600">{(membersCoins[m.id] || 0)}개</span>
+                      </div>
+                      {(profile.role === 'ADMIN' || profile.can_edit_admin) && (
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => handleModifyCoins(m.id, -1)}
+                            className="w-7 h-7 bg-slate-50 border border-slate-200 text-slate-500 rounded-lg text-xs font-black flex items-center justify-center cursor-pointer hover:border-slate-350 active:scale-95 transition-all"
+                            title="1코인 회수"
+                          >
+                            -
+                          </button>
+                          <button
+                            onClick={() => handleModifyCoins(m.id, 1)}
+                            className="w-14 h-7 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-[9px] font-black flex items-center justify-center cursor-pointer hover:bg-amber-100/60 active:scale-95 transition-all"
+                            title="1코인 지급"
+                          >
+                            +1 코인
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )
               }))}

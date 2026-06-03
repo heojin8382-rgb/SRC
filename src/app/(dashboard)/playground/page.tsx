@@ -40,60 +40,147 @@ const RANDOM_MISSIONS: Mission[] = [
 ]
 
 const GACHA_ITEMS = [
+  // 1. LEGENDARY (1%)
   {
     id: 'g1',
-    name: '☕ 크루장과의 1:1 티타임 권',
+    name: '👑 [전설] 뷔페 식사권',
     grade: 'LEGENDARY',
-    desc: '커피와 케이크는 크루장 사비로 제공됩니다! 다음 벙 후 티타임을 가져보세요.',
-    emoji: '👑',
+    desc: '대박! 다음 정기 모임 뒤풀이 때 특급 호텔/패밀리 뷔페 식사권을 증정합니다. (크루 회비 또는 크루장 찬스!)',
+    emoji: '🥩',
     color: 'from-amber-400 to-yellow-500 text-yellow-950 border-yellow-300'
   },
   {
     id: 'g2',
-    name: '🎈 원하는 페이서와 1:1 러닝권',
+    name: '👑 [전설] 크루장과 1:1 티타임런',
+    grade: 'LEGENDARY',
+    desc: '크루장과 함께 가볍게 달리고, 크루장이 쏘는 고급 디저트와 커피 티타임을 함께 가집니다.',
+    emoji: '☕',
+    color: 'from-amber-400 to-yellow-500 text-yellow-950 border-yellow-300'
+  },
+
+  // 2. EPIC (3%)
+  {
+    id: 'g3',
+    name: '🎈 [영웅] 커피쿠폰(아아)',
     grade: 'EPIC',
-    desc: '내가 원하는 페이서와 단둘이 코스와 속도를 정해 1:1 맞춤 트레이닝 러닝을 뜁니다.',
-    emoji: '🎈',
+    desc: '축하합니다! 시원한 스타벅스 아이스 아메리카노 모바일 기프티콘을 드립니다.',
+    emoji: '🥤',
     color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
   },
   {
-    id: 'g3',
-    name: '📸 크루 전담 작가의 인생샷 보정권',
+    id: 'g4',
+    name: '🎈 [영웅] 원하는 페이서와 1:1 러닝',
     grade: 'EPIC',
-    desc: '크루 공식 포토그래퍼가 당첨자의 러닝 사진 중 한 장을 A컷 화보급으로 정밀 보정해 드립니다.',
-    emoji: '📸',
-    color: 'from-pink-400 to-rose-500 text-rose-950 border-rose-300'
+    desc: '내가 지목한 페이서 크루원과 약속을 잡고 단둘이 원하는 속도와 코스로 1:1 리딩런을 뜁니다.',
+    emoji: '🏃‍♂️',
+    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
   },
   {
-    id: 'g4',
-    name: '🩹 부상 면제 생존권 (1주권)',
+    id: 'g5',
+    name: '🎈 [영웅] 벙 참석 시 인생샷 보정권',
+    grade: 'EPIC',
+    desc: '정기 벙 때 촬영된 사진 중 원하는 사진 한 장을 크루 공식 포토그래퍼가 화보급으로 보정해 드립니다.',
+    emoji: '📸',
+    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
+  },
+
+  // 3. RARE (5%)
+  {
+    id: 'g6',
+    name: '🩹 [희귀] 벙 때 개인 얼음컵 증정',
     grade: 'RARE',
-    desc: '이번 주에 달리지 못하더라도 출석 생존 조건을 통과한 것으로 자동 면제 처리해 드립니다.',
+    desc: '무더운 여름 정기 벙 때 시원한 얼음이 가득 찬 개인 얼음컵을 현장에서 스페셜 보급으로 드립니다!',
+    emoji: '🧊',
+    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
+  },
+  {
+    id: 'g7',
+    name: '🩹 [희귀] SRC 크루 공식 러닝양말 증정',
+    grade: 'RARE',
+    desc: '쿠션감이 뛰어난 고성능 기능성 SRC 공식 크루 러닝 양말 1켤레를 즉시 지급해 드립니다.',
+    emoji: '🧦',
+    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
+  },
+  {
+    id: 'g8',
+    name: '🩹 [희귀] 일주일 부상 면제 생존권',
+    grade: 'RARE',
+    desc: '이번 주에 달리기 미션을 완수하지 못하더라도 생존 성공으로 인정되는 수동 부상 면제권을 적용해 드립니다.',
     emoji: '🩹',
     color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
   },
   {
-    id: 'g5',
-    name: '🍪 다음 정기 벙 간식 선택권',
+    id: 'g9',
+    name: '🩹 [희귀] 정기 벙 간식/음료 선택권',
     grade: 'RARE',
-    desc: '다음 벙 종료 후 제공되는 보급 간식 메뉴(도넛, 바나나, 스포츠음료 등)의 브랜드를 내가 선택합니다.',
+    desc: '다음 벙 종료 후 제공되는 보급 음료나 간식 메뉴의 종류와 브랜드를 당첨자가 전적으로 결정합니다.',
     emoji: '🍪',
-    color: 'from-emerald-400 to-green-500 text-green-950 border-green-300'
+    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
+  },
+
+  // 4. COMMON / 꽝 (91%)
+  {
+    id: 'g10',
+    name: '👟 [건강한 꽝] 오늘 인증 거리 +100m 보너스 런',
+    grade: 'COMMON',
+    desc: '아쉽게도 꽝입니다! 하지만 러너답게 오늘 달릴 목표 거리에서 100m를 보너스로 더 달리고 오세요! 🏃‍♂️',
+    emoji: '🏃‍♀️',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
   },
   {
-    id: 'g6',
-    name: '🙌 벙 집결지 하이파이브 환영대장 권',
+    id: 'g11',
+    name: '🙌 [유쾌한 꽝] 벙 집결지 하이파이브 인간 환영대',
     grade: 'COMMON',
-    desc: '이색 당첨! 다음 정기 벙 집결지 입구에 서서 집결하는 모든 크루원들과 하이파이브를 하며 에너지를 나눠줍니다.',
+    desc: '다음 벙 때 집결지 입구에 서서 도착하는 모든 크루원들과 하이파이브를 하며 에너제틱하게 환영해 주세요!',
     emoji: '🙌',
-    color: 'from-slate-350 to-slate-500 text-slate-900 border-slate-300'
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
   },
   {
-    id: 'g7',
-    name: '🏃‍♂️ 아쉬운 꽝: 건강을 위해 100m 보너스 런',
+    id: 'g12',
+    name: '✍️ [유쾌한 꽝] 단톡방에 크루원 1명 지목해서 칭찬 3줄 쓰기',
     grade: 'COMMON',
-    desc: '아쉽게도 꽝입니다! 하지만 러너답게 오늘 달리기 목표에서 100m 보너스를 더 달리고 인증해 볼까요?',
-    emoji: '👟',
+    desc: '크루 단체 단톡방에 오늘 고생한 크루원 중 한 명을 지목하여 고마움이나 칭찬의 글을 3줄 작성해 보세요.',
+    emoji: '💬',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  },
+  {
+    id: 'g13',
+    name: '🙇 [유쾌한 꽝] 다음 벙 종료 후 운영진에게 감사 인사하기',
+    grade: 'COMMON',
+    desc: '벙 준비로 항상 애쓰는 운영진 크루원에게 다가가 "항상 고생하십니다! 덕분에 잘 뜁니다"라며 따뜻한 감사를 전하세요.',
+    emoji: '🤝',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  },
+  {
+    id: 'g14',
+    name: '🤳 [유쾌한 꽝] 단체사진 찍을 때 맨 앞줄 정중앙 포즈 취하기',
+    grade: 'COMMON',
+    desc: '다음 러닝 종료 후 단체 사진 촬영 시 무조건 가장 앞줄 중앙에 자리를 잡고 당당하고 유쾌한 시그니처 포즈를 취해 보세요!',
+    emoji: '📸',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  },
+  {
+    id: 'g15',
+    name: '🏃 [유쾌한 꽝] 다음 벙에서 페이서 바로 뒤 밀착 마크런',
+    grade: 'COMMON',
+    desc: '페이스 메이커를 신뢰하세요! 다음 벙 러닝 때 지정된 페이서의 바로 뒷자리에서 1m 간격을 유지하며 끝까지 따라가 봅니다.',
+    emoji: '👣',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  },
+  {
+    id: 'g16',
+    name: '🥤 [유쾌한 꽝] 벙 끝난 후 물 보급소 종이컵 정리 돕기',
+    grade: 'COMMON',
+    desc: '지구를 지키는 친환경 러너! 다음 모임 종료 후 생수 보급소의 빈 종이컵과 플라스틱 병 수거를 적극적으로 도와주세요.',
+    emoji: '🗑️',
+    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
+  },
+  {
+    id: 'g17',
+    name: '📢 [유쾌한 꽝] 다음 벙 자기소개 때 가장 우렁차게 말하기',
+    grade: 'COMMON',
+    desc: '크루원들에게 강렬한 인상을! 다음 벙 시작 전 자기소개 시간에 가장 먼저 손을 들고 씩씩하고 크게 자기소개를 시작하세요.',
+    emoji: '📢',
     color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
   }
 ]
@@ -149,8 +236,8 @@ export default function PlaygroundPage() {
     if (savedPoints) {
       setPoints(Number(savedPoints))
     } else {
-      localStorage.setItem('src_user_points', '300')
-      setPoints(300)
+      localStorage.setItem('src_user_points', '3')
+      setPoints(3)
     }
 
     const savedHistory = localStorage.getItem('src_gacha_history')
@@ -165,9 +252,12 @@ export default function PlaygroundPage() {
     setLoading(true)
     try {
       const isMock = checkIsMock()
+      let userId: string | null = null
       
       if (isMock) {
-        setProfile(mockStore.getProfile())
+        const mockProfile = mockStore.getProfile()
+        setProfile(mockProfile)
+        userId = mockProfile.id
         const activeMembers = mockStore.getMembers().filter(m => m.is_active)
         const activeRecords = mockStore.getRunningRecords()
         
@@ -189,6 +279,7 @@ export default function PlaygroundPage() {
             .eq('id', user.id)
             .single()
           setProfile(activeProfile)
+          userId = activeProfile ? activeProfile.id : null
         }
 
         const { data: profilesList } = await supabase
@@ -218,6 +309,23 @@ export default function PlaygroundPage() {
           setSelectedIds(mapped.map(m => m.id))
         }
       }
+
+      // Sync user points with global membersCoins map in localStorage
+      const savedCoinsMap = localStorage.getItem('src_members_coins')
+      let userCoins = 3
+      if (userId) {
+        try {
+          const parsedMap = savedCoinsMap ? JSON.parse(savedCoinsMap) : {}
+          if (parsedMap[userId] !== undefined) {
+            userCoins = parsedMap[userId]
+          } else {
+            parsedMap[userId] = 3
+            localStorage.setItem('src_members_coins', JSON.stringify(parsedMap))
+          }
+        } catch (e) {}
+      }
+      setPoints(userCoins)
+      localStorage.setItem('src_user_points', String(userCoins))
     } catch (e) {
       console.error(e)
     } finally {
@@ -476,20 +584,41 @@ export default function PlaygroundPage() {
     const nextPoints = points + amount
     setPoints(nextPoints)
     localStorage.setItem('src_user_points', String(nextPoints))
+
+    // Sync back to global map
+    const savedCoinsMap = localStorage.getItem('src_members_coins')
+    if (savedCoinsMap && profile) {
+      try {
+        const parsedMap = JSON.parse(savedCoinsMap)
+        parsedMap[profile.id] = nextPoints
+        localStorage.setItem('src_members_coins', JSON.stringify(parsedMap))
+      } catch (e) {}
+    }
+
     triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2, 'fire')
     alert(`🎉 미션 완료 보상으로 ${amount} 코인을 획득했습니다! 현재 코인: ${nextPoints}개`)
   }
 
   const handleDrawGacha = (e: React.MouseEvent) => {
     if (gachaSpinning) return
-    if (points < 100) {
-      alert('코인이 부족합니다! 미션을 가상 완료하거나 러닝에 참여해 코인을 모아보세요.')
+    if (points < 1) {
+      alert('코인이 부족합니다! 운영진에게 코인 지급을 요청하세요.')
       return
     }
 
-    const nextPoints = points - 100
+    const nextPoints = points - 1
     setPoints(nextPoints)
     localStorage.setItem('src_user_points', String(nextPoints))
+
+    // Update global members coins map
+    const savedCoinsMap = localStorage.getItem('src_members_coins')
+    if (savedCoinsMap && profile) {
+      try {
+        const parsedMap = JSON.parse(savedCoinsMap)
+        parsedMap[profile.id] = nextPoints
+        localStorage.setItem('src_members_coins', JSON.stringify(parsedMap))
+      } catch (e) {}
+    }
 
     setGachaSpinning(true)
     setGachaResult(null)
@@ -498,20 +627,23 @@ export default function PlaygroundPage() {
     setTimeout(() => {
       const rand = Math.random() * 100
       let chosen: any
-      if (rand < 5) {
-        chosen = GACHA_ITEMS[0] // 티타임
-      } else if (rand < 12) {
-        chosen = GACHA_ITEMS[1] // 페이서
-      } else if (rand < 20) {
-        chosen = GACHA_ITEMS[2] // 보정권
-      } else if (rand < 35) {
-        chosen = GACHA_ITEMS[3] // 면제권
-      } else if (rand < 50) {
-        chosen = GACHA_ITEMS[4] // 간식 선택
-      } else if (rand < 70) {
-        chosen = GACHA_ITEMS[5] // 하이파이브
+
+      if (rand < 1.0) {
+        // Legendary (1%) -> Choose from g1, g2
+        const legendaryItems = GACHA_ITEMS.filter(item => item.grade === 'LEGENDARY')
+        chosen = legendaryItems[Math.floor(Math.random() * legendaryItems.length)]
+      } else if (rand < 4.0) {
+        // Epic (3%) -> Choose from g3, g4, g5
+        const epicItems = GACHA_ITEMS.filter(item => item.grade === 'EPIC')
+        chosen = epicItems[Math.floor(Math.random() * epicItems.length)]
+      } else if (rand < 9.0) {
+        // Rare (5%) -> Choose from g6, g7, g8, g9
+        const rareItems = GACHA_ITEMS.filter(item => item.grade === 'RARE')
+        chosen = rareItems[Math.floor(Math.random() * rareItems.length)]
       } else {
-        chosen = GACHA_ITEMS[6] // 꽝
+        // Common / 꽝 (91%) -> Choose from g10 to g17
+        const commonItems = GACHA_ITEMS.filter(item => item.grade === 'COMMON')
+        chosen = commonItems[Math.floor(Math.random() * commonItems.length)]
       }
 
       setGachaResult(chosen)
@@ -892,10 +1024,10 @@ export default function PlaygroundPage() {
                 {/* 시뮬레이터 버튼 */}
                 <button
                   type="button"
-                  onClick={() => handleEarnPoints(100)}
+                  onClick={() => handleEarnPoints(1)}
                   className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
                 >
-                  ⚡ 가상 미션 완료 (+100)
+                  ⚡ 가상 미션 완료 (+1 코인)
                 </button>
               </div>
 
@@ -903,7 +1035,7 @@ export default function PlaygroundPage() {
               <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="text-center mb-4">
                   <h3 className="text-xs font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
-                  <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 100 coins to spin for rare prizes</p>
+                  <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 1 coin to spin for rare prizes</p>
                 </div>
 
                 {/* 캡슐 머신 그래픽 영역 */}
@@ -943,7 +1075,7 @@ export default function PlaygroundPage() {
                   ) : (
                     <div className="text-center flex flex-col gap-2 text-slate-400">
                       <div className="text-4xl">🎪</div>
-                      <span className="text-[10px] font-bold">1회 뽑기당 100 코인이 사용됩니다.</span>
+                      <span className="text-[10px] font-bold">1회 뽑기당 1 코인이 사용됩니다.</span>
                     </div>
                   )}
 
@@ -954,17 +1086,17 @@ export default function PlaygroundPage() {
                 </div>
 
                 <button
-                  disabled={gachaSpinning || points < 100}
+                  disabled={gachaSpinning || points < 1}
                   onClick={(e) => handleDrawGacha(e)}
                   className={`mt-6 w-44 h-11 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
                     gachaSpinning
                       ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : points < 100
+                      : points < 1
                       ? 'bg-slate-100 text-slate-350 border border-slate-200 cursor-not-allowed shadow-none'
                       : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-850 active:scale-97 cursor-pointer hover:shadow-lg'
                   }`}
                 >
-                  {gachaSpinning ? '추첨 중...' : '코인으로 뽑기 🎲'}
+                  {gachaSpinning ? '추첨 중...' : '1코인으로 뽑기 🎲'}
                 </button>
               </section>
 
