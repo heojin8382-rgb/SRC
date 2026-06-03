@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { mockStore, Profile, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles, ChevronDown } from 'lucide-react'
 import { getBadgesForUser, getBadgesStatusForUser } from '@/lib/utils/badges'
 import BadgeCard from '@/components/ui/BadgeCard'
 
@@ -570,13 +570,13 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setIsGrowthCurveOpen(!isGrowthCurveOpen)}
-            className="flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+            className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
           >
-            <TrendingUp className="w-4 h-4 text-blue-600" />
-            <span>5월 누적 마라톤 성장 곡선</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isGrowthCurveOpen ? '▲' : '▼'}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <span>5월 누적 마라톤 성장 곡선</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isGrowthCurveOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
@@ -638,13 +638,13 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={() => setIsBadgesOpen(!isBadgesOpen)}
-            className="flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+            className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
           >
-            <Award className="w-4 h-4 text-amber-500" />
-            <span>내 러너 배지 보관함</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isBadgesOpen ? '▲' : '▼'}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <Award className="w-4 h-4 text-amber-500" />
+              <span>내 러너 배지 보관함</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isBadgesOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
         
@@ -671,15 +671,15 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => setIsPbFormOpen(!isPbFormOpen)}
-            className="flex items-center gap-2 text-slate-900 hover:text-slate-700 cursor-pointer animate-fadeIn"
+            className="w-full flex items-center justify-between text-slate-900 hover:text-slate-700 cursor-pointer"
           >
-            <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
-              <Trophy className="w-4 h-4 text-[#2563EB]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
+                <Trophy className="w-4 h-4 text-[#2563EB]" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-wider animate-fadeIn">나의 마라톤 PB 기록 등록</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-wider">나의 마라톤 PB 기록 등록</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isPbFormOpen ? '▲' : '▼'}
-            </span>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isPbFormOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
@@ -778,16 +778,16 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setIsRecordsOpen(!isRecordsOpen)}
-            className="flex items-center gap-1.5 text-[10px] text-slate-500 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
+            className="w-full flex items-center justify-between text-[10px] text-slate-500 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
           >
-            <span>내 러닝 활동 기록</span>
-            <span className="text-[8px] font-bold text-slate-400">
-              {isRecordsOpen ? '▲' : '▼'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span>내 러닝 활동 기록</span>
+              <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider normal-case">
+                {myRecords.length}회
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isRecordsOpen ? 'rotate-180' : ''}`} />
           </button>
-          <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
-            {myRecords.length}회
-          </span>
         </div>
 
         {isRecordsOpen && (
