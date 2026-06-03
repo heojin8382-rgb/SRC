@@ -47,6 +47,9 @@ export default function ProfilePage() {
 
   // 아코디언 접기/펼치기 상태
   const [isRecordsOpen, setIsRecordsOpen] = useState(true)
+  const [isGrowthCurveOpen, setIsGrowthCurveOpen] = useState(true)
+  const [isBadgesOpen, setIsBadgesOpen] = useState(true)
+  const [isPbFormOpen, setIsPbFormOpen] = useState(true)
 
   useEffect(() => {
     loadData()
@@ -564,16 +567,26 @@ export default function ProfilePage() {
 
       {/* 2.5. 마라톤 성장 곡선 분석 그래프 (Strava Vibe) */}
       <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center gap-1.5 mb-4">
-          <TrendingUp className="w-4 h-4 text-blue-600" />
-          <h3 className="text-xs font-black text-slate-800">5월 누적 마라톤 성장 곡선</h3>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setIsGrowthCurveOpen(!isGrowthCurveOpen)}
+            className="flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+          >
+            <TrendingUp className="w-4 h-4 text-blue-600" />
+            <span>5월 누적 마라톤 성장 곡선</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isGrowthCurveOpen ? '▲' : '▼'}
+            </span>
+          </button>
         </div>
 
-        {cumulativeData.length === 0 ? (
+        {isGrowthCurveOpen && cumulativeData.length === 0 && (
           <div className="h-32 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center justify-center text-slate-400 text-center">
             <span className="text-[10px] font-black uppercase tracking-wider">기록이 등록되면 곡선이 그려집니다.</span>
           </div>
-        ) : (
+        )}
+
+        {isGrowthCurveOpen && cumulativeData.length > 0 && (
           <div className="w-full flex flex-col items-center">
             {/* SVG Cumulative Graph */}
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-32 overflow-visible">
@@ -622,11 +635,20 @@ export default function ProfilePage() {
 
       {/* 2.6. 내 배지 전시관 */}
       <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center gap-1.5 mb-3">
-          <Award className="w-4 h-4 text-amber-500" />
-          <h3 className="text-xs font-black text-slate-800">내 러너 배지 보관함</h3>
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => setIsBadgesOpen(!isBadgesOpen)}
+            className="flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+          >
+            <Award className="w-4 h-4 text-amber-500" />
+            <span>내 러너 배지 보관함</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isBadgesOpen ? '▲' : '▼'}
+            </span>
+          </button>
         </div>
         
+        {isBadgesOpen && (
         <div className="grid grid-cols-2 gap-3">
           {myBadges.map(badge => (
             <BadgeCard
@@ -640,17 +662,30 @@ export default function ProfilePage() {
             />
           ))}
         </div>
+        )}
       </section>
 
       {/* 3. 마라톤 3대 최고 기록 (PB) 설정 관리 폼 */}
       <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
-            <Trophy className="w-4 h-4 text-[#2563EB]" />
-          </div>
-          <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">나의 마라톤 PB 기록 등록</h2>
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            onClick={() => setIsPbFormOpen(!isPbFormOpen)}
+            className="flex items-center gap-2 text-slate-900 hover:text-slate-700 cursor-pointer animate-fadeIn"
+          >
+            <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
+              <Trophy className="w-4 h-4 text-[#2563EB]" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-wider">나의 마라톤 PB 기록 등록</span>
+            <span className="text-[8px] font-bold text-slate-400">
+              {isPbFormOpen ? '▲' : '▼'}
+            </span>
+          </button>
         </div>
-        <p className="text-[10px] text-slate-500 leading-relaxed mb-4">
+
+        {isPbFormOpen && (
+          <>
+            <p className="text-[10px] text-slate-500 leading-relaxed mb-4">
           공식 대회 최고 기록을 시:분:초(<strong className="text-slate-800">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
           예: <strong className="text-slate-800 font-bold">46분 15초</strong> ➔ <strong className="text-[#2563EB] font-bold">00:46:15</strong> | <strong className="text-slate-855 font-bold">3시간 45분</strong> ➔ <strong className="text-[#2563EB] font-bold">03:45:00</strong>
         </p>
@@ -734,6 +769,8 @@ export default function ProfilePage() {
             기록 저장 및 랭킹 반영
           </button>
         </form>
+        </>
+        )}
       </section>
 
       {/* 4. 내 기록 리스트 히스토리 피드 */}
