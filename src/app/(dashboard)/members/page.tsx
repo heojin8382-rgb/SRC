@@ -26,6 +26,7 @@ export default function MembersPage() {
   const [adminSearchTerm, setAdminSearchTerm] = useState('')
   const [rankingSearchTerm, setRankingSearchTerm] = useState('')
   const [isStatsOpen, setIsStatsOpen] = useState(false)
+  const [selectedBracket, setSelectedBracket] = useState<{ key: string; gender: '남' | '여' } | null>(null)
 
   useEffect(() => {
     loadData()
@@ -266,6 +267,35 @@ export default function MembersPage() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5)
 
+  // 풀코스 구간별 멤버 필터링
+  const getBracketMembers = (key: string, gender: '남' | '여') => {
+    return fullPbMembers.filter(m => {
+      const g = m.gender === '여' ? '여' : '남'
+      if (g !== gender) return false
+      
+      const t = m.pbs['Full']
+      if (!t) return false
+
+      const parts = t.split(':').map(Number)
+      const totalSec = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0)
+
+      if (key === 'sub-3') return totalSec < 3 * 3600
+      if (key === 'single') return totalSec >= 3 * 3600 && totalSec < 3 * 3600 + 10 * 60
+      if (key === '330') return totalSec >= 3 * 3600 + 10 * 60 && totalSec < 3 * 3600 + 30 * 60
+      if (key === 'sub-4') return totalSec >= 3 * 3600 + 30 * 60 && totalSec < 4 * 3600
+      if (key === 'sub-5') return totalSec >= 4 * 3600 && totalSec < 5 * 3600
+      return false
+    })
+  }
+
+  const toggleBracketSelection = (key: string, gender: '남' | '여') => {
+    if (selectedBracket?.key === key && selectedBracket?.gender === gender) {
+      setSelectedBracket(null)
+    } else {
+      setSelectedBracket({ key, gender })
+    }
+  }
+
   return (
     <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       
@@ -435,20 +465,85 @@ export default function MembersPage() {
               
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { label: 'Sub-3 (3시간 미만) ⚡', m: sub3M, w: sub3W, color: 'border-blue-200 bg-blue-50/20 text-blue-700' },
-                  { label: '싱글 (3시간 ~ 3시간 10분) 🥇', m: singleM, w: singleW, color: 'border-amber-250 bg-amber-50/20 text-amber-700' },
-                  { label: '330 (3시간 10분 ~ 3시간 30분) 🥈', m: pb330M, w: pb330W, color: 'border-slate-250 bg-slate-50/30 text-slate-700' },
-                  { label: 'Sub-4 (3시간 30분 ~ 4시간) 🥉', m: sub4M, w: sub4W, color: 'border-amber-200 bg-amber-50/10 text-amber-800' },
-                  { label: 'Sub-5 (4시간 ~ 5시간) 🏃', m: sub5M, w: sub5W, color: 'border-slate-200 bg-slate-50/10 text-slate-600' },
-                ].map((item, idx) => (
-                  <div key={idx} className={`p-2.5 border rounded-xl flex items-center justify-between text-[10px] font-black ${item.color}`}>
-                    <span>{item.label}</span>
-                    <div className="flex gap-2">
-                      <span className="bg-white/60 border border-slate-200/50 px-2 py-0.5 rounded-md">🏃‍♂️ 남 {item.m}명</span>
-                      <span className="bg-white/60 border border-slate-200/50 px-2 py-0.5 rounded-md">🏃‍♀️ 여 {item.w}명</span>
+                  { key: 'sub-3', label: 'Sub-3 (3시간 미만) ⚡', m: sub3M, w: sub3W, color: 'border-blue-200 bg-blue-50/20 text-blue-700' },
+                  { key: 'single', label: '싱글 (3시간 ~ 3시간 10분) 🥇', m: singleM, w: singleW, color: 'border-amber-250 bg-amber-50/20 text-amber-700' },
+                  { key: '330', label: '330 (3시간 10분 ~ 3시간 30분) 🥈', m: pb330M, w: pb330W, color: 'border-slate-250 bg-slate-50/30 text-slate-700' },
+                  { key: 'sub-4', label: 'Sub-4 (3시간 30분 ~ 4시간) 🥉', m: sub4M, w: sub4W, color: 'border-amber-200 bg-amber-50/10 text-amber-800' },
+                  { key: 'sub-5', label: 'Sub-5 (4시간 ~ 5시간) 🏃', m: sub5M, w: sub5W, color: 'border-slate-200 bg-slate-50/10 text-slate-600' },
+                ].map((item, idx) => {
+                  const isSelectedM = selectedBracket?.key === item.key && selectedBracket?.gender === '남'
+                  const isSelectedW = selectedBracket?.key === item.key && selectedBracket?.gender === '여'
+                  const currentSelected = selectedBracket?.key === item.key ? selectedBracket?.gender : null
+
+                  return (
+                    <div key={idx} className="flex flex-col gap-1.5">
+                      <div className={`p-2.5 border rounded-xl flex items-center justify-between text-[10px] font-black ${item.color}`}>
+                        <span>{item.label}</span>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleBracketSelection(item.key, '남')}
+                            className={`px-2 py-0.5 rounded-md border transition-all duration-200 flex items-center gap-0.5 cursor-pointer ${
+                              isSelectedM 
+                                ? 'bg-blue-600 border-blue-600 text-white shadow-sm font-extrabold'
+                                : 'bg-white/60 hover:bg-white border-slate-200/50 text-slate-700 hover:border-slate-300'
+                            }`}
+                          >
+                            <span>🏃‍♂️ 남 {item.m}명</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleBracketSelection(item.key, '여')}
+                            className={`px-2 py-0.5 rounded-md border transition-all duration-200 flex items-center gap-0.5 cursor-pointer ${
+                              isSelectedW 
+                                ? 'bg-rose-500 border-rose-500 text-white shadow-sm font-extrabold'
+                                : 'bg-white/60 hover:bg-white border-slate-200/50 text-slate-700 hover:border-slate-300'
+                            }`}
+                          >
+                            <span>🏃‍♀️ 여 {item.w}명</span>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* 펼쳐지는 이름 리스트 */}
+                      {currentSelected && selectedBracket?.key === item.key && (
+                        <div className="mx-1 px-3 py-2 bg-slate-50 border border-slate-200/70 rounded-xl animate-fadeIn space-y-1">
+                          <div className="text-[9px] text-slate-400 font-extrabold flex justify-between items-center">
+                            <span>{currentSelected === '남' ? '🏃‍♂️ 남성 주자 목록' : '🏃‍♀️ 여성 주자 목록'}</span>
+                            <button 
+                              type="button"
+                              onClick={() => setSelectedBracket(null)}
+                              className="text-slate-400 hover:text-slate-600 font-extrabold cursor-pointer"
+                            >
+                              ✕ 닫기
+                            </button>
+                          </div>
+                          {getBracketMembers(item.key, currentSelected).length === 0 ? (
+                            <p className="text-[10px] text-slate-400 py-1">해당되는 크루원이 없습니다.</p>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {getBracketMembers(item.key, currentSelected).map((m) => (
+                                <span 
+                                  key={m.id} 
+                                  className="inline-flex items-center gap-1 bg-white border border-slate-200 text-[10px] font-bold text-slate-800 px-2 py-0.5 rounded-lg shadow-sm"
+                                >
+                                  {m.avatar_url ? (
+                                    <img src={m.avatar_url} alt="" className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
+                                  ) : (
+                                    <span className="text-[8px]">👤</span>
+                                  )}
+                                  <span>{m.nickname}</span>
+                                  {m.real_name && <span className="text-slate-400 text-[9px] font-normal">({m.real_name})</span>}
+                                  <span className="text-[#2563EB] font-black text-[9px] ml-0.5">{m.pbs['Full']}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
 
