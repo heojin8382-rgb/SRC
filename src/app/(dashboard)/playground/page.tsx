@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { mockStore } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Sparkles, Trophy, AlertCircle, Check, Play, UserCheck, Flame, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Sparkles, Trophy, AlertCircle, Check, Play, UserCheck, Flame, HelpCircle, Search } from 'lucide-react'
 import { triggerReactionParticles } from '@/components/ui/ParticleContainer'
 
 interface GameMember {
@@ -48,6 +48,7 @@ export default function PlaygroundPage() {
   const [memberDistances, setMemberDistances] = useState<Record<string, number>>({})
   const [useDistanceWeight, setUseDistanceWeight] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [gameSearchTerm, setGameSearchTerm] = useState('')
 
   // 1. Roulette States
   const [spinning, setSpinning] = useState(false)
@@ -152,6 +153,10 @@ export default function PlaygroundPage() {
   }
 
   const selectedMembers = members.filter(m => selectedIds.includes(m.id))
+
+  const filteredMembers = members.filter(m =>
+    m.nickname.toLowerCase().includes(gameSearchTerm.toLowerCase())
+  )
 
   const getCoordinatesForPercent = (percent: number) => {
     const angle = 2 * Math.PI * percent - Math.PI / 2
@@ -782,11 +787,33 @@ export default function PlaygroundPage() {
                   </div>
                 </div>
 
-                {members.length === 0 ? (
-                  <p className="text-[10px] text-slate-400 text-center py-6">등록된 활성 크루 멤버가 없습니다.</p>
+                {/* 검색 바 */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="이름으로 크루원 검색..."
+                    value={gameSearchTerm}
+                    onChange={(e) => setGameSearchTerm(e.target.value)}
+                    className="w-full h-9 pl-9 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition-all text-slate-800 font-semibold"
+                  />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  {gameSearchTerm && (
+                    <button
+                      onClick={() => setGameSearchTerm('')}
+                      className="absolute right-2.5 top-2.2 text-slate-400 hover:text-slate-600 font-extrabold text-[10px] cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {filteredMembers.length === 0 ? (
+                  <p className="text-[10px] text-slate-400 text-center py-6">
+                    {members.length === 0 ? "등록된 활성 크루 멤버가 없습니다." : "검색 결과가 없습니다."}
+                  </p>
                 ) : (
                   <div className="grid grid-cols-2 gap-2.5 overflow-y-auto max-h-60 pr-1">
-                    {members.map(m => {
+                    {filteredMembers.map(m => {
                       const isSelected = selectedIds.includes(m.id)
                       const dist = memberDistances[m.id] || 0
                       

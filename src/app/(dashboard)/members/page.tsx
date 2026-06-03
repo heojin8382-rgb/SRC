@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { mockStore, Profile, Member, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Shield, Award, ChevronDown } from 'lucide-react'
+import { Trophy, Shield, Award, ChevronDown, Search } from 'lucide-react'
 import { getBadgesForUser } from '@/lib/utils/badges'
 
 type Category = '10K' | 'Half' | 'Full'
@@ -23,6 +23,8 @@ export default function MembersPage() {
 
   // 랭킹보드 아코디언 상태
   const [isRankingOpen, setIsRankingOpen] = useState(false)
+  const [adminSearchTerm, setAdminSearchTerm] = useState('')
+  const [rankingSearchTerm, setRankingSearchTerm] = useState('')
 
   useEffect(() => {
     loadData()
@@ -206,6 +208,16 @@ export default function MembersPage() {
     // 기록 시간순 오름차순 정렬 (00:30:00 이 00:45:00 보다 빠름)
     .sort((a, b) => a.pbTime.localeCompare(b.pbTime))
 
+  const filteredAdminMembers = members.filter(m =>
+    m.nickname.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (m.real_name && m.real_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+  )
+
+  const filteredRankedMembers = rankedMembers.filter(m =>
+    m.nickname.toLowerCase().includes(rankingSearchTerm.toLowerCase()) ||
+    (m.real_name && m.real_name.toLowerCase().includes(rankingSearchTerm.toLowerCase()))
+  )
+
   return (
     <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       
@@ -244,10 +256,33 @@ export default function MembersPage() {
                 운영진 권한이 감지되어 아래 크루 멤버 가입 승인(`WAITING` ➔ `REGULAR`), 면제권 부여, 차단 처리를 관리할 수 있습니다. {! (profile.role === 'ADMIN' || profile.can_edit_admin) && <span className="text-rose-600 font-extrabold">(현재 조회 전용 권한입니다)</span>}
               </p>
 
-              {members.map(m => {
-                const isMe = m.id === profile.id
+              {/* 검색 바 */}
+              <div className="relative mb-2">
+                <input
+                  type="text"
+                  placeholder="이름/닉네임으로 멤버 검색..."
+                  value={adminSearchTerm}
+                  onChange={(e) => setAdminSearchTerm(e.target.value)}
+                  className="w-full h-9 pl-9 pr-8 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] transition-all text-slate-800 font-semibold"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                {adminSearchTerm && (
+                  <button
+                    onClick={() => setAdminSearchTerm('')}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 font-extrabold text-[10px] cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
 
-                return (
+              {filteredAdminMembers.length === 0 ? (
+                <p className="text-[10px] text-slate-400 text-center py-6">검색 결과가 없습니다.</p>
+              ) : (
+                filteredAdminMembers.map(m => {
+                  const isMe = m.id === profile.id
+
+                  return (
                   <div 
                     key={m.id} 
                     className="p-3.5 bg-white border border-slate-200 rounded-2xl flex flex-col gap-3 shadow-sm"
@@ -323,7 +358,7 @@ export default function MembersPage() {
                     )}
                   </div>
                 )
-              })}
+              }))}
             </div>
           )}
         </section>
@@ -364,92 +399,118 @@ export default function MembersPage() {
         </div>
 
         {isRankingOpen && (
-          rankedMembers.length === 0 ? (
-          <div className="flex-1 min-h-[220px] bg-slate-50 border border-slate-250 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
-            <span className="text-xs font-black text-slate-600">📪 해당 종목에 등록된 PB 기록이 없습니다.</span>
-            <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
-          </div>
-        ) : (
-          <div className="space-y-3.5">
-            {rankedMembers.map((m, index) => {
-              const rank = index + 1
-              
-              // 상위 3인 메달 데코레이션 스타일
-              const rankDecor: Record<number, { label: string; bg: string; text: string; border: string }> = {
-                1: { label: '🥇 1st', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-250' },
-                2: { label: '🥈 2nd', bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-250' },
-                3: { label: '🥉 3rd', bg: 'bg-amber-50/70', text: 'text-amber-700', border: 'border-amber-200' },
-              }
-
-              const decor = rankDecor[rank]
-
-              // Calculate runner badges dynamically
-              const runnerRecords = allRecords.filter(r => r.user_id === m.id)
-              const runnerBadges = getBadgesForUser(runnerRecords, hasPbsMap[m.id] || false)
-
-              return (
-                <div
-                  key={m.id}
-                  className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm transition-all duration-300 hover:bg-slate-50/30 ${
-                    decor ? `border-2 ${decor.border} shadow-sm` : 'border-slate-200'
-                  }`}
+          <>
+            {/* 검색 바 */}
+            <div className="relative mb-4">
+              <input
+                type="text"
+                placeholder="이름/닉네임으로 기록 검색..."
+                value={rankingSearchTerm}
+                onChange={(e) => setRankingSearchTerm(e.target.value)}
+                className="w-full h-9 pl-9 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition-all text-slate-800 font-semibold"
+              />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              {rankingSearchTerm && (
+                <button
+                  onClick={() => setRankingSearchTerm('')}
+                  className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 font-extrabold text-[10px] cursor-pointer"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {/* 순위 마킹 */}
-                      <div className="w-11 flex items-center justify-center shrink-0">
-                        {decor ? (
-                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${decor.bg} ${decor.text} border ${decor.border}`}>
-                            {decor.label}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-black text-slate-400">{rank}위</span>
-                        )}
-                      </div>
+                  ✕
+                </button>
+              )}
+            </div>
 
-                      {/* 아바타 */}
-                      {m.avatar_url ? (
-                        <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner shrink-0">👤</div>
-                      )}
+            {filteredRankedMembers.length === 0 ? (
+              <div className="flex-1 min-h-[220px] bg-slate-50 border border-slate-250 rounded-3xl p-8 flex flex-col items-center justify-center text-center text-slate-400">
+                <span className="text-xs font-black text-slate-600">
+                  {rankedMembers.length === 0 ? "📪 해당 종목에 등록된 PB 기록이 없습니다." : "🔍 검색 결과가 없습니다."}
+                </span>
+                {rankedMembers.length === 0 && (
+                  <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Update PB in my profile page</span>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                {filteredRankedMembers.map((m, index) => {
+                  const rank = index + 1
+                  
+                  // 상위 3인 메달 데코레이션 스타일
+                  const rankDecor: Record<number, { label: string; bg: string; text: string; border: string }> = {
+                    1: { label: '🥇 1st', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-250' },
+                    2: { label: '🥈 2nd', bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-250' },
+                    3: { label: '🥉 3rd', bg: 'bg-amber-50/70', text: 'text-amber-700', border: 'border-amber-200' },
+                  }
 
-                      {/* 이름 & 역할 및 페이서 풍선 */}
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-black text-slate-900">{m.nickname}</span>
-                          {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
-                          {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
+                  const decor = rankDecor[rank]
+
+                  // Calculate runner badges dynamically
+                  const runnerRecords = allRecords.filter(r => r.user_id === m.id)
+                  const runnerBadges = getBadgesForUser(runnerRecords, hasPbsMap[m.id] || false)
+
+                  return (
+                    <div
+                      key={m.id}
+                      className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm transition-all duration-300 hover:bg-slate-50/30 ${
+                        decor ? `border-2 ${decor.border} shadow-sm` : 'border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {/* 순위 마킹 */}
+                          <div className="w-11 flex items-center justify-center shrink-0">
+                            {decor ? (
+                              <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${decor.bg} ${decor.text} border ${decor.border}`}>
+                                {decor.label}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-400">{rank}위</span>
+                            )}
+                          </div>
+
+                          {/* 아바타 */}
+                          {m.avatar_url ? (
+                            <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-xs text-slate-400 shadow-inner shrink-0">👤</div>
+                          )}
+
+                          {/* 이름 & 역할 및 페이서 풍선 */}
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-black text-slate-900">{m.nickname}</span>
+                              {m.role === 'PACER' && <span className="text-xs" title="크루 페이서 🎈">🎈</span>}
+                              {m.role === 'ADMIN' && <span className="text-[9px]" title="크루 운영자 ⚡">⚡</span>}
+                            </div>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{activeCategory} 최고 기록</span>
+                          </div>
                         </div>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{activeCategory} 최고 기록</span>
-                      </div>
-                    </div>
 
-                    {/* PB 타임 레코드 */}
-                    <span className="text-xs font-black tracking-wider text-[#2563EB] bg-blue-50 border border-blue-100 px-3.5 py-1 rounded-xl">
-                      {m.pbTime}
-                    </span>
-                  </div>
-
-                  {/* Runner's Badges Grid inside card */}
-                  {runnerBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pl-14">
-                      {runnerBadges.map(badge => (
-                        <span 
-                          key={badge.id}
-                          className="inline-block text-[8px] font-black px-1.5 py-0.2 rounded bg-slate-50 border border-slate-200 text-slate-655"
-                          title={badge.name}
-                        >
-                          {badge.emoji} {badge.name}
+                        {/* PB 타임 레코드 */}
+                        <span className="text-xs font-black tracking-wider text-[#2563EB] bg-blue-50 border border-blue-100 px-3.5 py-1 rounded-xl">
+                          {m.pbTime}
                         </span>
-                      ))}
+                      </div>
+
+                      {/* Runner's Badges Grid inside card */}
+                      {runnerBadges.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-14">
+                          {runnerBadges.map(badge => (
+                            <span 
+                              key={badge.id}
+                              className="inline-block text-[8px] font-black px-1.5 py-0.2 rounded bg-slate-50 border border-slate-200 text-slate-655"
+                              title={badge.name}
+                            >
+                              {badge.emoji} {badge.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>
