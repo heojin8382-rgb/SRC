@@ -720,7 +720,7 @@ export default function DashboardPage() {
         >
           <div className="flex items-center gap-1.5">
             <span className="text-emerald-500">🧘‍♂️</span>
-            <span>러닝 전 5분 필수 동적 스트레칭 (7단계)</span>
+            <span>러닝 전 필수 동적 스트레칭 & 러닝 드릴 (10단계)</span>
           </div>
           <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isStretchingOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -774,6 +774,24 @@ export default function DashboardPage() {
                   title: '종아리 & 아킬레스건 늘리기 🩹',
                   desc: '한쪽 다리를 뒤로 길게 뻗고 뒤꿈치를 땅에 밀착시킵니다. 체중을 앞다리에 실으며 종아리와 아킬레스건을 지그시 늘려줍니다. (각 15초 유지)',
                   detail: '아킬레스건염 예방 & 부상 방지 최종 점검'
+                },
+                {
+                  step: 8,
+                  title: '[러닝 드릴] A-스킵 (A-Skip) 🦘',
+                  desc: '리드미컬한 스킵 박자에 맞춰 가볍게 바운스를 타며, 한쪽 무릎을 골반 높이까지 빠르게 수직으로 올렸다 내립니다. (양방향 각 15~20회)',
+                  detail: '올바른 무릎 피치 자세 & 발목 스프링 탄성 훈련'
+                },
+                {
+                  step: 9,
+                  title: '[러닝 드릴] B-스킵 (B-Skip - 햄스트링 핵심!) 🦵',
+                  desc: 'A-스킵처럼 무릎을 들어 올린 직후, 다리를 앞으로 가볍게 뻗었다가 햄스트링의 힘으로 지면을 할퀴듯이(Pawing) 빠르게 뒤로 쓸어내려 착지합니다. (각 15~20회)',
+                  detail: '햄스트링의 동적 활성화 & 강력한 지면 반발력 확보'
+                },
+                {
+                  step: 10,
+                  title: '[러닝 드릴] C-스킵 (C-Skip) 🔄',
+                  desc: '스킵 박자 속에서 무릎을 정면으로 한 번 들어 올린 후, 곧바로 같은 다리를 바깥쪽(측면)으로 외회전하여 골반을 열어주며 올립니다. (각 10회)',
+                  detail: '고관절 외전근 활성화 & 골반 주변부 유연성 극대화'
                 }
               ].map((item) => (
                 <div key={item.step} className="flex gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-2xl shadow-sm">
