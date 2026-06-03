@@ -22,8 +22,8 @@ import {
   TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
-
 import { getBadgesForUser } from '@/lib/utils/badges'
+import { triggerReactionParticles } from '@/components/ui/ParticleContainer'
 
 interface DBComment {
   id: string
@@ -43,6 +43,19 @@ interface DBLike {
   user_id: string
 }
 
+const RUNNING_TIPS = [
+  { type: 'QUOTE', text: "러닝은 속도가 아니라 방향이다. 오늘도 당신의 페이스를 믿고 달리세요! 🏃‍♂️", author: "SRC 코치" },
+  { type: 'JOKE', text: "러너의 가장 큰 거짓말: '오늘 진짜 천천히 조깅 페이스로 뛸게.' (실제 페이스 4:30) 😉", author: "어느 정회원" },
+  { type: 'ADVICE', text: "부상은 열정의 과잉에서 옵니다. 주 1~2회는 푹 쉬어주는 것도 러닝의 중요한 일부입니다. 🩹", author: "건강 지킴이" },
+  { type: 'QUOTE', text: "완벽한 날씨나 완벽한 기분은 결코 오지 않는다. 일단 신발 끈을 묶는 것부터 시작하세요. 👟", author: "명언 자판기" },
+  { type: 'JOKE', text: "달리기를 시작하고 건강해졌는데, 지갑은 가벼워졌습니다. 장비병은 현대 의학으로도 치료가 불가능하네요. 💸", author: "장비 수집가" },
+  { type: 'ADVICE', text: "여름 러닝은 심박수가 평소보다 10~15bpm 높을 수 있습니다. 무더운 날엔 거리보다 수분 섭취와 체온 관리에 집중하세요. 💧", author: "기온 정보국" },
+  { type: 'JOKE', text: "마라톤 도중 물 보급소에서 컵을 던지는 모습이 멋져 보여서 따라 해봤는데, 제 옷에 다 쏟았습니다. 🥤", author: "초보 러너" },
+  { type: 'QUOTE', text: "남들과 비교하지 마세요. 어제의 자신보다 단 1m라도 더 나아갔다면 그것으로 완벽합니다. ✨", author: "페이스 메이커" },
+  { type: 'JOKE', text: "달리기를 하면서 깨달은 진리: 오르막길이 있으면... 반드시 또 다른 오르막길이 나옵니다. ⛰️", author: "고갯길 러너" },
+  { type: 'ADVICE', text: "달리기 전 스트레칭은 동적 스트레칭(가볍게 움직이기)으로, 마친 후에는 정적 스트레칭(늘려주기)으로 마무리해야 근육이 덜 뭉칩니다. 🧘‍♂️", author: "부상 방지 위원회" }
+]
+
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [records, setRecords] = useState<RunningRecord[]>([])
@@ -57,11 +70,30 @@ export default function DashboardPage() {
   const [newCommentText, setNewCommentText] = useState('')
   const [hasPbsMap, setHasPbsMap] = useState<Record<string, boolean>>({})
 
+  // Tip/Joke widget states
+  const [currentTipIdx, setCurrentTipIdx] = useState(0)
+  const [tipFade, setTipFade] = useState(true)
+
+  const handleShuffleTip = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setTipFade(false)
+    triggerReactionParticles(e.clientX, e.clientY, 'clap')
+    
+    setTimeout(() => {
+      let nextIdx = Math.floor(Math.random() * RUNNING_TIPS.length)
+      while (nextIdx === currentTipIdx && RUNNING_TIPS.length > 1) {
+        nextIdx = Math.floor(Math.random() * RUNNING_TIPS.length)
+      }
+      setCurrentTipIdx(nextIdx)
+      setTipFade(true)
+    }, 200)
+  }
+
   // 컴포넌트 마운트 시 로컬 스토리지 또는 Supabase로부터 실시간 동적 바인딩
   useEffect(() => {
     const mockCheck = checkIsMock()
     setIsMock(mockCheck)
     loadData(mockCheck)
+    setCurrentTipIdx(Math.floor(Math.random() * RUNNING_TIPS.length))
   }, [])
 
   const loadData = async (mockCheck?: boolean) => {
@@ -374,8 +406,6 @@ export default function DashboardPage() {
   return (
     <div className="p-5 flex flex-col relative select-none bg-white">
       
-
-
       {/* 1. 상단 사용자 프로필 헤더 */}
       <header className="flex items-center justify-between mb-6 z-10 relative bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
         <div className="flex items-center gap-3">
@@ -612,6 +642,38 @@ export default function DashboardPage() {
           <span className="text-xs font-black tracking-wide text-slate-800 mt-1">크루원 PB 보드</span>
           <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">마라톤 3대 기록 경쟁</span>
         </Link>
+      </section>
+
+      {/* 오늘의 러닝 동반자 (Inspiring Advice/Quote/Joke Card) */}
+      <section className="bg-gradient-to-r from-blue-50/45 via-indigo-50/20 to-emerald-50/45 border border-slate-200/80 rounded-3xl p-4.5 mb-6 shadow-sm relative overflow-hidden select-none animate-fadeIn">
+        <div className="absolute top-[-20%] right-[-10%] w-24 h-24 bg-blue-100/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
+            <h3 className="text-xs font-black text-slate-800">
+              {RUNNING_TIPS[currentTipIdx]?.type === 'QUOTE' && '🍀 오늘의 러닝 명언'}
+              {RUNNING_TIPS[currentTipIdx]?.type === 'JOKE' && '🤪 위트있는 러닝 한마디'}
+              {RUNNING_TIPS[currentTipIdx]?.type === 'ADVICE' && '🩹 유용한 러닝 조언'}
+            </h3>
+          </div>
+          <button
+            onClick={handleShuffleTip}
+            className="flex items-center gap-1 text-[9px] font-black text-blue-600 hover:text-blue-700 bg-white border border-slate-200/80 rounded-xl px-2.5 py-1 shadow-sm transition-all hover:scale-102 active:scale-98 cursor-pointer"
+          >
+            <span>🔄 다른 이야기</span>
+          </button>
+        </div>
+
+        <div className={`transition-all duration-300 ${tipFade ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
+          <p className="text-xs font-semibold text-slate-700 leading-relaxed min-h-[40px] flex items-center">
+            "{RUNNING_TIPS[currentTipIdx]?.text}"
+          </p>
+          <div className="flex items-center justify-end mt-1.5">
+            <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-wide">
+              — {RUNNING_TIPS[currentTipIdx]?.author}
+            </span>
+          </div>
+        </div>
       </section>
 
       {/* 6. 실시간 크루 인증 피드 */}
