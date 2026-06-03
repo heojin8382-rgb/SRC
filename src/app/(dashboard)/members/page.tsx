@@ -25,6 +25,7 @@ export default function MembersPage() {
   const [isRankingOpen, setIsRankingOpen] = useState(false)
   const [adminSearchTerm, setAdminSearchTerm] = useState('')
   const [rankingSearchTerm, setRankingSearchTerm] = useState('')
+  const [isStatsOpen, setIsStatsOpen] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -68,10 +69,10 @@ export default function MembersPage() {
         .from('marathon_pbs')
         .select('*')
 
-      // Fetch all running records to calculate badges
+      // Fetch all running records to calculate badges and location stats
       const { data: recordsList } = await supabase
         .from('running_records')
-        .select('user_id, distance, is_pacer')
+        .select('user_id, distance, is_pacer, location_name')
 
       const formattedRecords: RunningRecord[] = (recordsList || []).map((r: any) => ({
         id: '',
@@ -80,7 +81,7 @@ export default function MembersPage() {
         user_avatar: '',
         distance: Number(r.distance),
         location_id: '',
-        location_name: '',
+        location_name: r.location_name || '',
         date: '',
         type: 'PERSONAL',
         is_pacer: r.is_pacer
@@ -217,6 +218,53 @@ export default function MembersPage() {
     m.nickname.toLowerCase().includes(rankingSearchTerm.toLowerCase()) ||
     (m.real_name && m.real_name.toLowerCase().includes(rankingSearchTerm.toLowerCase()))
   )
+
+  // 풀 마라톤 성적 구간별 인원 산출 (통계용)
+  const fullPbMembers = members.filter(m => m.pbs && m.pbs['Full'])
+  let sub3M = 0, sub3W = 0
+  let singleM = 0, singleW = 0
+  let pb330M = 0, pb330W = 0
+  let sub4M = 0, sub4W = 0
+  let sub5M = 0, sub5W = 0
+  let over5M = 0, over5W = 0
+
+  fullPbMembers.forEach(m => {
+    const t = m.pbs['Full']
+    const gender = m.gender || '남'
+    if (!t) return
+
+    const parts = t.split(':').map(Number)
+    const totalSec = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0)
+
+    if (totalSec < 3 * 3600) {
+      if (gender === '여') sub3W++; else sub3M++;
+    } else if (totalSec < 3 * 3600 + 10 * 60) {
+      if (gender === '여') singleW++; else singleM++;
+    } else if (totalSec < 3 * 3600 + 30 * 60) {
+      if (gender === '여') pb330W++; else pb330M++;
+    } else if (totalSec < 4 * 3600) {
+      if (gender === '여') sub4W++; else sub4M++;
+    } else if (totalSec < 5 * 3600) {
+      if (gender === '여') sub5W++; else sub5M++;
+    } else {
+      if (gender === '여') over5W++; else over5M++;
+    }
+  })
+
+  // 최다 활동 장소 통계 산출
+  const locationCounts: Record<string, number> = {}
+  allRecords.forEach(r => {
+    if (r.location_name) {
+      const locName = r.location_name.trim()
+      if (locName) {
+        locationCounts[locName] = (locationCounts[locName] || 0) + 1
+      }
+    }
+  })
+  const topLocations = Object.entries(locationCounts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
 
   return (
     <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
@@ -363,6 +411,82 @@ export default function MembersPage() {
           )}
         </section>
       )}
+
+      {/* 📊 B. 크루 활동 및 PB 통계 브리핑 (Collapsible) */}
+      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setIsStatsOpen(!isStatsOpen)}
+            className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="text-[#2563EB]">📊</span>
+              <span>크루 활동 및 PB 통계 브리핑</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isStatsOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        {isStatsOpen && (
+          <div className="mt-4 pt-4 border-t border-slate-150 space-y-5 animate-fadeIn">
+            {/* 1. 풀코스 구간별 현황 */}
+            <div className="space-y-2">
+              <h4 className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">🏆 풀 마라톤 명예의 전당</h4>
+              
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { label: 'Sub-3 (3시간 미만) ⚡', m: sub3M, w: sub3W, color: 'border-blue-200 bg-blue-50/20 text-blue-700' },
+                  { label: '싱글 (3시간 ~ 3시간 10분) 🥇', m: singleM, w: singleW, color: 'border-amber-250 bg-amber-50/20 text-amber-700' },
+                  { label: '330 (3시간 10분 ~ 3시간 30분) 🥈', m: pb330M, w: pb330W, color: 'border-slate-250 bg-slate-50/30 text-slate-700' },
+                  { label: 'Sub-4 (3시간 30분 ~ 4시간) 🥉', m: sub4M, w: sub4W, color: 'border-amber-200 bg-amber-50/10 text-amber-800' },
+                  { label: 'Sub-5 (4시간 ~ 5시간) 🏃', m: sub5M, w: sub5W, color: 'border-slate-200 bg-slate-50/10 text-slate-600' },
+                ].map((item, idx) => (
+                  <div key={idx} className={`p-2.5 border rounded-xl flex items-center justify-between text-[10px] font-black ${item.color}`}>
+                    <span>{item.label}</span>
+                    <div className="flex gap-2">
+                      <span className="bg-white/60 border border-slate-200/50 px-2 py-0.5 rounded-md">🏃‍♂️ 남 {item.m}명</span>
+                      <span className="bg-white/60 border border-slate-200/50 px-2 py-0.5 rounded-md">🏃‍♀️ 여 {item.w}명</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. 최다 활동 장소 TOP 5 */}
+            <div className="space-y-2.5">
+              <h4 className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">📍 크루 최다 러닝 장소 (Top 5)</h4>
+              
+              {topLocations.length === 0 ? (
+                <p className="text-[10px] text-slate-400 text-center py-4">등록된 러닝 인증 기록이 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {topLocations.map((loc, idx) => {
+                    const maxCount = topLocations[0].count || 1
+                    const widthPercent = Math.round((loc.count / maxCount) * 100)
+                    return (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] font-black text-slate-700">
+                          <span className="flex items-center gap-1">
+                            <span className="text-slate-400 font-bold">{idx + 1}.</span>
+                            <span>{loc.name}</span>
+                          </span>
+                          <span className="text-slate-550">{loc.count}회</span>
+                        </div>
+                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-blue-600 to-cyan-400 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${widthPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* 2. 카테고리 3대 종목 선택 세그먼트 */}
       <section className="bg-slate-100 border border-slate-200 p-1.5 rounded-2xl grid grid-cols-3 gap-1.5 mb-6 shadow-inner z-10 relative">
