@@ -87,6 +87,7 @@ export default function DashboardPage() {
 
   // 피드 아코디언 상태
   const [isFeedOpen, setIsFeedOpen] = useState(false)
+  const [isStretchingOpen, setIsStretchingOpen] = useState(false)
 
   const handleShuffleTip = (e: React.MouseEvent<HTMLButtonElement>) => {
     setTipFade(false)
@@ -709,6 +710,90 @@ export default function DashboardPage() {
             👉
           </div>
         </Link>
+      </section>
+
+      {/* 5.8. 러닝 전 필수! 동적 스트레칭 가이드 (Collapsible) */}
+      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
+        <button
+          onClick={() => setIsStretchingOpen(!isStretchingOpen)}
+          className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+        >
+          <div className="flex items-center gap-1.5">
+            <span className="text-emerald-500">🧘‍♂️</span>
+            <span>러닝 전 5분 필수 동적 스트레칭 (7단계)</span>
+          </div>
+          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isStretchingOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isStretchingOpen && (
+          <div className="mt-4 pt-4 border-t border-slate-150 space-y-4 animate-fadeIn">
+            <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
+              달리기 전에 관절과 근육을 부드럽게 깨워주는 <strong className="text-emerald-600 font-extrabold">동적 스트레칭</strong>입니다. 반동을 주며 가볍게 움직이는 동작 위주로 순서대로 진행해 주세요!
+            </p>
+
+            <div className="space-y-3">
+              {[
+                {
+                  step: 1,
+                  title: '발목 & 손목 돌리기 💫',
+                  desc: '한쪽 발끝을 땅에 대고 뒤꿈치를 들고 발목과 손목을 좌우로 부드럽게 각각 10회씩 돌려줍니다.',
+                  detail: '관절 윤활액 분비 촉진 & 발목 부상 예방'
+                },
+                {
+                  step: 2,
+                  title: '무릎 굽히고 돌리기 🦵',
+                  desc: '양손으로 무릎을 짚고 안에서 밖으로, 밖에서 안으로 원을 그리며 회전한 후, 가볍게 굽혔다 펴줍니다. (각 10회)',
+                  detail: '무릎 관절 부하 경감'
+                },
+                {
+                  step: 3,
+                  title: '골반 및 고관절 회전 🔄',
+                  desc: '양손을 골반에 얹고 골반을 좌우로 크게 원을 그리며 돌려줍니다. 양방향 각각 5회씩 크게 회전해 주세요.',
+                  detail: '고관절 가동 범위 확대'
+                },
+                {
+                  step: 4,
+                  title: '다리 앞뒤 스윙 🤸‍♂️',
+                  desc: '한 손으로 벽이나 나무를 짚고, 한쪽 다리를 시계추처럼 앞뒤로 시원하게 10회 흔들어줍니다. (반대쪽도 동일)',
+                  detail: '햄스트링 & 대퇴사두근 활성화'
+                },
+                {
+                  step: 5,
+                  title: '다이내믹 사이드 & 포워드 런지 🏃',
+                  desc: '제자리에서 한 발을 앞으로/옆으로 크게 내딛으며 앉았다가 제자리로 돌아옵니다. 좌우 번갈아가며 각 5회 실시합니다.',
+                  detail: '허벅지 전반 및 안쪽 내전근 자극'
+                },
+                {
+                  step: 6,
+                  title: '스파이더맨 런지 (장요근 깊게 늘리기) 🕸️',
+                  desc: '엎드린 푸쉬업 자세에서 한 발을 같은 손 바로 옆으로 디딘 후, 골반을 지그시 아래로 내리며 앞쪽 고관절을 늘립니다. (각 5초 유지, 좌우 3회)',
+                  detail: '굳어있던 장요근 이완 & 보폭 향상'
+                },
+                {
+                  step: 7,
+                  title: '종아리 & 아킬레스건 늘리기 🩹',
+                  desc: '한쪽 다리를 뒤로 길게 뻗고 뒤꿈치를 땅에 밀착시킵니다. 체중을 앞다리에 실으며 종아리와 아킬레스건을 지그시 늘려줍니다. (각 15초 유지)',
+                  detail: '아킬레스건염 예방 & 부상 방지 최종 점검'
+                }
+              ].map((item) => (
+                <div key={item.step} className="flex gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-2xl shadow-sm">
+                  <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 font-black text-[10px]">
+                    {item.step}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <h4 className="text-xs font-black text-slate-800">{item.title}</h4>
+                    <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{item.desc}</p>
+                    <span className="text-[8px] text-emerald-600 font-extrabold uppercase tracking-wide mt-1">✨ 효과: {item.detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-emerald-50/40 border border-emerald-150 p-3 rounded-2xl flex gap-2 items-start text-[9px] text-emerald-700 leading-relaxed font-bold">
+              💡 <strong>TIP:</strong> 달리기 전에는 멈춰서 늘려주는 정적 스트레칭보다 이렇게 몸을 움직이는 <strong>동적 스트레칭</strong>이 훨씬 효과적입니다. 러닝이 완전히 끝난 후에 멈춰서 늘려주세요!
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 오늘의 러닝 동반자 (Inspiring Advice/Quote/Joke Card) */}
