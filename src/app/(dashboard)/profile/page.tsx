@@ -5,7 +5,8 @@ import { mockStore, Profile, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
 import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles } from 'lucide-react'
-import { getBadgesForUser } from '@/lib/utils/badges'
+import { getBadgesForUser, ALL_BADGES } from '@/lib/utils/badges'
+import BadgeCard from '@/components/ui/BadgeCard'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -346,19 +347,17 @@ export default function ProfilePage() {
   const myBadges = getBadgesForUser(myRecords, hasPbs)
 
   return (
-    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
+    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-transparent">
       
-
-
       {/* 타이틀 헤더 */}
       <header className="flex items-center justify-between mb-6 z-10 relative">
         <div className="flex flex-col">
-          <h1 className="text-base font-black tracking-tight text-slate-800">마이페이지</h1>
+          <h1 className="text-base font-black tracking-tight text-white">마이페이지</h1>
           <p className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-0.5">My Profile & PBs</p>
         </div>
         <button
           onClick={handleSignOut}
-          className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-350 text-slate-600 hover:text-[#2563EB] rounded-xl text-[9px] font-black tracking-widest uppercase flex items-center gap-1.5 transition-all duration-300 cursor-pointer shadow-sm"
+          className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 border border-white/10 hover:border-white/20 text-slate-400 hover:text-white rounded-xl text-[9px] font-black tracking-widest uppercase flex items-center gap-1.5 transition-all duration-300 cursor-pointer shadow-sm"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>로그아웃</span>
@@ -366,28 +365,28 @@ export default function ProfilePage() {
       </header>
 
       {/* 1. 프로필 서머리 카드 */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm flex items-center justify-between gap-4 z-10 relative">
+      <section className="glass-card rounded-3xl p-5 mb-6 shadow-lg flex items-center justify-between gap-4 z-10 relative">
         <div className="flex items-center gap-4">
           {profile.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt="Avatar"
-              className="w-14 h-14 rounded-full object-cover border border-slate-200 shadow-sm animate-fadeIn"
+              className="w-14 h-14 rounded-full object-cover border border-white/10 shadow-sm animate-fadeIn"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-lg text-slate-400 shadow-inner">
+            <div className="w-14 h-14 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-lg text-slate-500 shadow-inner">
               👤
             </div>
           )}
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-black text-slate-900">{profile.nickname}</span>
+            <span className="text-sm font-black text-white">{profile.nickname}</span>
             <div className="flex flex-wrap gap-1.5 mt-1">
-              <span className="text-[9px] font-black tracking-wider bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full text-slate-655">
+              <span className="text-[9px] font-black tracking-wider bg-slate-800 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-300">
                 {roleLabels[profile.role] || '정회원'}
               </span>
               {profile.is_exempted && (
-                <span className="text-[9px] font-black tracking-wider bg-cyan-555/10 text-cyan-600 border border-cyan-200 px-2.5 py-0.5 rounded-full">
+                <span className="text-[9px] font-black tracking-wider bg-brand-aqua/10 text-brand-aqua border border-brand-aqua/20 px-2.5 py-0.5 rounded-full">
                   🩹 부상 면제
                 </span>
               )}
@@ -405,7 +404,7 @@ export default function ProfilePage() {
             setErrorMsg(null)
             setSuccessMsg(null)
           }}
-          className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded-xl transition-all cursor-pointer shadow-sm border border-slate-200"
+          className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-300 text-[10px] font-bold rounded-xl transition-all cursor-pointer shadow-sm border border-white/10"
         >
           {isEditing ? '닫기' : '프로필 수정 ⚙️'}
         </button>
@@ -413,20 +412,20 @@ export default function ProfilePage() {
 
       {/* 1.5 프로필 수정 양식 */}
       {isEditing && (
-        <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative animate-fadeIn">
+        <section className="glass-card rounded-3xl p-5 mb-6 shadow-lg z-10 relative animate-fadeIn">
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">회원 정보 및 프로필 사진 변경</h2>
+            <h2 className="text-xs font-black text-white uppercase tracking-wider">회원 정보 및 프로필 사진 변경</h2>
           </div>
           
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-700 block">프로필 이미지 설정</label>
+              <label className="text-[10px] font-bold text-slate-400 block">프로필 이미지 설정</label>
               
               <div className="flex items-center gap-4.5 mb-2">
                 {editAvatarUrl ? (
-                  <img src={editAvatarUrl} alt="Preview" className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm" />
+                  <img src={editAvatarUrl} alt="Preview" className="w-12 h-12 rounded-full object-cover border border-white/10 shadow-sm" />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">👤</div>
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-slate-500">👤</div>
                 )}
                 
                 <div className="flex gap-2">
@@ -441,7 +440,7 @@ export default function ProfilePage() {
                       type="button"
                       onClick={() => setEditAvatarUrl(presetUrl)}
                       className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all ${
-                        editAvatarUrl === presetUrl ? 'border-[#2563EB] scale-105 shadow-sm' : 'border-transparent opacity-60 hover:opacity-100'
+                        editAvatarUrl === presetUrl ? 'border-brand-neon scale-105 shadow-sm' : 'border-transparent opacity-60 hover:opacity-100'
                       }`}
                     >
                       <img src={presetUrl} alt={`Preset ${idx}`} className="w-full h-full object-cover" />
@@ -450,8 +449,8 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => setEditAvatarUrl('')}
-                    className={`h-8 px-2 bg-slate-50 border text-[9px] font-bold rounded-lg cursor-pointer ${
-                      !editAvatarUrl ? 'border-[#2563EB] text-[#2563EB] bg-blue-50' : 'border-slate-200 text-slate-500'
+                    className={`h-8 px-2 bg-slate-900 border text-[9px] font-bold rounded-lg cursor-pointer ${
+                      !editAvatarUrl ? 'border-brand-neon text-brand-neon bg-brand-neon/10' : 'border-white/10 text-slate-400'
                     }`}
                   >
                     기본값
@@ -459,13 +458,13 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <span className="text-[9px] font-bold text-slate-500 block">📸 기기에서 사진 직접 가져오기</span>
+              <div className="p-3 bg-slate-950/60 border border-white/5 rounded-xl space-y-2">
+                <span className="text-[9px] font-bold text-slate-400 block">📸 기기에서 사진 직접 가져오기</span>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
-                  className="w-full text-xs text-slate-555 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-[#2563EB]/10 file:text-[#2563EB] hover:file:bg-[#2563EB]/15 file:cursor-pointer"
+                  className="w-full text-xs text-slate-350 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-brand-neon/10 file:text-brand-neon hover:file:bg-brand-neon/15 file:cursor-pointer"
                 />
               </div>
 
@@ -474,33 +473,33 @@ export default function ProfilePage() {
                 placeholder="또는 이미지 주소(URL) 직접 입력"
                 value={editAvatarUrl.startsWith('data:') ? '' : editAvatarUrl}
                 onChange={(e) => setEditAvatarUrl(e.target.value)}
-                className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] rounded-xl px-3 text-xs outline-none text-slate-800 font-semibold"
+                className="w-full h-11 bg-slate-950/60 border border-white/10 focus:border-brand-neon rounded-xl px-3 text-xs outline-none text-white font-semibold"
               />
             </div>
 
-            <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 text-[10px] rounded-2xl font-bold leading-relaxed shadow-sm">
+            <div className="p-3.5 bg-amber-955/40 border border-amber-900/50 text-amber-400 text-[10px] rounded-2xl font-bold leading-relaxed shadow-sm">
               ⚠️ 이름, 나이, 성별 정보는 최초 가입 시 기입되는 카카오 계정 고유 정보로 가입 후 임의 변경이 불가합니다.
             </div>
 
             {/* 비활성 필드들 */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 block">이름 (실명)</label>
+              <label className="text-[10px] font-bold text-slate-500 block">이름 (실명)</label>
               <input
                 type="text"
                 value={editName}
                 disabled
-                className="w-full h-11 bg-slate-100 border border-slate-200 rounded-xl px-3 text-xs outline-none text-slate-400 font-semibold cursor-not-allowed"
+                className="w-full h-11 bg-slate-950/40 border border-white/5 rounded-xl px-3 text-xs outline-none text-slate-600 font-semibold cursor-not-allowed"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 block">출생년도</label>
+                <label className="text-[10px] font-bold text-slate-500 block">출생년도</label>
                 <input
                   type="text"
                   value={editBirthYear ? `${editBirthYear}년생` : ''}
                   disabled
-                  className="w-full h-11 bg-slate-100 border border-slate-200 rounded-xl px-3 text-xs outline-none text-slate-400 font-semibold cursor-not-allowed"
+                  className="w-full h-11 bg-slate-950/40 border border-white/5 rounded-xl px-3 text-xs outline-none text-slate-600 font-semibold cursor-not-allowed"
                 />
               </div>
 
@@ -510,25 +509,25 @@ export default function ProfilePage() {
                   type="text"
                   value={editGender ? `${editGender}성` : ''}
                   disabled
-                  className="w-full h-11 bg-slate-100 border border-slate-200 rounded-xl px-3 text-xs outline-none text-slate-400 font-semibold cursor-not-allowed"
+                  className="w-full h-11 bg-slate-950/40 border border-white/5 rounded-xl px-3 text-xs outline-none text-slate-600 font-semibold cursor-not-allowed"
                 />
               </div>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+              <div className="p-3 bg-rose-950/40 border border-rose-900/50 text-rose-400 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
                 ⚠️ {errorMsg}
               </div>
             )}
             {successMsg && (
-              <div className="p-3 bg-blue-50 border border-blue-200 text-[#2563EB] text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+              <div className="p-3 bg-brand-neon/10 border border-brand-neon/20 text-brand-neon text-[10px] rounded-xl text-center font-bold animate-fadeIn">
                 ✓ {successMsg}
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full h-11 bg-[#2563EB] text-white hover:bg-[#2563EB]/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm flex items-center justify-center cursor-pointer"
+              className="w-full h-11 bg-brand-neon text-slate-900 hover:bg-brand-neon/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm flex items-center justify-center cursor-pointer"
             >
               정보 수정 완료
             </button>
@@ -538,36 +537,36 @@ export default function ProfilePage() {
 
       {/* 2. 누적 활동 요약 통계 */}
       <section className="grid grid-cols-2 gap-4 mb-6 z-10 relative select-none">
-        <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/10 flex items-center justify-center shrink-0">
+        <div className="glass-card rounded-3xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-9 h-9 rounded-xl bg-brand-neon/10 text-brand-neon border border-brand-neon/20 flex items-center justify-center shrink-0">
             <Footprints className="w-5 h-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 누적 거리</span>
-            <span className="text-sm font-black text-slate-900 mt-0.5">{totalDistance.toFixed(1)} <span className="text-[10px] text-slate-500 font-bold uppercase">km</span></span>
+            <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">이달의 누적 거리</span>
+            <span className="text-sm font-black text-white mt-0.5">{totalDistance.toFixed(1)} <span className="text-[10px] text-slate-500 font-bold uppercase">km</span></span>
           </div>
         </div>
-        <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-650 border border-emerald-500/10 flex items-center justify-center shrink-0">
+        <div className="glass-card rounded-3xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-9 h-9 rounded-xl bg-brand-aqua/10 text-brand-aqua border border-brand-aqua/20 flex items-center justify-center shrink-0">
             <Calendar className="w-5 h-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 출석 일수</span>
-            <span className="text-sm font-black text-slate-900 mt-0.5">{uniqueDates} <span className="text-[10px] text-slate-500 font-bold uppercase">일</span></span>
+            <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">이달의 출석 일수</span>
+            <span className="text-sm font-black text-white mt-0.5">{uniqueDates} <span className="text-[10px] text-slate-500 font-bold uppercase">일</span></span>
           </div>
         </div>
       </section>
 
       {/* 2.5. 마라톤 성장 곡선 분석 그래프 (Strava Vibe) */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
+      <section className="glass-card rounded-3xl p-5 mb-6 shadow-lg z-10 relative">
         <div className="flex items-center gap-1.5 mb-4">
-          <TrendingUp className="w-4 h-4 text-blue-600" />
-          <h3 className="text-xs font-black text-slate-800">5월 누적 마라톤 성장 곡선</h3>
+          <TrendingUp className="w-4 h-4 text-brand-neon" />
+          <h3 className="text-xs font-black text-white">5월 누적 마라톤 성장 곡선</h3>
         </div>
 
         {cumulativeData.length === 0 ? (
-          <div className="h-32 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center justify-center text-slate-400 text-center">
-            <span className="text-[10px] font-black uppercase tracking-wider">기록이 등록되면 곡선이 그려집니다.</span>
+          <div className="h-32 bg-slate-900/40 rounded-2xl border border-white/5 flex items-center justify-center text-slate-550 text-center">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">기록이 등록되면 곡선이 그려집니다.</span>
           </div>
         ) : (
           <div className="w-full flex flex-col items-center">
@@ -575,21 +574,21 @@ export default function ProfilePage() {
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-32 overflow-visible">
               <defs>
                 <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2563EB" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#D4FF3F" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               {/* Grid Lines */}
-              <line x1="0" y1="10" x2={svgWidth} y2="10" stroke="#F1F5F9" strokeWidth="1" />
-              <line x1="0" y1="50" x2={svgWidth} y2="50" stroke="#F1F5F9" strokeWidth="1" />
-              <line x1="0" y1="90" x2={svgWidth} y2="90" stroke="#F1F5F9" strokeWidth="1" />
+              <line x1="0" y1="10" x2={svgWidth} y2="10" stroke="rgba(255, 255, 255, 0.03)" strokeWidth="1" />
+              <line x1="0" y1="50" x2={svgWidth} y2="50" stroke="rgba(255, 255, 255, 0.03)" strokeWidth="1" />
+              <line x1="0" y1="90" x2={svgWidth} y2="90" stroke="rgba(255, 255, 255, 0.03)" strokeWidth="1" />
               
               {/* Gradient Area under line */}
               <polygon points={areaPoints} fill="url(#areaGradient)" />
               {/* Sparking Line */}
               <polyline
                 fill="none"
-                stroke="#2563EB"
+                stroke="#06B6D4"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -601,71 +600,74 @@ export default function ProfilePage() {
                   cx={(cumulativeData.length - 1) / (cumulativeData.length - 1) * svgWidth}
                   cy={svgHeight - (cumulativeData[cumulativeData.length - 1].value / maxCumulativeValue) * 80 - 10}
                   r="4"
-                  fill="#2563EB"
-                  stroke="#FFFFFF"
+                  fill="#06B6D4"
+                  stroke="#D4FF3F"
                   strokeWidth="2"
                 />
               )}
             </svg>
-            <div className="flex justify-between w-full text-[8px] font-black text-slate-400 mt-2 tracking-wider">
+            <div className="flex justify-between w-full text-[8px] font-black text-slate-500 mt-2 tracking-wider">
               <span>5월 1일</span>
-              <span>누적 합계: {cumulativeSum.toFixed(1)} km</span>
+              <span className="text-slate-400 font-bold">누적 합계: {cumulativeSum.toFixed(1)} km</span>
               <span>5월 31일</span>
             </div>
           </div>
         )}
       </section>
 
-      {/* 2.6. 내 배지 전시관 */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center gap-1.5 mb-3">
-          <Award className="w-4 h-4 text-amber-500" />
-          <h3 className="text-xs font-black text-slate-800">내 러너 배지 보관함</h3>
+      {/* 2.6. 내 배지 전시관 (3D 홀로그램 인벤토리) */}
+      <section className="glass-card rounded-3xl p-5 mb-6 shadow-lg z-10 relative animate-fadeIn">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-brand-neon" />
+            <h3 className="text-xs font-black text-white">내 러너 뱃지 도감</h3>
+          </div>
+          <span className="text-[8.5px] text-slate-400 font-extrabold tracking-widest uppercase bg-slate-900 border border-white/5 px-2.5 py-0.5 rounded-full select-none">
+            {myBadges.length} / {ALL_BADGES.length} 획득
+          </span>
         </div>
         
-        {myBadges.length === 0 ? (
-          <p className="text-[10px] text-slate-400 font-black text-center py-2 uppercase tracking-wide">아직 획득한 배지가 없습니다.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {myBadges.map(badge => (
-              <div 
+        <div className="grid grid-cols-2 gap-3">
+          {ALL_BADGES.map(badge => {
+            const isUnlocked = myBadges.some(mb => mb.id === badge.id)
+            return (
+              <BadgeCard
                 key={badge.id}
-                className={`flex items-center gap-2 p-3 rounded-2xl border text-[10px] font-black tracking-wide shadow-sm transition-transform hover:scale-102 ${badge.color}`}
-              >
-                <span className="text-lg">{badge.emoji}</span>
-                <div className="flex flex-col">
-                  <span>{badge.name}</span>
-                  <span className="text-[8px] opacity-75 font-semibold mt-0.5">달성 완료</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                id={badge.id}
+                name={badge.name}
+                emoji={badge.emoji}
+                description={badge.description}
+                color={badge.color}
+                isUnlocked={isUnlocked}
+              />
+            )
+          })}
+        </div>
       </section>
 
       {/* 3. 마라톤 3대 최고 기록 (PB) 설정 관리 폼 */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
+      <section className="glass-card rounded-3xl p-5 mb-6 shadow-lg z-10 relative">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
-            <Trophy className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-7 h-7 rounded-lg bg-slate-900/60 border border-white/5 flex items-center justify-center">
+            <Trophy className="w-4 h-4 text-brand-neon" />
           </div>
-          <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">나의 마라톤 PB 기록 등록</h2>
+          <h2 className="text-xs font-black text-white uppercase tracking-wider">나의 마라톤 PB 기록 등록</h2>
         </div>
-        <p className="text-[10px] text-slate-500 leading-relaxed mb-4">
-          공식 대회 최고 기록을 시:분:초(<strong className="text-slate-800">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
-          예: <strong className="text-slate-800 font-bold">46분 15초</strong> ➔ <strong className="text-[#2563EB] font-bold">00:46:15</strong> | <strong className="text-slate-855 font-bold">3시간 45분</strong> ➔ <strong className="text-[#2563EB] font-bold">03:45:00</strong>
+        <p className="text-[10px] text-slate-400 leading-relaxed mb-4">
+          공식 대회 최고 기록을 시:분:초(<strong className="text-white">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
+          예: <strong className="text-white font-bold">46분 15초</strong> ➔ <strong className="text-brand-neon font-bold">00:46:15</strong> | <strong className="text-white font-bold">3시간 45분</strong> ➔ <strong className="text-brand-neon font-bold">03:45:00</strong>
         </p>
 
-        <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-2xl mb-4">
+        <div className="flex items-center justify-between p-3 bg-slate-950/60 border border-white/5 rounded-2xl mb-4">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-black text-slate-800">크루원 PB 보드에 내 기록 공개</span>
-            <span className="text-[8px] text-slate-500 font-bold">비활성화 시 전체 랭킹 보드에서 내 최고 기록이 숨겨집니다.</span>
+            <span className="text-[10px] font-black text-white">크루원 PB 보드에 내 기록 공개</span>
+            <span className="text-[8px] text-slate-400 font-bold">비활성화 시 전체 랭킹 보드에서 내 최고 기록이 숨겨집니다.</span>
           </div>
           <button
             type="button"
             onClick={handleToggleShowPb}
             className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-              showPb ? 'bg-[#2563EB]' : 'bg-slate-300'
+              showPb ? 'bg-brand-neon' : 'bg-slate-800'
             }`}
           >
             <div
@@ -680,57 +682,57 @@ export default function ProfilePage() {
           <div className="grid grid-cols-3 gap-3">
             {/* 10K 기록 */}
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">10K</label>
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block text-center">10K</label>
               <input
                 type="text"
                 placeholder="00:45:30"
                 maxLength={8}
                 value={pb10k}
                 onChange={(e) => setPb10k(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                className="w-full h-10 bg-slate-955/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_8px_rgba(212,255,63,0.15)] rounded-xl px-2 text-center text-xs outline-none text-white font-extrabold transition-all"
               />
             </div>
             {/* Half 기록 */}
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Half</label>
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block text-center">Half</label>
               <input
                 type="text"
                 placeholder="01:45:00"
                 maxLength={8}
                 value={pbHalf}
                 onChange={(e) => setPbHalf(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                className="w-full h-10 bg-slate-955/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_8px_rgba(212,255,63,0.15)] rounded-xl px-2 text-center text-xs outline-none text-white font-extrabold transition-all"
               />
             </div>
             {/* Full 기록 */}
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Full</label>
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block text-center">Full</label>
               <input
                 type="text"
                 placeholder="03:59:59"
                 maxLength={8}
                 value={pbFull}
                 onChange={(e) => setPbFull(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                className="w-full h-10 bg-slate-955/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_8px_rgba(212,255,63,0.15)] rounded-xl px-2 text-center text-xs outline-none text-white font-extrabold transition-all"
               />
             </div>
           </div>
 
           {!isEditing && errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+            <div className="p-3 bg-rose-955/40 border border-rose-900/50 text-rose-400 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
               ⚠️ {errorMsg}
             </div>
           )}
 
           {!isEditing && successMsg && (
-            <div className="p-3 bg-blue-50 border border-blue-200 text-[#2563EB] text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+            <div className="p-3 bg-brand-neon/10 border border-brand-neon/20 text-brand-neon text-[10px] rounded-xl text-center font-bold animate-fadeIn">
               ✓ {successMsg}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full h-11 bg-[#2563EB] text-white hover:bg-[#2563EB]/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center"
+            className="w-full h-11 bg-brand-neon text-slate-900 hover:bg-brand-neon/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center"
           >
             기록 저장 및 랭킹 반영
           </button>
@@ -740,48 +742,48 @@ export default function ProfilePage() {
       {/* 4. 내 기록 리스트 히스토리 피드 */}
       <section className="flex-1 flex flex-col z-10 relative select-none pb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-[10px] text-slate-500 tracking-widest font-black uppercase">내 러닝 활동 기록</span>
-          <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider">
+          <span className="text-[10px] text-slate-400 tracking-widest font-black uppercase">내 러닝 활동 기록</span>
+          <span className="text-[9px] text-brand-aqua bg-brand-aqua/10 border border-brand-aqua/20 px-2.5 py-0.5 rounded-full font-black tracking-wider">
             {myRecords.length}회
           </span>
         </div>
 
         {myRecords.length === 0 ? (
-          <div className="flex-1 min-h-[160px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
-            <span className="text-xs font-black text-slate-600">📪 이번 달 등록하신 내 활동 이력이 없습니다.</span>
-            <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Register your runs on dashboard</span>
+          <div className="flex-1 min-h-[160px] bg-slate-900/40 border border-white/5 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
+            <span className="text-xs font-black text-slate-400">📪 이번 달 등록하신 내 활동 이력이 없습니다.</span>
+            <span className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-widest">Register your runs on dashboard</span>
           </div>
         ) : (
           <div className="space-y-3">
             {myRecords.map((rec) => (
               <div
                 key={rec.id}
-                className="bg-white border border-slate-200 hover:bg-slate-50/50 rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all duration-200"
+                className="glass-card hover:bg-slate-900/30 rounded-2xl p-4 flex items-center justify-between shadow-md transition-all duration-200"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shrink-0 shadow-inner">
+                  <div className="w-10 h-10 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-center text-sm shrink-0 shadow-inner">
                     {rec.type === 'REGULAR' ? '👥' : '🏃'}
                   </div>
 
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black text-slate-900">{rec.distance.toFixed(1)} km</span>
+                      <span className="text-xs font-black text-white">{rec.distance.toFixed(1)} km</span>
                       <span className={`text-[8px] font-black px-1.5 py-0.2 rounded border ${
                         rec.type === 'REGULAR'
-                          ? 'bg-blue-50 text-[#2563EB] border-blue-200'
-                          : 'bg-slate-50 text-slate-500 border-slate-200'
+                          ? 'bg-brand-neon/10 text-brand-neon border-brand-neon/20'
+                          : 'bg-slate-950/60 text-slate-400 border-white/5'
                       }`}>
                         {rec.type === 'REGULAR' ? '정기 벙' : '개인런'}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2.5 text-[8px] text-slate-400 font-extrabold tracking-wider">
+                    <div className="flex items-center gap-2.5 text-[8px] text-slate-500 font-extrabold tracking-wider">
                       <span className="flex items-center gap-0.5">
-                        <MapPin className="w-3 h-3 text-slate-400" />
+                        <MapPin className="w-3 h-3 text-slate-500" />
                         {rec.location_name}
                       </span>
                       <span className="flex items-center gap-0.5">
-                        <Calendar className="w-3 h-3 text-slate-400" />
+                        <Calendar className="w-3 h-3 text-slate-500" />
                         {rec.date}
                       </span>
                     </div>
@@ -790,7 +792,7 @@ export default function ProfilePage() {
 
                 <button
                   onClick={() => handleDeleteRecord(rec.id)}
-                  className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                  className="p-2 hover:bg-rose-955/40 text-slate-400 hover:text-rose-455 rounded-lg transition-colors cursor-pointer"
                   title="인증 삭제"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

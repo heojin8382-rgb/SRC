@@ -223,41 +223,41 @@ export default function RecordPage() {
   if (!profile) return null
 
   return (
-    <div className="p-6 flex flex-col relative select-none">
+    <div className="p-6 flex flex-col relative select-none bg-transparent">
       {/* 뒤로가기 헤더 */}
       <header className="flex items-center gap-4 mb-6 z-10 relative">
         <Link
           href="/"
-          className="p-2 hover:bg-blue-50 rounded-xl text-slate-400 hover:text-blue-600 border border-transparent hover:border-blue-100 transition-all duration-300 cursor-pointer"
+          className="p-2 hover:bg-slate-900/60 rounded-xl text-slate-400 hover:text-white border border-transparent hover:border-white/10 transition-all duration-300 cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex flex-col">
-          <span className="text-[9px] text-slate-400 font-extrabold tracking-widest uppercase">CERTIFICATE</span>
-          <h1 className="text-base font-black tracking-tight text-slate-800 mt-0.5">러닝 기록 인증</h1>
+          <span className="text-[9px] text-slate-500 font-extrabold tracking-widest uppercase">CERTIFICATE</span>
+          <h1 className="text-base font-black tracking-tight text-white mt-0.5">러닝 기록 인증</h1>
         </div>
       </header>
 
       {/* 등록 카드 */}
-      <div className="bg-white/85 border border-slate-200/60 rounded-3xl p-6 shadow-[0_8px_30px_rgba(15,23,42,0.03)] z-10 relative">
+      <div className="glass-card rounded-3xl p-6 shadow-lg z-10 relative">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-blue-600" />
+          <div className="w-7 h-7 rounded-lg bg-slate-900/60 border border-white/5 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-brand-neon" />
           </div>
-          <h2 className="text-xs font-black text-slate-800 uppercase tracking-wider">기록 제출 폼</h2>
+          <h2 className="text-xs font-black text-white uppercase tracking-wider">기록 제출 폼</h2>
         </div>
-        <p className="text-[10px] text-slate-500 mb-6 leading-relaxed">
+        <p className="text-[10px] text-slate-400 mb-6 leading-relaxed">
           오늘 달리신 러닝 상세 데이터를 제출해 주세요.<br />
-          제출 즉시 <strong className="text-slate-800 font-bold">월간 생존 알고리즘</strong>이 작동되어 반영됩니다.
+          제출 즉시 <strong className="text-white font-bold">월간 생존 알고리즘</strong>이 작동되어 반영됩니다.
         </p>
 
         {success ? (
           <div className="py-12 flex flex-col items-center justify-center gap-4 text-center animate-scaleUp">
-            <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 text-2xl font-black shadow-sm animate-bounceIn">
+            <div className="w-16 h-16 rounded-full bg-brand-neon/10 border border-brand-neon/20 flex items-center justify-center text-brand-neon text-2xl font-black shadow-[0_0_15px_rgba(212,255,63,0.2)] animate-bounceIn">
               ✓
             </div>
-            <h3 className="text-base font-black text-slate-800">인증 기록 등록 성공!</h3>
-            <p className="text-[11px] text-slate-455">대시보드로 복귀 중입니다...</p>
+            <h3 className="text-base font-black text-white">인증 기록 등록 성공!</h3>
+            <p className="text-[11px] text-slate-400">대시보드로 복귀 중입니다...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -276,9 +276,9 @@ export default function RecordPage() {
                   placeholder="최소 3.0km 이상 입력"
                   value={distance}
                   onChange={(e) => setDistance(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 pr-12 text-sm outline-none text-slate-800 font-extrabold tracking-wide transition-all"
+                  className="w-full h-12 bg-slate-950/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_12px_rgba(212,255,63,0.1)] rounded-xl px-4 pr-12 text-sm outline-none text-white font-extrabold tracking-wide transition-all"
                 />
-                <span className="text-[10px] font-black text-blue-600 absolute right-4 top-4 tracking-wider">
+                <span className="text-[10px] font-black text-brand-neon absolute right-4 top-4 tracking-wider">
                   KM
                 </span>
               </div>
@@ -293,15 +293,15 @@ export default function RecordPage() {
                 <select
                   value={locationId}
                   onChange={(e) => setLocationId(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 text-sm outline-none text-slate-700 cursor-pointer appearance-none font-bold"
+                  className="w-full h-12 bg-slate-950/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_12px_rgba(212,255,63,0.1)] rounded-xl px-4 text-sm outline-none text-slate-350 cursor-pointer appearance-none font-bold"
                 >
                   {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id} className="bg-white text-slate-850">
+                    <option key={loc.id} value={loc.id} className="bg-slate-900 text-white">
                       📍 {loc.name}
                     </option>
                   ))}
                 </select>
-                <Navigation className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
+                <Navigation className="w-4 h-4 text-slate-500 absolute right-4 top-4 pointer-events-none" />
               </div>
             </div>
 
@@ -312,11 +312,11 @@ export default function RecordPage() {
                   러닝 날짜
                 </label>
                 {profile.role === 'ADMIN' ? (
-                  <span className="text-[8px] font-black text-blue-600 tracking-wider bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[8px] font-black text-brand-neon tracking-wider bg-brand-neon/10 border border-brand-neon/20 px-2.5 py-0.5 rounded-full">
                     ⚡ ADMIN 무제한 소급
                   </span>
                 ) : (
-                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-wider">
                     최근 30일 이내
                   </span>
                 )}
@@ -329,9 +329,9 @@ export default function RecordPage() {
                   max={maxDate}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 pr-12 text-sm outline-none text-slate-700 font-bold transition-all appearance-none"
+                  className="w-full h-12 bg-slate-950/60 border border-white/10 focus:border-brand-neon focus:shadow-[0_0_12px_rgba(212,255,63,0.1)] rounded-xl px-4 pr-12 text-sm outline-none text-slate-350 font-bold transition-all appearance-none"
                 />
-                <Calendar className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
+                <Calendar className="w-4 h-4 text-slate-500 absolute right-4 top-4 pointer-events-none" />
               </div>
             </div>
 
@@ -346,8 +346,8 @@ export default function RecordPage() {
                   onClick={() => { setType('PERSONAL'); setIsPacer(false); }}
                   className={`h-12 rounded-xl border font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
                     type === 'PERSONAL'
-                      ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.06)]'
-                      : 'border-slate-200 bg-slate-50 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                      ? 'border-brand-neon bg-brand-neon/10 text-brand-neon shadow-[0_0_12px_rgba(212,255,63,0.1)]'
+                      : 'border-white/5 bg-slate-950/60 text-slate-400 hover:border-white/10 hover:text-slate-300'
                   }`}
                 >
                   <Route className="w-3.5 h-3.5" />
@@ -358,8 +358,8 @@ export default function RecordPage() {
                   onClick={() => setType('REGULAR')}
                   className={`h-12 rounded-xl border font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
                     type === 'REGULAR'
-                      ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.06)]'
-                      : 'border-slate-200 bg-slate-50 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                      ? 'border-brand-neon bg-brand-neon/10 text-brand-neon shadow-[0_0_12px_rgba(212,255,63,0.1)]'
+                      : 'border-white/5 bg-slate-950/60 text-slate-400 hover:border-white/10 hover:text-slate-300'
                   }`}
                 >
                   👥
@@ -370,12 +370,12 @@ export default function RecordPage() {
 
             {/* 5. 정기 벙 선택 시 페이서 토글 활성화 */}
             {type === 'REGULAR' && (
-              <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-center justify-between animate-fadeIn shadow-sm">
+              <div className="p-4 bg-slate-950/60 border border-white/5 rounded-2xl flex items-center justify-between animate-fadeIn shadow-sm">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+                  <span className="text-[11px] font-black text-white flex items-center gap-1">
                     🎈 페이서(Pacer) 가동 여부
                   </span>
-                  <span className="text-[9px] text-slate-500">
+                  <span className="text-[9px] text-slate-400">
                     해당 벙 러닝에서 페이서 역할을 성공적으로 완수하셨나요?
                   </span>
                 </div>
@@ -383,7 +383,7 @@ export default function RecordPage() {
                   type="button"
                   onClick={() => setIsPacer(!isPacer)}
                   className={`w-12 h-6 rounded-full p-0.5 transition-all duration-300 cursor-pointer flex items-center ${
-                    isPacer ? 'bg-blue-600 justify-end' : 'bg-slate-200 justify-start'
+                    isPacer ? 'bg-brand-neon justify-end' : 'bg-slate-800 justify-start'
                   }`}
                 >
                   <div className="w-5 h-5 rounded-full shadow-sm bg-white transition-transform" />
@@ -398,7 +398,7 @@ export default function RecordPage() {
               </label>
               
               {previewUrl ? (
-                <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-50 p-2 flex flex-col items-center">
+                <div className="relative rounded-2xl overflow-hidden border border-white/5 shadow-inner bg-slate-950/40 p-2 flex flex-col items-center">
                   <img
                     src={previewUrl}
                     alt="Preview"
@@ -410,17 +410,17 @@ export default function RecordPage() {
                       setProofImageFile(null)
                       setPreviewUrl('')
                     }}
-                    className="mt-2 text-[10px] font-black text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100 cursor-pointer"
+                    className="mt-2 text-[10px] font-black text-rose-455 hover:text-rose-400 bg-rose-955/40 px-3 py-1.5 rounded-lg border border-rose-900/50 cursor-pointer"
                   >
                     사진 삭제
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/25 transition-all duration-300">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400">
-                    <Camera className="w-6 h-6 mb-2 text-slate-400" />
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl cursor-pointer hover:border-brand-neon/40 hover:bg-slate-900/40 transition-all duration-300">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-500">
+                    <Camera className="w-6 h-6 mb-2 text-slate-500" />
                     <p className="text-[10px] font-black tracking-wide">러닝 인증 화면 캡처 또는 운동 사진 업로드</p>
-                    <p className="text-[8px] text-slate-400 mt-1 uppercase font-black tracking-widest">PNG, JPG up to 5MB</p>
+                    <p className="text-[8px] text-slate-500 mt-1 uppercase font-black tracking-widest">PNG, JPG up to 5MB</p>
                   </div>
                   <input
                     type="file"
@@ -444,7 +444,7 @@ export default function RecordPage() {
 
             {/* 에러 피드백 */}
             {error && (
-              <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-600 text-xs rounded-xl flex items-center gap-2 font-bold justify-center animate-fadeIn">
+              <div className="p-3.5 bg-rose-950/40 border border-rose-900/50 text-rose-400 text-xs rounded-xl flex items-center gap-2 font-bold justify-center animate-fadeIn">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -456,8 +456,8 @@ export default function RecordPage() {
               disabled={pending}
               className={`w-full h-14 font-extrabold text-sm tracking-wide rounded-2xl transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center ${
                 pending
-                  ? 'bg-slate-100 text-slate-400'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-[0_4px_12px_rgba(37,99,235,0.15)]'
+                  ? 'bg-slate-900 text-slate-500 border border-white/5'
+                  : 'bg-brand-neon text-slate-900 hover:bg-brand-neon/90 active:scale-[0.98] shadow-[0_4px_12px_rgba(212,255,63,0.2)]'
               }`}
             >
               {pending ? '러닝 인증서 저장 중...' : '러닝 기록 등록하기'}

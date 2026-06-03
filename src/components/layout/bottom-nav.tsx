@@ -31,7 +31,7 @@ export default function BottomNav() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 px-6 pb-2 z-50 flex items-center justify-around max-w-md mx-auto rounded-t-[2.5rem] shadow-[0_-8px_30px_rgba(15,23,42,0.06)]">
+    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-slate-950/80 backdrop-blur-2xl border-t border-white/5 px-6 pb-2 z-50 flex items-center justify-around max-w-md mx-auto rounded-t-[2.5rem] shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
       {navItems.map((item) => {
         const Icon = item.icon
         const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
@@ -45,8 +45,8 @@ export default function BottomNav() {
             <div
               className={`p-1.5 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? 'bg-blue-500/10 text-blue-650 shadow-[0_0_12px_rgba(37,99,235,0.08)] border border-blue-500/20'
-                  : 'text-slate-400 group-hover:text-slate-600 border border-transparent'
+                  ? 'bg-brand-neon/10 text-brand-neon shadow-[0_0_12px_rgba(212,255,63,0.15)] border border-brand-neon/20'
+                  : 'text-slate-400 group-hover:text-slate-200 border border-transparent'
               }`}
             >
               <Icon
@@ -57,13 +57,13 @@ export default function BottomNav() {
             </div>
             <span
               className={`text-[9px] font-black tracking-widest transition-colors duration-300 ${
-                isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
+                isActive ? 'text-brand-neon' : 'text-slate-400 group-hover:text-slate-200'
               }`}
             >
               {item.label}
             </span>
             {isActive && (
-              <span className="absolute bottom-1 w-1 h-1 rounded-full bg-blue-600 shadow-[0_0_6px_rgba(37,99,235,0.6)]" />
+              <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-brand-neon shadow-[0_0_8px_rgba(212,255,63,0.8)]" />
             )}
           </Link>
         )
