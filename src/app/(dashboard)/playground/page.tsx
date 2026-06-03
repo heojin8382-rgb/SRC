@@ -1021,14 +1021,16 @@ export default function PlaygroundPage() {
                   </div>
                 </div>
                 
-                {/* 시뮬레이터 버튼 */}
-                <button
-                  type="button"
-                  onClick={() => handleEarnPoints(1)}
-                  className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
-                >
-                  ⚡ 가상 미션 완료 (+1 코인)
-                </button>
+                {/* 시뮬레이터 버튼 (운영진 전용) */}
+                {(profile?.role === 'ADMIN' || profile?.can_edit_admin) && (
+                  <button
+                    type="button"
+                    onClick={() => handleEarnPoints(1)}
+                    className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
+                  >
+                    ⚡ 가상 미션 완료 (+1 코인)
+                  </button>
+                )}
               </div>
 
               {/* 캡슐 머신 본체 */}
