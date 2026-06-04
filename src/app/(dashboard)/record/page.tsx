@@ -5,14 +5,19 @@ import { useRouter } from 'next/navigation'
 import { mockStore, Profile, Location } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft, Camera, Image as ImageIcon } from 'lucide-react'
+import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft, Camera, Image as ImageIcon, UploadCloud, Check } from 'lucide-react'
 import Link from 'next/link'
+import { parseGpxFile } from '@/lib/utils/gpx'
 
 export default function RecordPage() {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
   
+  // GPX 상태값
+  const [gpxFileName, setGpxFileName] = useState('')
+  const [gpxParsedMessage, setGpxParsedMessage] = useState('')
+
   // 폼 입력 상태값
   const [distance, setDistance] = useState('')
   const [locationId, setLocationId] = useState('')
@@ -101,6 +106,49 @@ export default function RecordPage() {
 
     loadInitialData()
   }, [])
+
+  const handleGpxUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null)
+    setGpxParsedMessage('')
+    setGpxFileName('')
+
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    if (ext !== 'gpx') {
+      setError('올바른 GPX 확장자 파일(.gpx)을 업로드해 주세요.')
+      return
+    }
+
+    setGpxFileName(file.name)
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const text = event.target?.result as string
+      if (!text) {
+        setError('GPX 파일을 읽어오는데 실패했습니다.')
+        return
+      }
+
+      const result = parseGpxFile(text)
+      if (result.error) {
+        setError(result.error)
+        setGpxFileName('')
+      } else {
+        setDistance(String(result.distance))
+        setDate(result.date)
+        setGpxParsedMessage(`GPX 파싱 완료: ${result.distance}km, ${result.date} 자동 입력되었습니다! ✨`)
+      }
+    }
+
+    reader.onerror = () => {
+      setError('GPX 파일을 읽는 중 오류가 발생했습니다.')
+      setGpxFileName('')
+    }
+
+    reader.readAsText(file)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -282,6 +330,42 @@ export default function RecordPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* GPX 자동 등록 영역 (가민, 스트라바) */}
+            <div className="space-y-2 pb-4 border-b border-dashed border-slate-200">
+              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+                가민/스트라바 GPX 연동 (선택)
+              </label>
+              
+              <div className="relative">
+                <label className="flex items-center gap-3 w-full h-14 bg-slate-50 border border-dashed border-slate-200 hover:border-blue-500 hover:bg-blue-50/25 rounded-2xl px-4 cursor-pointer transition-all duration-300">
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                    <UploadCloud className="w-4.5 h-4.5 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col text-left justify-center flex-1 min-w-0">
+                    <span className="text-[11px] font-black text-slate-800 truncate">
+                      {gpxFileName || 'GPX 파일 가져오기'}
+                    </span>
+                    <span className="text-[9px] text-slate-500 truncate font-semibold">
+                      {gpxFileName ? '다른 파일로 변경하려면 클릭' : '가민/스트라바 기기 로그 자동 파싱'}
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".gpx"
+                    className="hidden"
+                    onChange={handleGpxUpload}
+                  />
+                </label>
+              </div>
+
+              {gpxParsedMessage && (
+                <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-800 text-[10px] rounded-xl flex items-center gap-2 font-bold animate-fadeIn">
+                  <Check className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <span>{gpxParsedMessage}</span>
+                </div>
+              )}
+            </div>
+
             {/* 1. 거리 입력 */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">

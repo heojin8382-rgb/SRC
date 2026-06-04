@@ -17,10 +17,11 @@ import {
   Heart, 
   MessageSquare, 
   Send, 
-  Award,
   Sparkles,
   TrendingUp,
-  ChevronDown
+  ChevronDown,
+  X,
+  Activity
 } from 'lucide-react'
 import Link from 'next/link'
 import { getBadgesForUser } from '@/lib/utils/badges'
@@ -91,34 +92,15 @@ export default function DashboardPage() {
     }
   }
 
-  // Tip/Joke widget states
-  const [currentTipIdx, setCurrentTipIdx] = useState(0)
-  const [tipFade, setTipFade] = useState(true)
-
-  // 피드 아코디언 상태
+  // 피드 및 스트레칭 가이드 모달 상태
   const [isFeedOpen, setIsFeedOpen] = useState(false)
-  const [isStretchingOpen, setIsStretchingOpen] = useState(false)
-
-  const handleShuffleTip = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setTipFade(false)
-    triggerReactionParticles(e.clientX, e.clientY, 'clap')
-    
-    setTimeout(() => {
-      let nextIdx = Math.floor(Math.random() * RUNNING_TIPS.length)
-      while (nextIdx === currentTipIdx && RUNNING_TIPS.length > 1) {
-        nextIdx = Math.floor(Math.random() * RUNNING_TIPS.length)
-      }
-      setCurrentTipIdx(nextIdx)
-      setTipFade(true)
-    }, 200)
-  }
+  const [isStretchingModalOpen, setIsStretchingModalOpen] = useState(false)
 
   // 컴포넌트 마운트 시 로컬 스토리지 또는 Supabase로부터 실시간 동적 바인딩
   useEffect(() => {
     const mockCheck = checkIsMock()
     setIsMock(mockCheck)
     loadData(mockCheck)
-    setCurrentTipIdx(Math.floor(Math.random() * RUNNING_TIPS.length))
 
     const saved = localStorage.getItem('src_active_mission')
     if (saved) {
@@ -438,12 +420,6 @@ export default function DashboardPage() {
     .filter(r => r.user_id === profile.id)
     .reduce((sum, r) => sum + r.distance, 0)
 
-  // 내 획득 배지 리스트
-  const myBadges = getBadgesForUser(
-    records.filter(r => r.user_id === profile.id), 
-    hasPbsMap[profile.id] || false
-  )
-
   return (
     <div className="p-5 flex flex-col relative select-none bg-white">
       
@@ -663,38 +639,17 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* 4. 나의 획득 배지 (Badges Showcase) */}
-      {myBadges.length > 0 && (
-        <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm">
-          <div className="flex items-center gap-1.5 mb-3">
-            <Award className="w-4 h-4 text-amber-500" />
-            <h3 className="text-xs font-black text-slate-800">내가 획득한 러너 배지</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {myBadges.map(badge => (
-              <div 
-                key={badge.id}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[9px] font-black tracking-wide shadow-sm ${badge.color}`}
-              >
-                <span>{badge.emoji}</span>
-                <span>{badge.name}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 5. 퀵 메뉴 그리드 */}
+      {/* 4. 2x2 퀵 메뉴 그리드 */}
       <section className="grid grid-cols-2 gap-4 mb-6 z-10 relative">
         <Link
           href="/record"
           className="bg-white border border-slate-200 hover:border-blue-300 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
         >
-          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-100 group-hover:shadow-[0_0_15px_rgba(37,99,235,0.15)] transition-all duration-300">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-650 border border-blue-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-100 group-hover:shadow-[0_0_15px_rgba(37,99,235,0.15)] transition-all duration-300">
             <PlusCircle className="w-5 h-5" />
           </div>
           <span className="text-xs font-black tracking-wide text-slate-800 mt-1">러닝 기록 인증</span>
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">최소 3km 이상 등록</span>
+          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">거리/날짜 자동 파싱</span>
         </Link>
         
         <Link
@@ -707,165 +662,155 @@ export default function DashboardPage() {
           <span className="text-xs font-black tracking-wide text-slate-800 mt-1">크루원 PB 보드</span>
           <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">마라톤 3대 기록 경쟁</span>
         </Link>
-      </section>
 
-      {/* 5.5. 복불복 게임 존 바로가기 배너 */}
-      <section className="mb-6 z-10 relative">
         <Link
           href="/playground"
-          className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-3xl p-5 flex items-center justify-between overflow-hidden shadow-md group cursor-pointer hover:-translate-y-0.5 transition-all duration-300"
+          className="bg-white border border-slate-200 hover:border-indigo-300 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-700/80 to-pink-500/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform" />
-          
-          <div className="relative z-10 flex flex-col gap-1">
-            <span className="text-[8px] text-pink-200 font-extrabold uppercase tracking-widest">Crew Game Zone</span>
-            <h3 className="text-xs font-black tracking-wide flex items-center gap-1.5 text-white">
-              <span>🎲 크루 복불복 오락실 오픈!</span>
-              <span className="bg-rose-500 text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase text-white tracking-normal animate-pulse">NEW</span>
-            </h3>
-            <span className="text-[9px] text-indigo-100 font-medium">오늘 음료수 쏠 당첨자를 룰렛으로 골라보세요.</span>
+          <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-650 border border-indigo-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-100 group-hover:shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-300">
+            <Sparkles className="w-5 h-5" />
           </div>
-          
-          <div className="relative z-10 w-9 h-9 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-bold text-lg group-hover:rotate-12 transition-transform shadow-inner text-white">
-            👉
-          </div>
+          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">복불복 게임 존</span>
+          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">음료 룰렛 & 뽑기</span>
         </Link>
-      </section>
 
-      {/* 5.8. 러닝 전 필수! 동적 스트레칭 가이드 (Collapsible) */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
         <button
-          onClick={() => setIsStretchingOpen(!isStretchingOpen)}
-          className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
+          onClick={() => {
+            setIsStretchingModalOpen(true);
+            triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2, 'clap');
+          }}
+          className="bg-white border border-slate-200 hover:border-emerald-350 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
         >
-          <div className="flex items-center gap-1.5">
-            <span className="text-emerald-500">🧘‍♂️</span>
-            <span>러닝 전 필수 동적 스트레칭 & 러닝 드릴 (10단계)</span>
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-650 border border-emerald-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-100 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300">
+            <Activity className="w-5 h-5" />
           </div>
-          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isStretchingOpen ? 'rotate-180' : ''}`} />
+          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">스트레칭 가이드</span>
+          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">동적 웜업 10단계</span>
         </button>
+      </section>
 
-        {isStretchingOpen && (
-          <div className="mt-4 pt-4 border-t border-slate-150 space-y-4 animate-fadeIn">
-            <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
-              달리기 전에 관절과 근육을 부드럽게 깨워주는 <strong className="text-emerald-600 font-extrabold">동적 스트레칭</strong>입니다. 반동을 주며 가볍게 움직이는 동작 위주로 순서대로 진행해 주세요!
-            </p>
+      {/* 스트레칭 가이드 슬라이드 업 바텀 시트 모달 */}
+      {isStretchingModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-end justify-center select-none animate-fadeIn">
+          {/* Backdrop Click close */}
+          <div className="absolute inset-0" onClick={() => setIsStretchingModalOpen(false)} />
+          
+          <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] border-t border-slate-200 shadow-2xl p-6 z-10 flex flex-col max-h-[85vh] animate-scaleUp">
+            {/* Header handle for visual Cue */}
+            <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-5 shrink-0" />
 
-            <div className="space-y-3">
-              {[
-                {
-                  step: 1,
-                  title: '발목 & 손목 돌리기 💫',
-                  desc: '한쪽 발끝을 땅에 대고 뒤꿈치를 들고 발목과 손목을 좌우로 부드럽게 각각 10회씩 돌려줍니다.',
-                  detail: '관절 윤활액 분비 촉진 & 발목 부상 예방'
-                },
-                {
-                  step: 2,
-                  title: '무릎 굽히고 돌리기 🦵',
-                  desc: '양손으로 무릎을 짚고 안에서 밖으로, 밖에서 안으로 원을 그리며 회전한 후, 가볍게 굽혔다 펴줍니다. (각 10회)',
-                  detail: '무릎 관절 부하 경감'
-                },
-                {
-                  step: 3,
-                  title: '골반 및 고관절 회전 🔄',
-                  desc: '양손을 골반에 얹고 골반을 좌우로 크게 원을 그리며 돌려줍니다. 양방향 각각 5회씩 크게 회전해 주세요.',
-                  detail: '고관절 가동 범위 확대'
-                },
-                {
-                  step: 4,
-                  title: '다리 앞뒤 스윙 🤸‍♂️',
-                  desc: '한 손으로 벽이나 나무를 짚고, 한쪽 다리를 시계추처럼 앞뒤로 시원하게 10회 흔들어줍니다. (반대쪽도 동일)',
-                  detail: '햄스트링 & 대퇴사두근 활성화'
-                },
-                {
-                  step: 5,
-                  title: '다이내믹 사이드 & 포워드 런지 🏃',
-                  desc: '제자리에서 한 발을 앞으로/옆으로 크게 내딛으며 앉았다가 제자리로 돌아옵니다. 좌우 번갈아가며 각 5회 실시합니다.',
-                  detail: '허벅지 전반 및 안쪽 내전근 자극'
-                },
-                {
-                  step: 6,
-                  title: '스파이더맨 런지 (장요근 깊게 늘리기) 🕸️',
-                  desc: '엎드린 푸쉬업 자세에서 한 발을 같은 손 바로 옆으로 디딘 후, 골반을 지그시 아래로 내리며 앞쪽 고관절을 늘립니다. (각 5초 유지, 좌우 3회)',
-                  detail: '굳어있던 장요근 이완 & 보폭 향상'
-                },
-                {
-                  step: 7,
-                  title: '종아리 & 아킬레스건 늘리기 🩹',
-                  desc: '한쪽 다리를 뒤로 길게 뻗고 뒤꿈치를 땅에 밀착시킵니다. 체중을 앞다리에 실으며 종아리와 아킬레스건을 지그시 늘려줍니다. (각 15초 유지)',
-                  detail: '아킬레스건염 예방 & 부상 방지 최종 점검'
-                },
-                {
-                  step: 8,
-                  title: '[러닝 드릴] A-스킵 (A-Skip) 🦘',
-                  desc: '리드미컬한 스킵 박자에 맞춰 가볍게 바운스를 타며, 한쪽 무릎을 골반 높이까지 빠르게 수직으로 올렸다 내립니다. (양방향 각 15~20회)',
-                  detail: '올바른 무릎 피치 자세 & 발목 스프링 탄성 훈련'
-                },
-                {
-                  step: 9,
-                  title: '[러닝 드릴] B-스킵 (B-Skip - 햄스트링 핵심!) 🦵',
-                  desc: 'A-스킵처럼 무릎을 들어 올린 직후, 다리를 앞으로 가볍게 뻗었다가 햄스트링의 힘으로 지면을 할퀴듯이(Pawing) 빠르게 뒤로 쓸어내려 착지합니다. (각 15~20회)',
-                  detail: '햄스트링의 동적 활성화 & 강력한 지면 반발력 확보'
-                },
-                {
-                  step: 10,
-                  title: '[러닝 드릴] C-스킵 (C-Skip) 🔄',
-                  desc: '스킵 박자 속에서 무릎을 정면으로 한 번 들어 올린 후, 곧바로 같은 다리를 바깥쪽(측면)으로 외회전하여 골반을 열어주며 올립니다. (각 10회)',
-                  detail: '고관절 외전근 활성화 & 골반 주변부 유연성 극대화'
-                }
-              ].map((item) => (
-                <div key={item.step} className="flex gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-2xl shadow-sm">
-                  <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 font-black text-[10px]">
-                    {item.step}
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <h4 className="text-xs font-black text-slate-800">{item.title}</h4>
-                    <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{item.desc}</p>
-                    <span className="text-[8px] text-emerald-600 font-extrabold uppercase tracking-wide mt-1">✨ 효과: {item.detail}</span>
-                  </div>
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🧘‍♂️</span>
+                <div className="text-left">
+                  <h3 className="text-xs font-black text-slate-800">동적 스트레칭 & 러닝 드릴</h3>
+                  <p className="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">Pre-run Warming up 10 steps</p>
                 </div>
-              ))}
+              </div>
+              <button
+                onClick={() => setIsStretchingModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="bg-emerald-50/40 border border-emerald-150 p-3 rounded-2xl flex gap-2 items-start text-[9px] text-emerald-700 leading-relaxed font-bold">
-              💡 <strong>TIP:</strong> 달리기 전에는 멈춰서 늘려주는 정적 스트레칭보다 이렇게 몸을 움직이는 <strong>동적 스트레칭</strong>이 훨씬 효과적입니다. 러닝이 완전히 끝난 후에 멈춰서 늘려주세요!
+            {/* Scrollable contents */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1 mb-4">
+              <p className="text-[10px] text-slate-500 leading-relaxed font-semibold text-left">
+                달리기 전에 관절과 근육을 부드럽게 깨워주는 <strong className="text-emerald-600 font-extrabold">동적 스트레칭</strong>입니다. 반동을 주며 가볍게 움직이는 동작 위주로 순서대로 진행해 주세요!
+              </p>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    step: 1,
+                    title: '발목 & 손목 돌리기 💫',
+                    desc: '한쪽 발끝을 땅에 대고 뒤꿈치를 들고 발목과 손목을 좌우로 부드럽게 각각 10회씩 돌려줍니다.',
+                    detail: '관절 윤활액 분비 촉진 & 발목 부상 예방'
+                  },
+                  {
+                    step: 2,
+                    title: '무릎 굽히고 돌리기 🦵',
+                    desc: '양손으로 무릎을 짚고 안에서 밖으로, 밖에서 안으로 원을 그리며 회전한 후, 가볍게 굽혔다 펴줍니다. (각 10회)',
+                    detail: '무릎 관절 부하 경감'
+                  },
+                  {
+                    step: 3,
+                    title: '골반 및 고관절 회전 🔄',
+                    desc: '양손을 골반에 얹고 골반을 좌우로 크게 원을 그리며 돌려줍니다. 양방향 각각 5회씩 크게 회전해 주세요.',
+                    detail: '고관절 가동 범위 확대'
+                  },
+                  {
+                    step: 4,
+                    title: '다리 앞뒤 스윙 🤸‍♂️',
+                    desc: '한 손으로 벽이나 나무를 짚고, 한쪽 다리를 시계추처럼 앞뒤로 시원하게 10회 흔들어줍니다. (반대쪽도 동일)',
+                    detail: '햄스트링 & 대퇴사두근 활성화'
+                  },
+                  {
+                    step: 5,
+                    title: '다이내믹 사이드 & 포워드 런지 🏃',
+                    desc: '제자리에서 한 발을 앞으로/옆으로 크게 내딛으며 앉았다가 제자리로 돌아옵니다. 좌우 번갈아가며 각 5회 실시합니다.',
+                    detail: '허벅지 전반 및 안쪽 내전근 자극'
+                  },
+                  {
+                    step: 6,
+                    title: '스파이더맨 런지 (장요근 깊게 늘리기) 🕸️',
+                    desc: '엎드린 푸쉬업 자세에서 한 발을 같은 손 바로 옆으로 디딘 후, 골반을 지그시 아래로 내리며 앞쪽 고관절을 늘립니다. (각 5초 유지, 좌우 3회)',
+                    detail: '굳어있던 장요근 이완 & 보폭 향상'
+                  },
+                  {
+                    step: 7,
+                    title: '종아리 & 아킬레스건 늘리기 🩹',
+                    desc: '한쪽 다리를 뒤로 길게 뻗고 뒤꿈치를 땅에 밀착시킵니다. 체중을 앞다리에 실으며 종아리와 아킬레스건을 지그시 늘려줍니다. (각 15초 유지)',
+                    detail: '아킬레스건염 예방 & 부상 방지 최종 점검'
+                  },
+                  {
+                    step: 8,
+                    title: '[러닝 드릴] A-스킵 (A-Skip) 🦘',
+                    desc: '리드미컬한 스킵 박자에 맞춰 가볍게 바운스를 타며, 한쪽 무릎을 골반 높이까지 빠르게 수직으로 올렸다 내립니다. (양방향 각 15~20회)',
+                    detail: '올바른 무릎 피치 자세 & 발목 스프링 탄성 훈련'
+                  },
+                  {
+                    step: 9,
+                    title: '[러닝 드릴] B-스킵 (B-Skip - 햄스트링 핵심!) 🦵',
+                    desc: 'A-스킵처럼 무릎을 들어 올린 직후, 다리를 앞으로 가볍게 뻗었다가 햄스트링의 힘으로 지면을 할퀴듯이(Pawing) 빠르게 뒤로 쓸어내려 착지합니다. (각 15~20회)',
+                    detail: '햄스트링의 동적 활성화 & 강력한 지면 반발력 확보'
+                  },
+                  {
+                    step: 10,
+                    title: '[러닝 드릴] C-스킵 (C-Skip) 🔄',
+                    desc: '스킵 박자 속에서 무릎을 정면으로 한 번 들어 올린 후, 곧바로 같은 다리를 바깥쪽(측면)으로 외회전하여 골반을 열어주며 올립니다. (각 10회)',
+                    detail: '고관절 외전근 활성화 & 골반 주변부 유연성 극대화'
+                  }
+                ].map((item) => (
+                  <div key={item.step} className="flex gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-2xl shadow-sm text-left">
+                    <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 font-black text-[10px]">
+                      {item.step}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <h4 className="text-xs font-black text-slate-800">{item.title}</h4>
+                      <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{item.desc}</p>
+                      <span className="text-[8px] text-emerald-600 font-extrabold uppercase tracking-wide mt-1">✨ 효과: {item.detail}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-emerald-50/40 border border-emerald-150 p-3 rounded-2xl flex gap-2 items-start text-[9px] text-emerald-700 leading-relaxed font-bold text-left">
+                💡 <strong>TIP:</strong> 달리기 전에는 멈춰서 늘려주는 정적 스트레칭보다 이렇게 몸을 움직이는 <strong>동적 스트레칭</strong>이 훨씬 효과적입니다. 러닝이 완전히 끝난 후에 멈춰서 늘려주세요!
+              </div>
             </div>
-          </div>
-        )}
-      </section>
 
-      {/* 오늘의 러닝 동반자 (Inspiring Advice/Quote/Joke Card) */}
-      <section className="bg-gradient-to-r from-blue-50/45 via-indigo-50/20 to-emerald-50/45 border border-slate-200/80 rounded-3xl p-4.5 mb-6 shadow-sm relative overflow-hidden select-none animate-fadeIn">
-        <div className="absolute top-[-20%] right-[-10%] w-24 h-24 bg-blue-100/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
-            <h3 className="text-xs font-black text-slate-800">
-              {RUNNING_TIPS[currentTipIdx]?.type === 'QUOTE' && '🍀 오늘의 러닝 명언'}
-              {RUNNING_TIPS[currentTipIdx]?.type === 'JOKE' && '🤪 위트있는 러닝 한마디'}
-              {RUNNING_TIPS[currentTipIdx]?.type === 'ADVICE' && '🩹 유용한 러닝 조언'}
-            </h3>
-          </div>
-          <button
-            onClick={handleShuffleTip}
-            className="flex items-center gap-1 text-[9px] font-black text-blue-600 hover:text-blue-700 bg-white border border-slate-200/80 rounded-xl px-2.5 py-1 shadow-sm transition-all hover:scale-102 active:scale-98 cursor-pointer"
-          >
-            <span>🔄 다른 이야기</span>
-          </button>
-        </div>
-
-        <div className={`transition-all duration-300 ${tipFade ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
-          <p className="text-xs font-semibold text-slate-700 leading-relaxed min-h-[40px] flex items-center">
-            "{RUNNING_TIPS[currentTipIdx]?.text}"
-          </p>
-          <div className="flex items-center justify-end mt-1.5">
-            <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-wide">
-              — {RUNNING_TIPS[currentTipIdx]?.author}
-            </span>
+            <button
+              onClick={() => setIsStretchingModalOpen(false)}
+              className="w-full h-12 bg-blue-600 text-white font-extrabold text-xs tracking-wide rounded-2xl hover:bg-blue-700 active:scale-[0.98] transition-all cursor-pointer shrink-0 shadow-md"
+            >
+              닫기 (달리기 준비 완료!)
+            </button>
           </div>
         </div>
-      </section>
+      )}
 
       {/* 6. 실시간 크루 인증 피드 */}
       <section className="flex-1 flex flex-col select-none z-10 relative">
