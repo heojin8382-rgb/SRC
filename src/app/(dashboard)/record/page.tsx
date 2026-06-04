@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { mockStore, Profile, Location } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft, Camera, Image as ImageIcon, UploadCloud, Check } from 'lucide-react'
+import { Sparkles, Calendar, Navigation, Route, AlertTriangle, ArrowLeft, Camera, UploadCloud, Check } from 'lucide-react'
 import Link from 'next/link'
 import { parseGpxFile } from '@/lib/utils/gpx'
 
@@ -279,40 +279,29 @@ export default function RecordPage() {
   if (!profile) return null
 
   return (
-    <div className="p-6 flex flex-col relative select-none">
+    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       {/* 뒤로가기 헤더 */}
-      <header className="flex items-center gap-4 mb-6 z-10 relative">
+      <header className="flex items-center gap-3 mb-5 z-10 relative">
         <Link
           href="/"
-          className="p-2 hover:bg-blue-50 rounded-xl text-slate-400 hover:text-blue-600 border border-transparent hover:border-blue-100 transition-all duration-300 cursor-pointer"
+          className="p-1.5 hover:bg-slate-50 border border-slate-200 hover:border-slate-350 text-slate-500 rounded-xl transition-all duration-300 cursor-pointer shadow-sm bg-white"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
         </Link>
         <div className="flex flex-col">
-          <span className="text-[9px] text-slate-400 font-extrabold tracking-widest uppercase">CERTIFICATE</span>
-          <h1 className="text-base font-black tracking-tight text-slate-800 mt-0.5">러닝 기록 인증</h1>
+          <h1 className="text-base font-black tracking-tight text-slate-800">러닝 기록 인증</h1>
+          <p className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-0.5">Submit Run Certificate</p>
         </div>
       </header>
 
       {/* 등록 카드 */}
-      <div className="bg-white/85 border border-slate-200/60 rounded-3xl p-6 shadow-[0_8px_30px_rgba(15,23,42,0.03)] z-10 relative">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-blue-600" />
-          </div>
-          <h2 className="text-xs font-black text-slate-800 uppercase tracking-wider">기록 제출 폼</h2>
-        </div>
-        <p className="text-[10px] text-slate-500 mb-6 leading-relaxed">
-          오늘 달리신 러닝 상세 데이터를 제출해 주세요.<br />
-          제출 즉시 <strong className="text-slate-800 font-bold">월간 생존 알고리즘</strong>이 작동되어 반영됩니다.
-        </p>
-
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm z-10 relative">
         {/* 활성 미션 알림 팁 */}
         {activeMission && (
-          <div className="mb-5 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-250 rounded-2xl flex items-center justify-between text-[10px] text-slate-700 leading-relaxed font-bold animate-fadeIn">
+          <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-250 rounded-2xl flex items-center justify-between text-[9px] text-slate-700 leading-relaxed font-bold animate-fadeIn">
             <div className="flex gap-2">
               <span className="text-sm">🎯</span>
-              <div>
+              <div className="text-left">
                 <span className="text-[8px] text-amber-600 uppercase tracking-widest block font-extrabold">도전 중인 러닝 미션</span>
                 <span className="font-extrabold text-slate-800">{activeMission.title}</span>: {activeMission.text}
               </div>
@@ -322,54 +311,52 @@ export default function RecordPage() {
 
         {success ? (
           <div className="py-12 flex flex-col items-center justify-center gap-4 text-center animate-scaleUp">
-            <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 text-2xl font-black shadow-sm animate-bounceIn">
+            <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2563EB] text-xl font-black shadow-sm animate-bounceIn">
               ✓
             </div>
-            <h3 className="text-base font-black text-slate-800">인증 기록 등록 성공!</h3>
-            <p className="text-[11px] text-slate-455">대시보드로 복귀 중입니다...</p>
+            <h3 className="text-sm font-black text-slate-800">인증 기록 등록 성공!</h3>
+            <p className="text-[10px] text-slate-400">대시보드로 복귀 중입니다...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* GPX 자동 등록 영역 (가민, 스트라바) */}
-            <div className="space-y-2 pb-4 border-b border-dashed border-slate-200">
-              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
-                가민/스트라바 GPX 연동 (선택)
-              </label>
-              
-              <div className="relative">
-                <label className="flex items-center gap-3 w-full h-14 bg-slate-50 border border-dashed border-slate-200 hover:border-blue-500 hover:bg-blue-50/25 rounded-2xl px-4 cursor-pointer transition-all duration-300">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                    <UploadCloud className="w-4.5 h-4.5 text-blue-600" />
-                  </div>
-                  <div className="flex flex-col text-left justify-center flex-1 min-w-0">
-                    <span className="text-[11px] font-black text-slate-800 truncate">
-                      {gpxFileName || 'GPX 파일 가져오기'}
-                    </span>
-                    <span className="text-[9px] text-slate-500 truncate font-semibold">
-                      {gpxFileName ? '다른 파일로 변경하려면 클릭' : '가민/스트라바 기기 로그 자동 파싱'}
-                    </span>
-                  </div>
-                  <input
-                    type="file"
-                    accept=".gpx"
-                    className="hidden"
-                    onChange={handleGpxUpload}
-                  />
-                </label>
-              </div>
-
-              {gpxParsedMessage && (
-                <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-800 text-[10px] rounded-xl flex items-center gap-2 font-bold animate-fadeIn">
-                  <Check className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
-                  <span>{gpxParsedMessage}</span>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 border border-[#2563EB]/25 flex items-center justify-center shrink-0">
+                  <UploadCloud className="w-4 h-4 text-[#2563EB]" />
                 </div>
-              )}
+                <div className="flex flex-col text-left justify-center min-w-0">
+                  <span className="text-[10px] font-black text-slate-800 truncate">
+                    {gpxFileName || 'GPX 파일 자동 가져오기'}
+                  </span>
+                  <span className="text-[8px] text-slate-500 truncate font-bold uppercase tracking-wider">
+                    {gpxFileName ? '가져오기 완료' : '가민 / 스트라바 로그 연동'}
+                  </span>
+                </div>
+              </div>
+              
+              <label className="px-3 py-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-[9px] font-black tracking-widest uppercase rounded-xl transition-all cursor-pointer shadow-sm shrink-0">
+                파일 선택
+                <input
+                  type="file"
+                  accept=".gpx"
+                  className="hidden"
+                  onChange={handleGpxUpload}
+                />
+              </label>
             </div>
 
-            {/* 1. 거리 입력 */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
-                러닝 거리 (km)
+            {gpxParsedMessage && (
+              <div className="p-3 bg-emerald-50 border border-emerald-250 text-emerald-800 text-[9px] rounded-xl flex items-center gap-2 font-bold animate-fadeIn">
+                <Check className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                <span className="text-left">{gpxParsedMessage}</span>
+              </div>
+            )}
+
+            {/* 1. 러닝 거리 */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">
+                러닝 거리
               </label>
               <div className="relative">
                 <input
@@ -378,27 +365,27 @@ export default function RecordPage() {
                   min="3.0"
                   max="100.0"
                   required
-                  placeholder="최소 3.0km 이상 입력"
+                  placeholder="최소 3.0km 이상"
                   value={distance}
                   onChange={(e) => setDistance(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 pr-12 text-sm outline-none text-slate-800 font-extrabold tracking-wide transition-all"
+                  className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.08)] rounded-xl px-3 pr-10 text-xs outline-none text-slate-900 font-extrabold transition-all"
                 />
-                <span className="text-[10px] font-black text-blue-600 absolute right-4 top-4 tracking-wider">
+                <span className="text-[9px] font-black text-[#2563EB] absolute right-3.5 top-3.5 tracking-wider">
                   KM
                 </span>
               </div>
             </div>
 
-            {/* 2. 장소 선택 */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+            {/* 2. 러닝 장소 */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">
                 러닝 장소
               </label>
               <div className="relative">
                 <select
                   value={locationId}
                   onChange={(e) => setLocationId(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 text-sm outline-none text-slate-700 cursor-pointer appearance-none font-bold"
+                  className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.08)] rounded-xl px-3 pr-10 text-xs outline-none text-slate-700 cursor-pointer appearance-none font-bold"
                 >
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id} className="bg-white text-slate-850">
@@ -406,19 +393,19 @@ export default function RecordPage() {
                     </option>
                   ))}
                 </select>
-                <Navigation className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
+                <Navigation className="w-3.5 h-3.5 text-slate-400 absolute right-3.5 top-3.5 pointer-events-none" />
               </div>
             </div>
 
             {/* 3. 러닝 날짜 */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 text-left">
               <div className="flex justify-between items-center">
-                <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">
                   러닝 날짜
                 </label>
                 {profile.role === 'ADMIN' ? (
-                  <span className="text-[8px] font-black text-blue-600 tracking-wider bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
-                    ⚡ ADMIN 무제한 소급
+                  <span className="text-[8px] font-black text-[#2563EB] tracking-wider bg-blue-50 border border-blue-150 px-2 py-0.2 rounded-full">
+                    부여권 (어드민) 소관
                   </span>
                 ) : (
                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
@@ -434,24 +421,24 @@ export default function RecordPage() {
                   max={maxDate}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 bg-slate-50 border border-slate-200/80 focus:border-blue-500 focus:shadow-[0_0_12px_rgba(37,99,235,0.06)] rounded-xl px-4 pr-12 text-sm outline-none text-slate-700 font-bold transition-all appearance-none"
+                  className="w-full h-11 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.08)] rounded-xl px-3 pr-10 text-xs outline-none text-slate-700 font-bold transition-all appearance-none"
                 />
-                <Calendar className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
+                <Calendar className="w-3.5 h-3.5 text-slate-400 absolute right-3.5 top-3.5 pointer-events-none" />
               </div>
             </div>
 
-            {/* 4. 러닝 타입 */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+            {/* 4. 러닝 구분 (타입) */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">
                 러닝 구분 (타입)
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => { setType('PERSONAL'); setIsPacer(false); }}
-                  className={`h-12 rounded-xl border font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`h-11 rounded-xl border font-black text-[11px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
                     type === 'PERSONAL'
-                      ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.06)]'
+                      ? 'border-[#2563EB] bg-blue-50 text-[#2563EB] shadow-sm'
                       : 'border-slate-200 bg-slate-50 text-slate-400 hover:border-slate-300 hover:text-slate-600'
                   }`}
                 >
@@ -461,44 +448,47 @@ export default function RecordPage() {
                 <button
                   type="button"
                   onClick={() => setType('REGULAR')}
-                  className={`h-12 rounded-xl border font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`h-11 rounded-xl border font-black text-[11px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
                     type === 'REGULAR'
-                      ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.06)]'
+                      ? 'border-[#2563EB] bg-blue-50 text-[#2563EB] shadow-sm'
                       : 'border-slate-200 bg-slate-50 text-slate-400 hover:border-slate-300 hover:text-slate-600'
                   }`}
                 >
-                  👥
-                  정기 벙 러닝
+                  👥 정기 벙 러닝
                 </button>
               </div>
             </div>
 
             {/* 5. 정기 벙 선택 시 페이서 토글 활성화 */}
             {type === 'REGULAR' && (
-              <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-center justify-between animate-fadeIn shadow-sm">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between animate-fadeIn shadow-sm">
+                <div className="flex flex-col gap-0.5 text-left">
+                  <span className="text-[10px] font-black text-slate-800 flex items-center gap-1">
                     🎈 페이서(Pacer) 가동 여부
                   </span>
-                  <span className="text-[9px] text-slate-500">
-                    해당 벙 러닝에서 페이서 역할을 성공적으로 완수하셨나요?
+                  <span className="text-[8px] text-slate-500 font-bold">
+                    벙 러닝에서 페이서 역할을 완수하셨나요?
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsPacer(!isPacer)}
-                  className={`w-12 h-6 rounded-full p-0.5 transition-all duration-300 cursor-pointer flex items-center ${
-                    isPacer ? 'bg-blue-600 justify-end' : 'bg-slate-200 justify-start'
+                  className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shrink-0 ${
+                    isPacer ? 'bg-[#2563EB]' : 'bg-slate-300'
                   }`}
                 >
-                  <div className="w-5 h-5 rounded-full shadow-sm bg-white transition-transform" />
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                      isPacer ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
                 </button>
               </div>
             )}
 
             {/* 6. 러닝 인증샷 첨부 */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block">
+            <div className="space-y-1.5 text-left">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">
                 러닝 기록 인증 사진 (선택)
               </label>
               
@@ -507,7 +497,7 @@ export default function RecordPage() {
                   <img
                     src={previewUrl}
                     alt="Preview"
-                    className="w-full max-h-48 object-contain rounded-xl"
+                    className="w-full max-h-40 object-contain rounded-xl"
                   />
                   <button
                     type="button"
@@ -515,17 +505,17 @@ export default function RecordPage() {
                       setProofImageFile(null)
                       setPreviewUrl('')
                     }}
-                    className="mt-2 text-[10px] font-black text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100 cursor-pointer"
+                    className="mt-2 text-[9px] font-black text-rose-600 hover:text-rose-700 bg-rose-50 px-2.5 py-1 rounded-xl border border-rose-100 cursor-pointer"
                   >
                     사진 삭제
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/25 transition-all duration-300">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400">
-                    <Camera className="w-6 h-6 mb-2 text-slate-400" />
-                    <p className="text-[10px] font-black tracking-wide">러닝 인증 화면 캡처 또는 운동 사진 업로드</p>
-                    <p className="text-[8px] text-slate-400 mt-1 uppercase font-black tracking-widest">PNG, JPG up to 5MB</p>
+                <label className="flex flex-col items-center justify-center w-full h-24 border border-dashed border-slate-200 hover:border-[#2563EB] hover:bg-blue-50/20 rounded-2xl cursor-pointer transition-all duration-300">
+                  <div className="flex flex-col items-center justify-center text-slate-400">
+                    <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                    <p className="text-[9px] font-black tracking-wide">러닝 인증 캡처화면 또는 사진 업로드</p>
+                    <p className="text-[7px] text-slate-400 mt-0.5 uppercase font-black tracking-widest">PNG, JPG (최대 5MB)</p>
                   </div>
                   <input
                     type="file"
@@ -549,8 +539,8 @@ export default function RecordPage() {
 
             {/* 에러 피드백 */}
             {error && (
-              <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-600 text-xs rounded-xl flex items-center gap-2 font-bold justify-center animate-fadeIn">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] rounded-xl flex items-center gap-1.5 font-bold justify-center animate-fadeIn">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -559,10 +549,10 @@ export default function RecordPage() {
             <button
               type="submit"
               disabled={pending}
-              className={`w-full h-14 font-extrabold text-sm tracking-wide rounded-2xl transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center ${
+              className={`w-full h-12 font-black text-xs tracking-widest uppercase rounded-xl transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center ${
                 pending
                   ? 'bg-slate-100 text-slate-400'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-[0_4px_12px_rgba(37,99,235,0.15)]'
+                  : 'bg-[#2563EB] text-white hover:bg-[#2563EB]/95 active:scale-[0.98] shadow-md'
               }`}
             >
               {pending ? '러닝 인증서 저장 중...' : '러닝 기록 등록하기'}
