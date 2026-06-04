@@ -58,11 +58,8 @@ export default function ProfilePage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  // 아코디언 접기/펼치기 상태
-  const [isRecordsOpen, setIsRecordsOpen] = useState(true)
-  const [isGrowthCurveOpen, setIsGrowthCurveOpen] = useState(false)
-  const [isBadgesOpen, setIsBadgesOpen] = useState(false)
-  const [isPbFormOpen, setIsPbFormOpen] = useState(false)
+  // 탭 세그먼트 상태
+  const [activeTab, setActiveTab] = useState<'stats' | 'pb' | 'history'>('stats')
 
   useEffect(() => {
     loadData()
@@ -557,309 +554,308 @@ export default function ProfilePage() {
         </section>
       )}
 
-      {/* 2. 누적 활동 요약 통계 */}
-      <section className="grid grid-cols-2 gap-4 mb-6 z-10 relative select-none">
-        <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/10 flex items-center justify-center shrink-0">
-            <Footprints className="w-5 h-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 누적 거리</span>
-            <span className="text-sm font-black text-slate-900 mt-0.5">{totalDistance.toFixed(1)} <span className="text-[10px] text-slate-500 font-bold uppercase">km</span></span>
-          </div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-650 border border-emerald-500/10 flex items-center justify-center shrink-0">
-            <Calendar className="w-5 h-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 출석 일수</span>
-            <span className="text-sm font-black text-slate-900 mt-0.5">{uniqueDates} <span className="text-[10px] text-slate-500 font-bold uppercase">일</span></span>
-          </div>
-        </div>
+      {/* 2. 3탭 세그먼트 제어 바 */}
+      <section className="bg-slate-100 border border-slate-200/85 p-1.5 rounded-2xl grid grid-cols-3 gap-1.5 mb-6 z-10 relative shadow-inner select-none">
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={`py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+            activeTab === 'stats'
+              ? 'bg-[#2563EB] text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          📊 활동분석
+        </button>
+        <button
+          onClick={() => setActiveTab('pb')}
+          className={`py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+            activeTab === 'pb'
+              ? 'bg-[#2563EB] text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          🏆 PB등록
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+            activeTab === 'history'
+              ? 'bg-[#2563EB] text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          🏃 히스토리
+        </button>
       </section>
 
-      {/* 2.5. 마라톤 성장 곡선 분석 그래프 (Strava Vibe) */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => setIsGrowthCurveOpen(!isGrowthCurveOpen)}
-            className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
-          >
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-              <span>{currentMonthDisplay} 누적 마라톤 성장 곡선</span>
+      {/* 3. 탭 콘텐츠 영역 */}
+      <div className="z-10 relative flex-1 flex flex-col select-none">
+
+        {/* 탭 1: 활동분석 */}
+        {activeTab === 'stats' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* 누적 활동 요약 통계 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/10 flex items-center justify-center shrink-0">
+                  <Footprints className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 누적 거리</span>
+                  <span className="text-sm font-black text-slate-900 mt-0.5">
+                    {totalDistance.toFixed(1)} <span className="text-[10px] text-slate-500 font-bold uppercase">km</span>
+                  </span>
+                </div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-650 border border-emerald-500/10 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">이달의 출석 일수</span>
+                  <span className="text-sm font-black text-slate-900 mt-0.5">
+                    {uniqueDates} <span className="text-[10px] text-slate-500 font-bold uppercase">일</span>
+                  </span>
+                </div>
+              </div>
             </div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isGrowthCurveOpen ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
 
-        {isGrowthCurveOpen && cumulativeData.length === 0 && (
-          <div className="h-32 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center justify-center text-slate-400 text-center">
-            <span className="text-[10px] font-black uppercase tracking-wider">기록이 등록되면 곡선이 그려집니다.</span>
-          </div>
-        )}
+            {/* 마라톤 성장 곡선 분석 그래프 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+              <div className="flex items-center gap-1.5 mb-4">
+                <TrendingUp className="w-4 h-4 text-blue-600" />
+                <h3 className="text-xs font-black text-slate-800">{currentMonthDisplay} 누적 마라톤 성장 곡선</h3>
+              </div>
 
-        {isGrowthCurveOpen && cumulativeData.length > 0 && (
-          <div className="w-full flex flex-col items-center">
-            {/* SVG Cumulative Graph */}
-            <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-32 overflow-visible">
-              <defs>
-                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2563EB" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              {/* Grid Lines */}
-              <line x1="0" y1="10" x2={svgWidth} y2="10" stroke="#F1F5F9" strokeWidth="1" />
-              <line x1="0" y1="50" x2={svgWidth} y2="50" stroke="#F1F5F9" strokeWidth="1" />
-              <line x1="0" y1="90" x2={svgWidth} y2="90" stroke="#F1F5F9" strokeWidth="1" />
-              
-              {/* Gradient Area under line */}
-              <polygon points={areaPoints} fill="url(#areaGradient)" />
-              {/* Sparking Line */}
-              <polyline
-                fill="none"
-                stroke="#2563EB"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={svgPoints}
-              />
-              {/* End Point marker */}
-              {cumulativeData.length > 0 && (
-                <circle
-                  cx={(cumulativeData.length - 1) / (cumulativeData.length - 1) * svgWidth}
-                  cy={svgHeight - (cumulativeData[cumulativeData.length - 1].value / maxCumulativeValue) * 80 - 10}
-                  r="4"
-                  fill="#2563EB"
-                  stroke="#FFFFFF"
-                  strokeWidth="2"
-                />
+              {cumulativeData.length === 0 ? (
+                <div className="h-32 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center justify-center text-slate-400 text-center">
+                  <span className="text-[10px] font-black uppercase tracking-wider">기록이 등록되면 곡선이 그려집니다.</span>
+                </div>
+              ) : (
+                <div className="w-full flex flex-col items-center">
+                  <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-32 overflow-visible">
+                    <defs>
+                      <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#2563EB" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="10" x2={svgWidth} y2="10" stroke="#F1F5F9" strokeWidth="1" />
+                    <line x1="0" y1="50" x2={svgWidth} y2="50" stroke="#F1F5F9" strokeWidth="1" />
+                    <line x1="0" y1="90" x2={svgWidth} y2="90" stroke="#F1F5F9" strokeWidth="1" />
+                    <polygon points={areaPoints} fill="url(#areaGradient)" />
+                    <polyline
+                      fill="none"
+                      stroke="#2563EB"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      points={svgPoints}
+                    />
+                    {cumulativeData.length > 0 && (
+                      <circle
+                        cx={(cumulativeData.length - 1) / (cumulativeData.length - 1) * svgWidth}
+                        cy={svgHeight - (cumulativeData[cumulativeData.length - 1].value / maxCumulativeValue) * 80 - 10}
+                        r="4"
+                        fill="#2563EB"
+                        stroke="#FFFFFF"
+                        strokeWidth="2"
+                      />
+                    )}
+                  </svg>
+                  <div className="flex justify-between w-full text-[8px] font-black text-slate-400 mt-2 tracking-wider text-left">
+                    <span>{currentMonthDisplay} 1일</span>
+                    <span>누적 합계: {cumulativeSum.toFixed(1)} km</span>
+                    <span>{currentMonthDisplay} {lastDayDisplay}</span>
+                  </div>
+                </div>
               )}
-            </svg>
-            <div className="flex justify-between w-full text-[8px] font-black text-slate-400 mt-2 tracking-wider">
-              <span>{currentMonthDisplay} 1일</span>
-              <span>누적 합계: {cumulativeSum.toFixed(1)} km</span>
-              <span>{currentMonthDisplay} {lastDayDisplay}</span>
+            </div>
+
+            {/* 내 배지 전시관 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+              <div className="flex items-center gap-1.5 mb-4">
+                <Award className="w-4 h-4 text-amber-500" />
+                <h3 className="text-xs font-black text-slate-800">내 러너 배지 보관함</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {myBadges.map(badge => (
+                  <BadgeCard
+                    key={badge.id}
+                    id={badge.id}
+                    name={badge.name}
+                    emoji={badge.emoji}
+                    description={badge.description}
+                    color={badge.color}
+                    isUnlocked={badge.isUnlocked}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
-      </section>
 
-      {/* 2.6. 내 배지 전시관 */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={() => setIsBadgesOpen(!isBadgesOpen)}
-            className="w-full flex items-center justify-between text-xs font-black text-slate-800 hover:text-slate-700 cursor-pointer"
-          >
-            <div className="flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-amber-500" />
-              <span>내 러너 배지 보관함</span>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isBadgesOpen ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-        
-        {isBadgesOpen && (
-        <div className="grid grid-cols-2 gap-3">
-          {myBadges.map(badge => (
-            <BadgeCard
-              key={badge.id}
-              id={badge.id}
-              name={badge.name}
-              emoji={badge.emoji}
-              description={badge.description}
-              color={badge.color}
-              isUnlocked={badge.isUnlocked}
-            />
-          ))}
-        </div>
-        )}
-      </section>
-
-      {/* 3. 마라톤 3대 최고 기록 (PB) 설정 관리 폼 */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-5 mb-6 shadow-sm z-10 relative">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            type="button"
-            onClick={() => setIsPbFormOpen(!isPbFormOpen)}
-            className="w-full flex items-center justify-between text-slate-900 hover:text-slate-700 cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
+        {/* 탭 2: PB 기록 등록 */}
+        {activeTab === 'pb' && (
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm animate-fadeIn space-y-4 text-left">
+            <div className="flex items-center gap-2 mb-1">
               <div className="w-7 h-7 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center">
                 <Trophy className="w-4 h-4 text-[#2563EB]" />
               </div>
-              <span className="text-xs font-black uppercase tracking-wider animate-fadeIn">나의 마라톤 PB 기록 등록</span>
+              <span className="text-xs font-black uppercase tracking-wider">나의 마라톤 PB 기록 등록</span>
             </div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isPbFormOpen ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
 
-        {isPbFormOpen && (
-          <>
-            <p className="text-[10px] text-slate-500 leading-relaxed mb-4">
-          공식 대회 최고 기록을 시:분:초(<strong className="text-slate-800">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
-          예: <strong className="text-slate-800 font-bold">46분 15초</strong> ➔ <strong className="text-[#2563EB] font-bold">00:46:15</strong> | <strong className="text-slate-855 font-bold">3시간 45분</strong> ➔ <strong className="text-[#2563EB] font-bold">03:45:00</strong>
-        </p>
+            <p className="text-[10px] text-slate-500 leading-relaxed mb-2">
+              공식 대회 최고 기록을 시:분:초(<strong className="text-slate-800">HH:MM:SS</strong>) 형태로 기입해 주세요.<br />
+              예: <strong className="text-slate-800 font-bold">46분 15초</strong> ➔ <strong className="text-[#2563EB] font-bold">00:46:15</strong> | <strong className="text-slate-855 font-bold">3시간 45분</strong> ➔ <strong className="text-[#2563EB] font-bold">03:45:00</strong>
+            </p>
 
-        <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-2xl mb-4">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-black text-slate-800">크루원 PB 보드에 내 기록 공개</span>
-            <span className="text-[8px] text-slate-500 font-bold">비활성화 시 전체 랭킹 보드에서 내 최고 기록이 숨겨집니다.</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleToggleShowPb}
-            className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-              showPb ? 'bg-[#2563EB]' : 'bg-slate-300'
-            }`}
-          >
-            <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                showPb ? 'translate-x-4' : 'translate-x-0'
-              }`}
-            />
-          </button>
-        </div>
-
-        <form onSubmit={handleSavePBs} className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            {/* 10K 기록 */}
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">10K</label>
-              <input
-                type="text"
-                placeholder="00:45:30"
-                maxLength={8}
-                value={pb10k}
-                onChange={(e) => setPb10k(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
-              />
-            </div>
-            {/* Half 기록 */}
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Half</label>
-              <input
-                type="text"
-                placeholder="01:45:00"
-                maxLength={8}
-                value={pbHalf}
-                onChange={(e) => setPbHalf(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
-              />
-            </div>
-            {/* Full 기록 */}
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Full</label>
-              <input
-                type="text"
-                placeholder="03:59:59"
-                maxLength={8}
-                value={pbFull}
-                onChange={(e) => setPbFull(e.target.value)}
-                className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
-              />
-            </div>
-          </div>
-
-          {!isEditing && errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
-              ⚠️ {errorMsg}
-            </div>
-          )}
-
-          {!isEditing && successMsg && (
-            <div className="p-3 bg-blue-50 border border-blue-200 text-[#2563EB] text-[10px] rounded-xl text-center font-bold animate-fadeIn">
-              ✓ {successMsg}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full h-11 bg-[#2563EB] text-white hover:bg-[#2563EB]/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center"
-          >
-            기록 저장 및 랭킹 반영
-          </button>
-        </form>
-        </>
-        )}
-      </section>
-
-      {/* 4. 내 기록 리스트 히스토리 피드 */}
-      <section className="flex-1 flex flex-col z-10 relative select-none pb-8">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => setIsRecordsOpen(!isRecordsOpen)}
-            className="w-full flex items-center justify-between text-[10px] text-slate-500 hover:text-slate-700 tracking-widest font-black uppercase cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <span>내 러닝 활동 기록</span>
-              <span className="text-[9px] text-[#2563EB] bg-[#2563EB]/5 border border-[#2563EB]/15 px-2.5 py-0.5 rounded-full font-black tracking-wider normal-case">
-                {myRecords.length}회
-              </span>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isRecordsOpen ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-
-        {isRecordsOpen && (
-          myRecords.length === 0 ? (
-          <div className="flex-1 min-h-[160px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
-            <span className="text-xs font-black text-slate-600">📪 이번 달 등록하신 내 활동 이력이 없습니다.</span>
-            <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Register your runs on dashboard</span>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {myRecords.map((rec) => (
-              <div
-                key={rec.id}
-                className="bg-white border border-slate-200 hover:bg-slate-50/50 rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all duration-200"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shrink-0 shadow-inner">
-                    {rec.type === 'REGULAR' ? '👥' : '🏃'}
-                  </div>
-
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black text-slate-900">{rec.distance.toFixed(1)} km</span>
-                      <span className={`text-[8px] font-black px-1.5 py-0.2 rounded border ${
-                        rec.type === 'REGULAR'
-                          ? 'bg-blue-50 text-[#2563EB] border-blue-200'
-                          : 'bg-slate-50 text-slate-500 border-slate-200'
-                      }`}>
-                        {rec.type === 'REGULAR' ? '정기 벙' : '개인런'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 text-[8px] text-slate-400 font-extrabold tracking-wider">
-                      <span className="flex items-center gap-0.5">
-                        <MapPin className="w-3 h-3 text-slate-400" />
-                        {rec.location_name}
-                      </span>
-                      <span className="flex items-center gap-0.5">
-                        <Calendar className="w-3 h-3 text-slate-400" />
-                        {rec.date}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleDeleteRecord(rec.id)}
-                  className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                  title="인증 삭제"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+            <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-black text-slate-800">크루원 PB 보드에 내 기록 공개</span>
+                <span className="text-[8px] text-slate-500 font-bold">비활성화 시 전체 랭킹 보드에서 내 최고 기록이 숨겨집니다.</span>
               </div>
-            ))}
+              <button
+                type="button"
+                onClick={handleToggleShowPb}
+                className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shrink-0 ${
+                  showPb ? 'bg-[#2563EB]' : 'bg-slate-300'
+                }`}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                    showPb ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePBs} className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                {/* 10K 기록 */}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">10K</label>
+                  <input
+                    type="text"
+                    placeholder="00:45:30"
+                    maxLength={8}
+                    value={pb10k}
+                    onChange={(e) => setPb10k(e.target.value)}
+                    className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                  />
+                </div>
+                {/* Half 기록 */}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Half</label>
+                  <input
+                    type="text"
+                    placeholder="01:45:00"
+                    maxLength={8}
+                    value={pbHalf}
+                    onChange={(e) => setPbHalf(e.target.value)}
+                    className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                  />
+                </div>
+                {/* Full 기록 */}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block text-center">Full</label>
+                  <input
+                    type="text"
+                    placeholder="03:59:59"
+                    maxLength={8}
+                    value={pbFull}
+                    onChange={(e) => setPbFull(e.target.value)}
+                    className="w-full h-10 bg-slate-50 border border-slate-200 focus:border-[#2563EB] focus:shadow-[0_0_8px_rgba(37,99,235,0.1)] rounded-xl px-2 text-center text-xs outline-none text-slate-900 font-extrabold transition-all"
+                  />
+                </div>
+              </div>
+
+              {!isEditing && errorMsg && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+                  ⚠️ {errorMsg}
+                </div>
+              )}
+
+              {!isEditing && successMsg && (
+                <div className="p-3 bg-blue-50 border border-blue-200 text-[#2563EB] text-[10px] rounded-xl text-center font-bold animate-fadeIn">
+                  ✓ {successMsg}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full h-11 bg-[#2563EB] text-white hover:bg-[#2563EB]/90 font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-sm cursor-pointer flex items-center justify-center"
+              >
+                기록 저장 및 랭킹 반영
+              </button>
+            </form>
           </div>
-        )
         )}
-      </section>
+
+        {/* 탭 3: 러닝 히스토리 */}
+        {activeTab === 'history' && (
+          <div className="space-y-4 animate-fadeIn pb-8">
+            <div className="flex items-center justify-between text-left">
+              <h3 className="text-[10px] text-slate-500 tracking-widest font-black uppercase">내 러닝 활동 기록 ({myRecords.length}회)</h3>
+            </div>
+
+            {myRecords.length === 0 ? (
+              <div className="min-h-[180px] bg-slate-50 border border-slate-200 rounded-3xl flex flex-col items-center justify-center p-6 text-slate-400 text-center">
+                <span className="text-xs font-black text-slate-600">📪 이번 달 등록하신 내 활동 이력이 없습니다.</span>
+                <span className="text-[9px] text-slate-455 mt-2 font-bold uppercase tracking-widest">Register your runs on dashboard</span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myRecords.map((rec) => (
+                  <div
+                    key={rec.id}
+                    className="bg-white border border-slate-200 hover:bg-slate-50/50 rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all duration-200 animate-fadeIn"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shrink-0 shadow-inner">
+                        {rec.type === 'REGULAR' ? '👥' : '🏃'}
+                      </div>
+
+                      <div className="flex flex-col gap-0.5 text-left">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-slate-900">{rec.distance.toFixed(1)} km</span>
+                          <span className={`text-[8px] font-black px-1.5 py-0.2 rounded border ${
+                            rec.type === 'REGULAR'
+                              ? 'bg-blue-50 text-[#2563EB] border-blue-200'
+                              : 'bg-slate-50 text-slate-500 border-slate-200'
+                          }`}>
+                            {rec.type === 'REGULAR' ? '정기 벙' : '개인런'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 text-[8px] text-slate-400 font-extrabold tracking-wider">
+                          <span className="flex items-center gap-0.5">
+                            <MapPin className="w-3 h-3 text-slate-400" />
+                            {rec.location_name}
+                          </span>
+                          <span className="flex items-center gap-0.5">
+                            <Calendar className="w-3 h-3 text-slate-400" />
+                            {rec.date}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteRecord(rec.id)}
+                      className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                      title="인증 삭제"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
