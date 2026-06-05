@@ -230,6 +230,7 @@ export default function PlaygroundPage() {
   const [gachaSpinning, setGachaSpinning] = useState(false)
   const [gachaResult, setGachaResult] = useState<any | null>(null)
   const [gachaHistory, setGachaHistory] = useState<any[]>([])
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null)
 
   useEffect(() => {
     loadData()
@@ -1068,7 +1069,11 @@ export default function PlaygroundPage() {
                       <span className="text-xs font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
                     </div>
                   ) : gachaResult ? (
-                    <div className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full">
+                    <div
+                      onClick={() => setSelectedHistoryItem(gachaResult)}
+                      className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full cursor-pointer hover:opacity-85 transition-opacity"
+                      title="크게 보기 (캡처용)"
+                    >
                       <div className="text-4xl filter drop-shadow animate-wiggle">🎁</div>
                       <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
                         gachaResult.grade === 'LEGENDARY'
@@ -1088,6 +1093,9 @@ export default function PlaygroundPage() {
                       <p className="text-[9px] text-slate-500 leading-relaxed font-semibold px-2">
                         {gachaResult.desc}
                       </p>
+                      <span className="text-[7.5px] text-slate-400 font-extrabold tracking-wider mt-0.5">
+                        🔍 클릭하여 크게 보기 (캡처)
+                      </span>
                     </div>
                   ) : (
                     <div className="text-center flex flex-col gap-2 text-slate-400">
@@ -1126,7 +1134,12 @@ export default function PlaygroundPage() {
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                     {gachaHistory.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div
+                        key={index}
+                        onClick={() => setSelectedHistoryItem(item)}
+                        className="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 hover:border-slate-350 rounded-xl cursor-pointer transition-all duration-200"
+                        title="클릭하여 대형 인증서 보기 (캡처용)"
+                      >
                         <div className="flex flex-col gap-0.5">
                           <span className="text-[10px] font-black text-slate-800">{item.name}</span>
                           <span className="text-[8px] text-slate-400 font-medium">{item.timestamp} 당첨</span>
@@ -1301,6 +1314,50 @@ export default function PlaygroundPage() {
             </>
           )}
 
+        </div>
+      )}
+
+      {/* 3. 당첨 상세 모달 (캡처용) */}
+      {selectedHistoryItem && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5 select-none animate-fadeIn">
+          <div className="bg-white border-2 border-amber-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col items-center text-center animate-scaleUp">
+            {/* Watermark / Background Deco */}
+            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-slate-50 rounded-full opacity-35 pointer-events-none" />
+            <div className="absolute -left-8 -top-8 w-32 h-32 bg-slate-50 rounded-full opacity-35 pointer-events-none" />
+            
+            {/* Ribbon/Crown Icon */}
+            <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-sm mb-4 animate-bounce">
+              {selectedHistoryItem.emoji || '🎁'}
+            </div>
+
+            <span className="text-[9px] text-[#2563EB] font-black uppercase tracking-widest bg-blue-50 border border-blue-150 px-2.5 py-0.5 rounded-full mb-3">
+              Suwon Running Crew Certificate
+            </span>
+            
+            <h2 className="text-sm font-black text-slate-900 tracking-tight leading-snug mb-3">
+              {selectedHistoryItem.name}
+            </h2>
+            
+            <div className="w-full border-t border-dashed border-slate-200 my-2" />
+            
+            <p className="text-[11px] font-semibold text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/50 p-4.5 rounded-2xl my-3 w-full text-left">
+              {selectedHistoryItem.desc}
+            </p>
+            
+            <div className="w-full border-t border-dashed border-slate-200 my-2" />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">당첨 일시</span>
+              <span className="text-[10px] text-slate-700 font-extrabold">{currentMonthDisplay} {selectedHistoryItem.timestamp || '당첨 완료'}</span>
+            </div>
+
+            <button
+              onClick={() => setSelectedHistoryItem(null)}
+              className="mt-5 w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
+            >
+              확인 (닫기)
+            </button>
+          </div>
         </div>
       )}
     </div>
