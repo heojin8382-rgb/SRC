@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { mockStore, GachaItem } from '@/lib/mockStore'
+import { mockStore, GachaItem, DEFAULT_GACHA_ITEMS } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Sparkles, Trophy, AlertCircle, Check, Play, UserCheck, Flame, HelpCircle, Search } from 'lucide-react'
@@ -741,6 +741,86 @@ export default function PlaygroundPage() {
     }
   }
 
+  const handleImportDefaultGachaItems = async () => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (!confirm('기본 보상 17개를 일괄 등록하시겠습니까? (이미 같은 이름으로 등록된 보상은 건너뜁니다.)')) return
+
+    try {
+      const isMock = checkIsMock()
+      if (isMock) {
+        const all = mockStore.getGachaItems()
+        const existingNames = all.map(x => x.name)
+        const toAdd = DEFAULT_GACHA_ITEMS.filter(x => !existingNames.includes(x.name))
+        
+        if (toAdd.length === 0) {
+          alert('이미 모든 기본 보상이 등록되어 있습니다.')
+          return
+        }
+
+        toAdd.forEach(item => {
+          mockStore.addGachaItem({
+            name: item.name,
+            grade: item.grade,
+            description: item.description,
+            emoji: item.emoji
+          })
+        })
+        alert(`🎉 ${toAdd.length}개의 기본 보상이 성공적으로 등록되었습니다!`)
+        loadData()
+      } else {
+        const supabase = createClient()
+        const { error: checkError } = await supabase
+          .from('gacha_items')
+          .select('id')
+          .limit(1)
+
+        if (checkError && checkError.code === 'PGRST205') {
+          alert('❌ 데이터베이스에 gacha_items 테이블이 존재하지 않습니다.\n안내해 드린 SQL 스크립트를 Supabase SQL Editor에서 먼저 실행한 뒤 버튼을 눌러주세요.')
+          return
+        }
+
+        const { data: existing } = await supabase
+          .from('gacha_items')
+          .select('name')
+
+        const existingNames = existing ? existing.map((x: any) => x.name) : []
+        const toAdd = DEFAULT_GACHA_ITEMS.filter(x => !existingNames.includes(x.name))
+
+        if (toAdd.length === 0) {
+          alert('이미 모든 기본 보상이 등록되어 있습니다.')
+          return
+        }
+
+        const insertData = toAdd.map(item => ({
+          name: item.name,
+          grade: item.grade,
+          description: item.description,
+          emoji: item.emoji,
+          is_active: true
+        }))
+
+        const { error } = await supabase
+          .from('gacha_items')
+          .insert(insertData)
+
+        if (error) {
+          console.error(error)
+          alert('보상 일괄 등록에 실패했습니다.')
+        } else {
+          alert(`🎉 ${toAdd.length}개의 기본 보상이 성공적으로 등록되었습니다!`)
+          loadData()
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      alert('일괄 등록 중 오류가 발생했습니다.')
+    }
+  }
+
   const handleToggleSelect = (id: string) => {
     if (spinning || drawingLottery) return
     setSelectedIds(prev => 
@@ -1310,11 +1390,29 @@ export default function PlaygroundPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center px-1">
                       <span className="text-[10px] font-black text-slate-700">전체 보상 목록 ({gachaItems.length}개)</span>
+                      {hasEditPermission && (
+                        <button
+                          type="button"
+                          onClick={handleImportDefaultGachaItems}
+                          className="text-[8.5px] font-black text-[#2563EB] hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          📦 기본 보상 로드
+                        </button>
+                      )}
                     </div>
 
                     {gachaItems.length === 0 ? (
-                      <div className="bg-white border border-slate-200 py-12 rounded-3xl text-center text-slate-400 text-xs font-bold shadow-sm">
-                        등록되었거나 활성화된 가챠 보상이 없습니다.
+                      <div className="bg-white border border-slate-200 py-10 rounded-3xl text-center text-slate-400 text-xs font-bold shadow-sm space-y-3 px-4">
+                        <p>등록되었거나 활성화된 가챠 보상이 없습니다.</p>
+                        {hasEditPermission && (
+                          <button
+                            type="button"
+                            onClick={handleImportDefaultGachaItems}
+                            className="py-2 px-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#2563EB] rounded-xl text-[9px] font-black cursor-pointer transition-all shadow-sm block mx-auto active:scale-97"
+                          >
+                            📦 기본 보상 17개 일괄 가져오기
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="grid gap-3 grid-cols-1">

@@ -193,7 +193,7 @@ const DEFAULT_MEMBERS: Member[] = [
   }
 ]
 
-const DEFAULT_GACHA_ITEMS: GachaItem[] = [
+export const DEFAULT_GACHA_ITEMS: GachaItem[] = [
   { id: 'g1', name: '👑 [전설] 뷔페 식사권', grade: 'LEGENDARY', description: '대박! 다음 정기 모임 뒤풀이 때 특급 호텔/패밀리 뷔페 식사권을 증정합니다. (크루 회비 또는 크루장 찬스!)', emoji: '🥩', is_active: true },
   { id: 'g2', name: '👑 [전설] 크루장과 1:1 티타임런', grade: 'LEGENDARY', description: '크루장과 함께 가볍게 달리고, 크루장이 쏘는 고급 디저트와 커피 티타임을 함께 가집니다.', emoji: '☕', is_active: true },
   { id: 'g3', name: '🎈 [영웅] 커피쿠폰(아아)', grade: 'EPIC', description: '축하합니다! 시원한 스타벅스 아이스 아메리카노 모바일 기프티콘을 드립니다.', emoji: '🥤', is_active: true },
