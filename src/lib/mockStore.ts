@@ -210,7 +210,17 @@ export const DEFAULT_GACHA_ITEMS: GachaItem[] = [
   { id: 'g14', name: '🤳 [유쾌한 꽝] 단체사진 찍을 때 맨 앞줄 정중앙 포즈 취하기', grade: 'COMMON', description: '다음 러닝 종료 후 단체 사진 촬영 시 무조건 가장 앞줄 중앙에 자리를 잡고 당당하고 유쾌한 시그니처 포즈를 취해 보세요!', emoji: '📸', is_active: true },
   { id: 'g15', name: '🏃 [유쾌한 꽝] 다음 벙에서 페이서 바로 뒤 밀착 마크런', grade: 'COMMON', description: '페이스 메이커를 신뢰하세요! 다음 벙 러닝 때 지정된 페이서의 바로 뒷자리에서 1m 간격을 유지하며 끝까지 따라가 봅니다.', emoji: '👣', is_active: true },
   { id: 'g16', name: '🥤 [유쾌한 꽝] 벙 끝난 후 물 보급소 종이컵 정리 돕기', grade: 'COMMON', description: '지구를 지키는 친환경 러너! 다음 모임 종료 후 생수 보급소의 빈 종이컵과 플라스틱 병 수거를 적극적으로 도와주세요.', emoji: '🗑️', is_active: true },
-  { id: 'g17', name: '📢 [유쾌한 꽝] 다음 벙 자기소개 때 가장 우렁차게 말하기', grade: 'COMMON', description: '크루원들에게 강렬한 인상을! 다음 벙 시작 전 자기소개 시간에 가장 먼저 손을 들고 씩씩하고 크게 자기소개를 시작하세요.', emoji: '📢', is_active: true }
+  { id: 'g17', name: '📢 [유쾌한 꽝] 다음 벙 자기소개 때 가장 우렁차게 말하기', grade: 'COMMON', description: '크루원들에게 강렬한 인상을! 다음 벙 시작 전 자기소개 시간에 가장 먼저 손을 들고 씩씩하고 크게 자기소개를 시작하세요.', emoji: '📢', is_active: true },
+  { id: 'g18', name: '🤸‍♂️ [유쾌한 꽝] 다음 벙 시작 전 스트레칭 시범 보이기', grade: 'COMMON', description: '크루원들의 부상 방지를 위해 다음 모임 시작 전 준비 스트레칭 중 한 가지 동작을 선두에서 직접 시범 보여주세요!', emoji: '🤸‍♂️', is_active: true },
+  { id: 'g19', name: '🥤 [유쾌한 꽝] 다음 벙 참여 시 개인 텀블러/얼음잔 인증하기', grade: 'COMMON', description: '환경 보호를 선도하는 SRC 러너! 다음 벙에 개인 텀블러나 얼음잔을 챙겨와 시원한 음료 보급 시 사용하고 인증샷을 올려보세요.', emoji: '🥤', is_active: true },
+  { id: 'g20', name: '📸 [유쾌한 꽝] 다음 벙 크루원 달리는 파파라치 샷 3장 찍어주기', grade: 'COMMON', description: '오늘의 공식 스냅 작가로 임명합니다! 다음 벙 달리기 진행 중 크루원들의 역동적인 질주 모습이 담긴 파파라치 샷을 3장 이상 찍어 공유해 주세요.', emoji: '📸', is_active: true },
+  { id: 'g21', name: '👟 [유쾌한 꽝] 다음 벙 종료 후 러닝화 하트 인증샷 찍기', grade: 'COMMON', description: '러닝 후 끈끈한 동료애! 다음 벙이 끝난 뒤 마음이 맞는 크루원과 함께 양발 러닝화 앞코를 대어 하트(♡) 모양을 만들고 우정 인증샷을 남겨보세요.', emoji: '👟', is_active: true },
+  { id: 'g22', name: '🎵 [유쾌한 꽝] 크루 단톡방에 내 최애 러닝 플레이리스트 공유하기', grade: 'COMMON', description: '음악은 달리기의 원동력! 내가 달릴 때 신나게 듣는 최애 러닝 플레이리스트(곡 목록 또는 링크)를 크루 단체 톡방에 멋지게 소개해 주세요.', emoji: '🎵', is_active: true },
+  { id: 'g23', name: '💪 [유쾌한 꽝] 다음 벙 종료 시 우렁찬 퇴근 인사 구호 외치기', grade: 'COMMON', description: '모임 종료 후 활기찬 마무리! 단체 사진 촬영 등이 끝난 후 큰 목소리로 "오늘도 모두 고생하셨습니다! 안전 귀가하세요!"라고 우렁차게 인사해 보세요.', emoji: '💪', is_active: true },
+  { id: 'g24', name: '🖐️ [유쾌한 꽝] 다음 벙에서 처음 만나는 크루원에게 먼저 인사하기', grade: 'COMMON', description: '새로운 인연은 언제나 환영! 다음 벙에서 아직 이야기를 나눠보지 못했거나 처음 뵙는 크루원에게 먼저 다가가 따뜻한 인사와 악수를 나누어 보세요.', emoji: '🖐️', is_active: true },
+  { id: 'g25', name: '🎨 [유쾌한 꽝] 다음 개인런 인증 스크린샷에 응원 메시지 그리기', grade: 'COMMON', description: '스마트폰 화면에 그리는 따뜻한 마음! 다음 개인 러닝 기록을 인증할 때, 기록 캡처본 위에 손글씨나 드로잉으로 "행복한 하루 되세요!" 같은 간단한 응원 문구를 적어 올려보세요.', emoji: '🎨', is_active: true },
+  { id: 'g26', name: '🏃‍♀️ [유쾌한 꽝] 다음 벙 보급 시 음료 직접 서빙해 주기', grade: 'COMMON', description: '친절한 보급 요정! 다음 정기 벙 보급 시간에 힘들어하는 다른 크루원 2명에게 물이나 스포츠 음료를 직접 가져다주며 격려해 주세요.', emoji: '🏃‍♀️', is_active: true },
+  { id: 'g27', name: '🦁 [유쾌한 꽝] 다음 벙 달리기 중 파이팅 넘치는 응원 구호 외치기', grade: 'COMMON', description: '지친 분위기를 깨우는 호랑이 기운! 다음 벙 달리기 도중 오르막이나 힘든 구간이 나오면 크루원들을 향해 목청껏 "SRC 파이팅! 다 왔습니다!"를 외쳐주세요.', emoji: '🦁', is_active: true }
 ]
 
 const getMockYearMonth = () => {

@@ -747,7 +747,7 @@ export default function PlaygroundPage() {
       return
     }
 
-    if (!confirm('기본 보상 17개를 일괄 등록하시겠습니까? (이미 같은 이름으로 등록된 보상은 건너뜁니다.)')) return
+    if (!confirm(`기본 보상 ${DEFAULT_GACHA_ITEMS.length}개를 일괄 등록하시겠습니까? (이미 같은 이름으로 등록된 보상은 건너뜁니다.)`)) return
 
     try {
       const isMock = checkIsMock()
