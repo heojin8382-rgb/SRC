@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { mockStore } from '@/lib/mockStore'
+import { mockStore, GachaItem } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Sparkles, Trophy, AlertCircle, Check, Play, UserCheck, Flame, HelpCircle, Search } from 'lucide-react'
@@ -39,151 +39,6 @@ const RANDOM_MISSIONS: Mission[] = [
   { id: 'm14', category: 'DISTANCE', title: '생일 축하 런 🎂', text: '오늘 달리는 거리의 소수점 이하 단위를 내 생일 일자로 맞춰서 완료하세요! (예: 15일생이면 5.15km, 7일생이면 6.07km)', difficulty: '보통' }
 ]
 
-const GACHA_ITEMS = [
-  // 1. LEGENDARY (1%)
-  {
-    id: 'g1',
-    name: '👑 [전설] 뷔페 식사권',
-    grade: 'LEGENDARY',
-    desc: '대박! 다음 정기 모임 뒤풀이 때 특급 호텔/패밀리 뷔페 식사권을 증정합니다. (크루 회비 또는 크루장 찬스!)',
-    emoji: '🥩',
-    color: 'from-amber-400 to-yellow-500 text-yellow-950 border-yellow-300'
-  },
-  {
-    id: 'g2',
-    name: '👑 [전설] 크루장과 1:1 티타임런',
-    grade: 'LEGENDARY',
-    desc: '크루장과 함께 가볍게 달리고, 크루장이 쏘는 고급 디저트와 커피 티타임을 함께 가집니다.',
-    emoji: '☕',
-    color: 'from-amber-400 to-yellow-500 text-yellow-950 border-yellow-300'
-  },
-
-  // 2. EPIC (3%)
-  {
-    id: 'g3',
-    name: '🎈 [영웅] 커피쿠폰(아아)',
-    grade: 'EPIC',
-    desc: '축하합니다! 시원한 스타벅스 아이스 아메리카노 모바일 기프티콘을 드립니다.',
-    emoji: '🥤',
-    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
-  },
-  {
-    id: 'g4',
-    name: '🎈 [영웅] 원하는 페이서와 1:1 러닝',
-    grade: 'EPIC',
-    desc: '내가 지목한 페이서 크루원과 약속을 잡고 단둘이 원하는 속도와 코스로 1:1 리딩런을 뜁니다.',
-    emoji: '🏃‍♂️',
-    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
-  },
-  {
-    id: 'g5',
-    name: '🎈 [영웅] 벙 참석 시 인생샷 보정권',
-    grade: 'EPIC',
-    desc: '정기 벙 때 촬영된 사진 중 원하는 사진 한 장을 크루 공식 포토그래퍼가 화보급으로 보정해 드립니다.',
-    emoji: '📸',
-    color: 'from-purple-400 to-indigo-500 text-indigo-950 border-indigo-300'
-  },
-
-  // 3. RARE (5%)
-  {
-    id: 'g6',
-    name: '🩹 [희귀] 벙 때 개인 얼음컵 증정',
-    grade: 'RARE',
-    desc: '무더운 여름 정기 벙 때 시원한 얼음이 가득 찬 개인 얼음컵을 현장에서 스페셜 보급으로 드립니다!',
-    emoji: '🧊',
-    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
-  },
-  {
-    id: 'g7',
-    name: '🩹 [희귀] SRC 크루 공식 러닝양말 증정',
-    grade: 'RARE',
-    desc: '쿠션감이 뛰어난 고성능 기능성 SRC 공식 크루 러닝 양말 1켤레를 즉시 지급해 드립니다.',
-    emoji: '🧦',
-    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
-  },
-  {
-    id: 'g8',
-    name: '🩹 [희귀] 일주일 부상 면제 생존권',
-    grade: 'RARE',
-    desc: '이번 주에 달리기 미션을 완수하지 못하더라도 생존 성공으로 인정되는 수동 부상 면제권을 적용해 드립니다.',
-    emoji: '🩹',
-    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
-  },
-  {
-    id: 'g9',
-    name: '🩹 [희귀] 정기 벙 간식/음료 선택권',
-    grade: 'RARE',
-    desc: '다음 벙 종료 후 제공되는 보급 음료나 간식 메뉴의 종류와 브랜드를 당첨자가 전적으로 결정합니다.',
-    emoji: '🍪',
-    color: 'from-cyan-400 to-blue-500 text-blue-950 border-blue-300'
-  },
-
-  // 4. COMMON / 꽝 (91%)
-  {
-    id: 'g10',
-    name: '👟 [건강한 꽝] 오늘 인증 거리 +100m 보너스 런',
-    grade: 'COMMON',
-    desc: '아쉽게도 꽝입니다! 하지만 러너답게 오늘 달릴 목표 거리에서 100m를 보너스로 더 달리고 오세요! 🏃‍♂️',
-    emoji: '🏃‍♀️',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g11',
-    name: '🙌 [유쾌한 꽝] 벙 집결지 하이파이브 인간 환영대',
-    grade: 'COMMON',
-    desc: '다음 벙 때 집결지 입구에 서서 도착하는 모든 크루원들과 하이파이브를 하며 에너제틱하게 환영해 주세요!',
-    emoji: '🙌',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g12',
-    name: '✍️ [유쾌한 꽝] 단톡방에 크루원 1명 지목해서 칭찬 3줄 쓰기',
-    grade: 'COMMON',
-    desc: '크루 단체 단톡방에 오늘 고생한 크루원 중 한 명을 지목하여 고마움이나 칭찬의 글을 3줄 작성해 보세요.',
-    emoji: '💬',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g13',
-    name: '🙇 [유쾌한 꽝] 다음 벙 종료 후 운영진에게 감사 인사하기',
-    grade: 'COMMON',
-    desc: '벙 준비로 항상 애쓰는 운영진 크루원에게 다가가 "항상 고생하십니다! 덕분에 잘 뜁니다"라며 따뜻한 감사를 전하세요.',
-    emoji: '🤝',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g14',
-    name: '🤳 [유쾌한 꽝] 단체사진 찍을 때 맨 앞줄 정중앙 포즈 취하기',
-    grade: 'COMMON',
-    desc: '다음 러닝 종료 후 단체 사진 촬영 시 무조건 가장 앞줄 중앙에 자리를 잡고 당당하고 유쾌한 시그니처 포즈를 취해 보세요!',
-    emoji: '📸',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g15',
-    name: '🏃 [유쾌한 꽝] 다음 벙에서 페이서 바로 뒤 밀착 마크런',
-    grade: 'COMMON',
-    desc: '페이스 메이커를 신뢰하세요! 다음 벙 러닝 때 지정된 페이서의 바로 뒷자리에서 1m 간격을 유지하며 끝까지 따라가 봅니다.',
-    emoji: '👣',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g16',
-    name: '🥤 [유쾌한 꽝] 벙 끝난 후 물 보급소 종이컵 정리 돕기',
-    grade: 'COMMON',
-    desc: '지구를 지키는 친환경 러너! 다음 모임 종료 후 생수 보급소의 빈 종이컵과 플라스틱 병 수거를 적극적으로 도와주세요.',
-    emoji: '🗑️',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  },
-  {
-    id: 'g17',
-    name: '📢 [유쾌한 꽝] 다음 벙 자기소개 때 가장 우렁차게 말하기',
-    grade: 'COMMON',
-    desc: '크루원들에게 강렬한 인상을! 다음 벙 시작 전 자기소개 시간에 가장 먼저 손을 들고 씩씩하고 크게 자기소개를 시작하세요.',
-    emoji: '📢',
-    color: 'from-slate-200 to-slate-300 text-slate-600 border-slate-200'
-  }
-]
 
 export default function PlaygroundPage() {
   const router = useRouter()
@@ -231,6 +86,16 @@ export default function PlaygroundPage() {
   const [gachaResult, setGachaResult] = useState<any | null>(null)
   const [gachaHistory, setGachaHistory] = useState<any[]>([])
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null)
+  const [gachaItems, setGachaItems] = useState<GachaItem[]>([])
+
+  // Admin Gacha Management States
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [editingGachaId, setEditingGachaId] = useState<string | null>(null)
+  const [gachaName, setGachaName] = useState('')
+  const [gachaGrade, setGachaGrade] = useState<'LEGENDARY' | 'EPIC' | 'RARE' | 'COMMON'>('COMMON')
+  const [gachaDescription, setGachaDescription] = useState('')
+  const [gachaEmoji, setGachaEmoji] = useState('🎁')
+  const [gachaIsActive, setGachaIsActive] = useState(true)
 
   useEffect(() => {
     loadData()
@@ -325,6 +190,20 @@ export default function PlaygroundPage() {
           setSelectedIds(mapped.map(m => m.id))
         }
       }
+
+      // Load all gacha items
+      let allGacha: GachaItem[] = []
+      if (isMock) {
+        allGacha = mockStore.getGachaItems()
+      } else {
+        const supabase = createClient()
+        const { data: dbGacha } = await supabase
+          .from('gacha_items')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (dbGacha) allGacha = dbGacha as GachaItem[]
+      }
+      setGachaItems(allGacha)
 
       // Sync user points with global membersCoins map in localStorage
       const savedCoinsMap = localStorage.getItem('src_members_coins')
@@ -644,23 +523,43 @@ export default function PlaygroundPage() {
       const rand = Math.random() * 100
       let chosen: any
 
+      const activeGachaItems = gachaItems.filter(item => item.is_active)
+      const legendaryItems = activeGachaItems.filter(item => item.grade === 'LEGENDARY')
+      const epicItems = activeGachaItems.filter(item => item.grade === 'EPIC')
+      const rareItems = activeGachaItems.filter(item => item.grade === 'RARE')
+      const commonItems = activeGachaItems.filter(item => item.grade === 'COMMON')
+
+      let chosenList: GachaItem[] = []
       if (rand < 1.0) {
-        // Legendary (1%) -> Choose from g1, g2
-        const legendaryItems = GACHA_ITEMS.filter(item => item.grade === 'LEGENDARY')
-        chosen = legendaryItems[Math.floor(Math.random() * legendaryItems.length)]
+        chosenList = legendaryItems.length > 0 ? legendaryItems : (epicItems.length > 0 ? epicItems : (rareItems.length > 0 ? rareItems : commonItems))
       } else if (rand < 4.0) {
-        // Epic (3%) -> Choose from g3, g4, g5
-        const epicItems = GACHA_ITEMS.filter(item => item.grade === 'EPIC')
-        chosen = epicItems[Math.floor(Math.random() * epicItems.length)]
+        chosenList = epicItems.length > 0 ? epicItems : (rareItems.length > 0 ? rareItems : (legendaryItems.length > 0 ? legendaryItems : commonItems))
       } else if (rand < 9.0) {
-        // Rare (5%) -> Choose from g6, g7, g8, g9
-        const rareItems = GACHA_ITEMS.filter(item => item.grade === 'RARE')
-        chosen = rareItems[Math.floor(Math.random() * rareItems.length)]
+        chosenList = rareItems.length > 0 ? rareItems : (commonItems.length > 0 ? commonItems : (epicItems.length > 0 ? epicItems : legendaryItems))
       } else {
-        // Common / 꽝 (91%) -> Choose from g10 to g17
-        const commonItems = GACHA_ITEMS.filter(item => item.grade === 'COMMON')
-        chosen = commonItems[Math.floor(Math.random() * commonItems.length)]
+        chosenList = commonItems.length > 0 ? commonItems : (rareItems.length > 0 ? rareItems : (epicItems.length > 0 ? epicItems : legendaryItems))
       }
+
+      if (chosenList.length === 0) {
+        alert('현재 활성화된 뽑기 보상이 없습니다. 운영진에게 문의하세요.')
+        setGachaSpinning(false)
+        // Refund the coin
+        const refundedPoints = points
+        const nextPoints = refundedPoints + 1
+        setPoints(nextPoints)
+        localStorage.setItem('src_user_points', String(nextPoints))
+        const savedCoinsMap = localStorage.getItem('src_members_coins')
+        if (savedCoinsMap && profile) {
+          try {
+            const parsedMap = JSON.parse(savedCoinsMap)
+            parsedMap[profile.id] = nextPoints
+            localStorage.setItem('src_members_coins', JSON.stringify(parsedMap))
+          } catch (e) {}
+        }
+        return
+      }
+
+      chosen = chosenList[Math.floor(Math.random() * chosenList.length)]
 
       setGachaResult(chosen)
       setGachaSpinning(false)
@@ -674,6 +573,172 @@ export default function PlaygroundPage() {
         triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2 - 50, 'clap')
       }
     }, 2000)
+  }
+
+  // Admin Gacha CRUD Handlers
+  const hasEditPermission = profile?.role === 'ADMIN' || profile?.can_edit_admin
+
+  const handleSaveGachaItem = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (!gachaName.trim()) {
+      alert('아이템명을 입력해 주세요.')
+      return
+    }
+    if (!gachaDescription.trim()) {
+      alert('설명을 입력해 주세요.')
+      return
+    }
+
+    try {
+      const isMock = checkIsMock()
+      if (editingGachaId) {
+        // 수정 모드
+        if (isMock) {
+          mockStore.updateGachaItem(editingGachaId, gachaName.trim(), gachaGrade, gachaDescription.trim(), gachaEmoji.trim(), gachaIsActive)
+          alert('보상이 수정되었습니다.')
+          loadData()
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .update({
+              name: gachaName.trim(),
+              grade: gachaGrade,
+              description: gachaDescription.trim(),
+              emoji: gachaEmoji.trim(),
+              is_active: gachaIsActive
+            })
+            .eq('id', editingGachaId)
+
+          if (error) {
+            alert('보상 수정에 실패했습니다.')
+          } else {
+            alert('보상이 수정되었습니다.')
+            loadData()
+          }
+        }
+      } else {
+        // 생성 모드
+        if (isMock) {
+          mockStore.addGachaItem({
+            name: gachaName.trim(),
+            grade: gachaGrade,
+            description: gachaDescription.trim(),
+            emoji: gachaEmoji.trim()
+          })
+          alert('새 보상이 등록되었습니다.')
+          loadData()
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .insert([{
+              name: gachaName.trim(),
+              grade: gachaGrade,
+              description: gachaDescription.trim(),
+              emoji: gachaEmoji.trim(),
+              is_active: true
+            }])
+
+          if (error) {
+            alert('보상 등록에 실패했습니다.')
+          } else {
+            alert('새 보상이 등록되었습니다.')
+            loadData()
+          }
+        }
+      }
+      handleCancelEditGacha()
+    } catch (err) {
+      console.error(err)
+      alert('저장 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleStartEditGacha = (item: GachaItem) => {
+    setEditingGachaId(item.id)
+    setGachaName(item.name)
+    setGachaGrade(item.grade)
+    setGachaDescription(item.description)
+    setGachaEmoji(item.emoji)
+    setGachaIsActive(item.is_active)
+  }
+
+  const handleCancelEditGacha = () => {
+    setEditingGachaId(null)
+    setGachaName('')
+    setGachaGrade('COMMON')
+    setGachaDescription('')
+    setGachaEmoji('🎁')
+    setGachaIsActive(true)
+  }
+
+  const handleDeleteGachaItem = async (id: string) => {
+    if (!hasEditPermission) {
+      alert('삭제 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (confirm('이 보상 아이템을 정말 삭제하시겠습니까? 데이터베이스에서 영구 삭제됩니다.')) {
+      try {
+        const isMock = checkIsMock()
+        if (isMock) {
+          mockStore.deleteGachaItem(id)
+          alert('보상이 삭제되었습니다.')
+          loadData()
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .delete()
+            .eq('id', id)
+
+          if (error) {
+            alert('보상 삭제에 실패했습니다.')
+          } else {
+            alert('보상이 삭제되었습니다.')
+            loadData()
+          }
+        }
+      } catch (err) {
+        console.error(err)
+        alert('삭제 중 오류가 발생했습니다.')
+      }
+    }
+  }
+
+  const handleToggleGachaActive = async (item: GachaItem) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    try {
+      const isMock = checkIsMock()
+      if (isMock) {
+        mockStore.updateGachaItem(item.id, item.name, item.grade, item.description, item.emoji, !item.is_active)
+        loadData()
+      } else {
+        const supabase = createClient()
+        const { error } = await supabase
+          .from('gacha_items')
+          .update({ is_active: !item.is_active })
+          .eq('id', item.id)
+
+        if (error) {
+          alert('상태 변경에 실패했습니다.')
+        } else {
+          loadData()
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const handleToggleSelect = (id: string) => {
@@ -1037,93 +1102,295 @@ export default function PlaygroundPage() {
                   </div>
                 </div>
                 
-                {/* 시뮬레이터 버튼 (운영진 전용) */}
+                {/* 운영진 버튼 영역 */}
                 {(profile?.role === 'ADMIN' || profile?.can_edit_admin) && (
-                  <button
-                    type="button"
-                    onClick={() => handleEarnPoints(1)}
-                    className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
-                  >
-                    ⚡ 가상 미션 완료 (+1 코인)
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEarnPoints(1)}
+                      className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
+                    >
+                      ⚡ 가상 미션 완료 (+1 코인)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAdminPanel(!showAdminPanel)
+                        handleCancelEditGacha()
+                      }}
+                      className="bg-slate-900 text-white hover:bg-slate-800 border border-white/20 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97 flex items-center gap-1"
+                    >
+                      ⚙️ {showAdminPanel ? '뽑기 화면으로' : '보상 관리'}
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {/* 캡슐 머신 본체 */}
-              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="text-center mb-4">
-                  <h3 className="text-xs font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
-                  <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 1 coin to spin for rare prizes</p>
-                </div>
+              {!showAdminPanel ? (
+                /* 캡슐 머신 본체 */
+                <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="text-center mb-4">
+                    <h3 className="text-xs font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
+                    <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 1 coin to spin for rare prizes</p>
+                  </div>
 
-                {/* 캡슐 머신 그래픽 영역 */}
-                <div className="w-48 h-48 bg-white border border-slate-200 rounded-3xl relative flex flex-col items-center justify-center p-4 shadow-inner overflow-hidden">
-                  {gachaSpinning ? (
-                    <div className="flex flex-col items-center gap-3">
-                      {/* Bouncing capsules simulation */}
-                      <div className="flex gap-2.5 animate-bounce">
-                        <span className="text-3xl filter drop-shadow">🔴</span>
-                        <span className="text-3xl filter drop-shadow">🔵</span>
-                        <span className="text-3xl filter drop-shadow">🟡</span>
+                  {/* 캡슐 머신 그래픽 영역 */}
+                  <div className="w-48 h-48 bg-white border border-slate-200 rounded-3xl relative flex flex-col items-center justify-center p-4 shadow-inner overflow-hidden">
+                    {gachaSpinning ? (
+                      <div className="flex flex-col items-center gap-3">
+                        {/* Bouncing capsules simulation */}
+                        <div className="flex gap-2.5 animate-bounce">
+                          <span className="text-3xl filter drop-shadow">🔴</span>
+                          <span className="text-3xl filter drop-shadow">🔵</span>
+                          <span className="text-3xl filter drop-shadow">🟡</span>
+                        </div>
+                        <span className="text-xs font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
                       </div>
-                      <span className="text-xs font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
-                    </div>
-                  ) : gachaResult ? (
-                    <div
-                      onClick={() => setSelectedHistoryItem(gachaResult)}
-                      className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full cursor-pointer hover:opacity-85 transition-opacity"
-                      title="크게 보기 (캡처용)"
-                    >
-                      <div className="text-4xl filter drop-shadow animate-wiggle">🎁</div>
-                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
-                        gachaResult.grade === 'LEGENDARY'
-                          ? 'bg-amber-100 text-amber-700 border-amber-300'
-                          : gachaResult.grade === 'EPIC'
-                          ? 'bg-purple-100 text-purple-700 border-purple-300'
-                          : gachaResult.grade === 'RARE'
-                          ? 'bg-blue-100 text-blue-700 border-blue-300'
-                          : 'bg-slate-100 text-slate-500 border-slate-200'
-                      }`}>
-                        {gachaResult.grade}
-                      </span>
-                      
-                      <h4 className="text-xs font-black text-slate-800 tracking-tight leading-snug">
-                        {gachaResult.name}
-                      </h4>
-                      <p className="text-[9px] text-slate-500 leading-relaxed font-semibold px-2">
-                        {gachaResult.desc}
-                      </p>
-                      <span className="text-[7.5px] text-slate-400 font-extrabold tracking-wider mt-0.5">
-                        🔍 클릭하여 크게 보기 (캡처)
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="text-center flex flex-col gap-2 text-slate-400">
-                      <div className="text-4xl">🎪</div>
-                      <span className="text-[10px] font-bold">1회 뽑기당 1 코인이 사용됩니다.</span>
-                    </div>
-                  )}
+                    ) : gachaResult ? (
+                      <div
+                        onClick={() => setSelectedHistoryItem(gachaResult)}
+                        className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full cursor-pointer hover:opacity-85 transition-opacity"
+                        title="크게 보기 (캡처용)"
+                      >
+                        <div className="text-4xl filter drop-shadow animate-wiggle">🎁</div>
+                        <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
+                          gachaResult.grade === 'LEGENDARY'
+                            ? 'bg-amber-100 text-amber-700 border-amber-300'
+                            : gachaResult.grade === 'EPIC'
+                            ? 'bg-purple-100 text-purple-700 border-purple-300'
+                            : gachaResult.grade === 'RARE'
+                            ? 'bg-blue-100 text-blue-700 border-blue-300'
+                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                          {gachaResult.grade}
+                        </span>
+                        
+                        <h4 className="text-xs font-black text-slate-800 tracking-tight leading-snug">
+                          {gachaResult.name}
+                        </h4>
+                        <p className="text-[9px] text-slate-500 leading-relaxed font-semibold px-2">
+                          {gachaResult.description || gachaResult.desc}
+                        </p>
+                        <span className="text-[7.5px] text-slate-400 font-extrabold tracking-wider mt-0.5">
+                          🔍 클릭하여 크게 보기 (캡처)
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="text-center flex flex-col gap-2 text-slate-400">
+                        <div className="text-4xl">🎪</div>
+                        <span className="text-[10px] font-bold">1회 뽑기당 1 코인이 사용됩니다.</span>
+                      </div>
+                    )}
 
-                  {/* 믹싱 실시간 발광 백그라운드 효과 */}
-                  {gachaSpinning && (
-                    <div className="absolute inset-0 bg-orange-500/5 backdrop-blur-[1px] animate-pulse" />
-                  )}
+                    {/* 믹싱 실시간 발광 백그라운드 효과 */}
+                    {gachaSpinning && (
+                      <div className="absolute inset-0 bg-orange-500/5 backdrop-blur-[1px] animate-pulse" />
+                    )}
+                  </div>
+
+                  <button
+                    disabled={gachaSpinning || points < 1}
+                    onClick={(e) => handleDrawGacha(e)}
+                    className={`mt-6 w-44 h-11 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
+                      gachaSpinning
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        : points < 1
+                        ? 'bg-slate-100 text-slate-350 border border-slate-200 cursor-not-allowed shadow-none'
+                        : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-850 active:scale-97 cursor-pointer hover:shadow-lg'
+                    }`}
+                  >
+                    {gachaSpinning ? '추첨 중...' : '1코인으로 뽑기 🎲'}
+                  </button>
+                </section>
+              ) : (
+                /* 운영진 보상 관리 패널 */
+                <div className="space-y-6 animate-fadeIn text-left">
+                  {/* 등록/수정 폼 */}
+                  <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm space-y-4">
+                    <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
+                      <Sparkles className="w-4 h-4 text-[#2563EB]" />
+                      {editingGachaId ? '보상 수정하기 (수정 모드)' : '새로운 보상 등록하기'}
+                    </h3>
+                    
+                    <form onSubmit={handleSaveGachaItem} className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1.5 col-span-1">
+                          <label className="text-[9px] font-black text-slate-500 block">이모지 3D</label>
+                          <input
+                            type="text"
+                            placeholder="🎁"
+                            value={gachaEmoji}
+                            onChange={(e) => setGachaEmoji(e.target.value)}
+                            disabled={!hasEditPermission}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 text-center font-bold shadow-inner disabled:opacity-50"
+                          />
+                        </div>
+                        <div className="space-y-1.5 col-span-2">
+                          <label className="text-[9px] font-black text-slate-500 block">등급 설정</label>
+                          <select
+                            value={gachaGrade}
+                            onChange={(e) => setGachaGrade(e.target.value as any)}
+                            disabled={!hasEditPermission}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                          >
+                            <option value="COMMON">일반 (COMMON) - 확률 91%</option>
+                            <option value="RARE">희귀 (RARE) - 확률 5%</option>
+                            <option value="EPIC">영웅 (EPIC) - 확률 3%</option>
+                            <option value="LEGENDARY">전설 (LEGENDARY) - 확률 1%</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-500 block">보상 아이템명</label>
+                        <input
+                          type="text"
+                          placeholder="예: 👑 [전설] 뷔페 식사권 (등급 말머리 포함 권장)"
+                          value={gachaName}
+                          onChange={(e) => setGachaName(e.target.value)}
+                          disabled={!hasEditPermission}
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-500 block">보상 설명 (획득 방법 및 상세 내용)</label>
+                        <textarea
+                          rows={3}
+                          placeholder="예: 대박! 다음 정기 모임 뒤풀이 때 특급 호텔 뷔페 식사권을 증정합니다."
+                          value={gachaDescription}
+                          onChange={(e) => setGachaDescription(e.target.value)}
+                          disabled={!hasEditPermission}
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 leading-relaxed font-semibold resize-none shadow-inner disabled:opacity-50"
+                        />
+                      </div>
+
+                      {editingGachaId && (
+                        <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                          <input
+                            type="checkbox"
+                            id="gacha_active_checkbox"
+                            checked={gachaIsActive}
+                            onChange={(e) => setGachaIsActive(e.target.checked)}
+                            disabled={!hasEditPermission}
+                            className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] border-slate-350 rounded cursor-pointer disabled:opacity-50"
+                          />
+                          <label htmlFor="gacha_active_checkbox" className="text-[10px] font-black text-slate-700 cursor-pointer select-none">
+                            이 보상을 활성화하여 추첨 리스트에 포함합니다.
+                          </label>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 justify-end pt-2">
+                        {editingGachaId && (
+                          <button
+                            type="button"
+                            onClick={handleCancelEditGacha}
+                            className="py-2 px-4 bg-slate-150 hover:bg-slate-200 text-slate-650 rounded-xl text-[10px] font-bold cursor-pointer transition-all"
+                          >
+                            수정 취소
+                          </button>
+                        )}
+                        <button
+                          type="submit"
+                          disabled={!hasEditPermission}
+                          className={`py-2 px-5 rounded-xl text-[10px] font-black cursor-pointer transition-all shadow-sm ${
+                            !hasEditPermission
+                              ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                              : 'bg-[#2563EB] text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {editingGachaId ? '보상 정보 업데이트 ✓' : '신규 보상 등록하기 +'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* 목록 영역 */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-[10px] font-black text-slate-700">전체 보상 목록 ({gachaItems.length}개)</span>
+                    </div>
+
+                    {gachaItems.length === 0 ? (
+                      <div className="bg-white border border-slate-200 py-12 rounded-3xl text-center text-slate-400 text-xs font-bold shadow-sm">
+                        등록되었거나 활성화된 가챠 보상이 없습니다.
+                      </div>
+                    ) : (
+                      <div className="grid gap-3 grid-cols-1">
+                        {gachaItems.map((item) => {
+                          // 등급에 따른 디자인 매핑
+                          const design = 
+                            item.grade === 'LEGENDARY' ? { border: 'border-amber-300 bg-amber-50/20', badge: 'bg-amber-100 text-amber-700 border-amber-250', label: '전설 (1%)' } :
+                            item.grade === 'EPIC' ? { border: 'border-purple-300 bg-purple-50/20', badge: 'bg-purple-100 text-purple-700 border-purple-250', label: '영웅 (3%)' } :
+                            item.grade === 'RARE' ? { border: 'border-cyan-300 bg-cyan-50/20', badge: 'bg-blue-100 text-blue-700 border-blue-250', label: '희귀 (5%)' } :
+                            { border: 'border-slate-200 bg-slate-50/40', badge: 'bg-slate-100 text-slate-600 border-slate-200', label: '일반 (91%)' };
+
+                          return (
+                            <div 
+                              key={item.id}
+                              className={`bg-white border p-4.5 rounded-2xl flex flex-col justify-between gap-3.5 shadow-sm transition-all text-left ${design.border} ${
+                                !item.is_active ? 'opacity-55' : ''
+                              } ${editingGachaId === item.id ? 'ring-2 ring-blue-500/20 border-[#2563EB]' : ''}`}
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-2xl">{item.emoji || '🎁'}</span>
+                                    <span className={`text-[8px] font-black px-2 py-0.2 rounded border uppercase ${design.badge}`}>
+                                      {design.label}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    disabled={!hasEditPermission}
+                                    onClick={() => handleToggleGachaActive(item)}
+                                    className={`text-[8.5px] font-black px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                                      item.is_active
+                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-250 hover:bg-emerald-100'
+                                        : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
+                                    } disabled:opacity-50`}
+                                  >
+                                    {item.is_active ? '● 활성' : '○ 비활성'}
+                                  </button>
+                                </div>
+                                
+                                <div className="space-y-1">
+                                  <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 leading-snug">
+                                    {item.name}
+                                  </h4>
+                                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                    {item.description || (item as any).desc}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2 justify-end border-t border-slate-100/80 pt-2.5">
+                                <button
+                                  type="button"
+                                  disabled={!hasEditPermission}
+                                  onClick={() => handleStartEditGacha(item)}
+                                  className="py-1.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                                >
+                                  수정 ⚙️
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={!hasEditPermission}
+                                  onClick={() => handleDeleteGachaItem(item.id)}
+                                  className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                                >
+                                  삭제
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                <button
-                  disabled={gachaSpinning || points < 1}
-                  onClick={(e) => handleDrawGacha(e)}
-                  className={`mt-6 w-44 h-11 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
-                    gachaSpinning
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : points < 1
-                      ? 'bg-slate-100 text-slate-350 border border-slate-200 cursor-not-allowed shadow-none'
-                      : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-850 active:scale-97 cursor-pointer hover:shadow-lg'
-                  }`}
-                >
-                  {gachaSpinning ? '추첨 중...' : '1코인으로 뽑기 🎲'}
-                </button>
-              </section>
+              )}
 
               {/* 최근 뽑기 내역 */}
               <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3.5">
@@ -1341,7 +1608,7 @@ export default function PlaygroundPage() {
             <div className="w-full border-t border-dashed border-slate-200 my-2" />
             
             <p className="text-[11px] font-semibold text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/50 p-4.5 rounded-2xl my-3 w-full text-left">
-              {selectedHistoryItem.desc}
+              {selectedHistoryItem.description || selectedHistoryItem.desc}
             </p>
             
             <div className="w-full border-t border-dashed border-slate-200 my-2" />

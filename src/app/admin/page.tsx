@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { mockStore, Member, Location, RunningRecord, Profile, Suggestion } from '@/lib/mockStore'
+import { mockStore, Member, Location, RunningRecord, Profile, Suggestion, GachaItem } from '@/lib/mockStore'
 import { createClient } from '@/lib/supabase/client'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { 
@@ -16,10 +16,11 @@ import {
   ShieldAlert,
   ListTodo,
   Search,
-  MessageSquare
+  MessageSquare,
+  Gift
 } from 'lucide-react'
 
-type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions' | 'suggestions'
+type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions' | 'suggestions' | 'gacha'
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('waiting')
@@ -37,6 +38,17 @@ export default function AdminPage() {
   const [editingSuggestionId, setEditingSuggestionId] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [replyStatus, setReplyStatus] = useState<'PENDING' | 'INVESTIGATING' | 'COMPLETED' | 'REJECTED'>('PENDING')
+
+  // 가챠(뽑기) 관리 상태
+  const [gachaItems, setGachaItems] = useState<GachaItem[]>([])
+  const [editingGachaId, setEditingGachaId] = useState<string | null>(null)
+  
+  // 가챠 등록/수정 폼 필드
+  const [gachaName, setGachaName] = useState('')
+  const [gachaGrade, setGachaGrade] = useState<'LEGENDARY' | 'EPIC' | 'RARE' | 'COMMON'>('COMMON')
+  const [gachaDescription, setGachaDescription] = useState('')
+  const [gachaEmoji, setGachaEmoji] = useState('🎁')
+  const [gachaIsActive, setGachaIsActive] = useState(true)
 
   useEffect(() => {
     setAdminSearchTerm('')
@@ -57,6 +69,7 @@ export default function AdminPage() {
       setLocations(mockStore.getLocations().filter(l => l.is_active))
       setRecords(mockStore.getRunningRecords())
       setSuggestions(mockStore.getSuggestions())
+      setGachaItems(mockStore.getGachaItems())
       setCurrentProfile(mockStore.getProfile())
       setLoading(false)
     } else {
@@ -160,6 +173,16 @@ export default function AdminPage() {
         setSuggestions(formattedSugs)
       }
 
+      // 5. 가챠 보상 목록 조회
+      const { data: dbGacha } = await supabase
+        .from('gacha_items')
+        .select('*')
+        .order('created_at', { ascending: true })
+
+      if (dbGacha) {
+        setGachaItems(dbGacha)
+      }
+
       setLoading(false)
     }
   }
@@ -230,6 +253,167 @@ export default function AdminPage() {
       } catch {
         alert('삭제 중 오류가 발생했습니다.')
       }
+    }
+  }
+  // 0-3. 가챠 보상 아이템 관리 핸들러
+  const handleSaveGachaItem = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (!gachaName.trim()) {
+      alert('아이템명을 입력해 주세요.')
+      return
+    }
+    if (!gachaDescription.trim()) {
+      alert('설명을 입력해 주세요.')
+      return
+    }
+
+    try {
+      if (editingGachaId) {
+        // 수정 모드
+        if (isMock) {
+          mockStore.updateGachaItem(editingGachaId, gachaName.trim(), gachaGrade, gachaDescription.trim(), gachaEmoji.trim(), gachaIsActive)
+          alert('보상이 수정되었습니다.')
+          loadData(true)
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .update({
+              name: gachaName.trim(),
+              grade: gachaGrade,
+              description: gachaDescription.trim(),
+              emoji: gachaEmoji.trim(),
+              is_active: gachaIsActive
+            })
+            .eq('id', editingGachaId)
+
+          if (error) {
+            alert('보상 수정에 실패했습니다.')
+          } else {
+            alert('보상이 수정되었습니다.')
+            loadData(false)
+          }
+        }
+      } else {
+        // 생성 모드
+        if (isMock) {
+          mockStore.addGachaItem({
+            name: gachaName.trim(),
+            grade: gachaGrade,
+            description: gachaDescription.trim(),
+            emoji: gachaEmoji.trim()
+          })
+          alert('새 보상이 등록되었습니다.')
+          loadData(true)
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .insert([{
+              name: gachaName.trim(),
+              grade: gachaGrade,
+              description: gachaDescription.trim(),
+              emoji: gachaEmoji.trim(),
+              is_active: true
+            }])
+
+          if (error) {
+            alert('보상 등록에 실패했습니다.')
+          } else {
+            alert('새 보상이 등록되었습니다.')
+            loadData(false)
+          }
+        }
+      }
+      handleCancelEditGacha()
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
+    }
+  }
+
+  const handleStartEditGacha = (item: GachaItem) => {
+    setEditingGachaId(item.id)
+    setGachaName(item.name)
+    setGachaGrade(item.grade)
+    setGachaDescription(item.description)
+    setGachaEmoji(item.emoji)
+    setGachaIsActive(item.is_active)
+  }
+
+  const handleCancelEditGacha = () => {
+    setEditingGachaId(null)
+    setGachaName('')
+    setGachaGrade('COMMON')
+    setGachaDescription('')
+    setGachaEmoji('🎁')
+    setGachaIsActive(true)
+  }
+
+  const handleDeleteGachaItem = async (id: string) => {
+    if (!hasEditPermission) {
+      alert('삭제 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (confirm('이 보상 아이템을 정말 삭제하시겠습니까? 데이터베이스에서 영구 삭제됩니다.')) {
+      try {
+        if (isMock) {
+          mockStore.deleteGachaItem(id)
+          alert('보상이 삭제(비활성화)되었습니다.')
+          loadData(true)
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('gacha_items')
+            .delete()
+            .eq('id', id)
+
+          if (error) {
+            alert('보상 삭제에 실패했습니다.')
+          } else {
+            alert('보상이 삭제되었습니다.')
+            loadData(false)
+          }
+        }
+      } catch (err) {
+        console.error(err)
+        alert('삭제 중 오류가 발생했습니다.')
+      }
+    }
+  }
+
+  const handleToggleGachaActive = async (item: GachaItem) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    try {
+      if (isMock) {
+        mockStore.updateGachaItem(item.id, item.name, item.grade, item.description, item.emoji, !item.is_active)
+        loadData(true)
+      } else {
+        const supabase = createClient()
+        const { error } = await supabase
+          .from('gacha_items')
+          .update({ is_active: !item.is_active })
+          .eq('id', item.id)
+
+        if (error) {
+          alert('상태 변경에 실패했습니다.')
+        } else {
+          loadData(false)
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      alert('상태 변경 중 오류가 발생했습니다.')
     }
   }
 
@@ -526,6 +710,12 @@ export default function AdminPage() {
     (s.is_anonymous ? '익명' : s.user_nickname.toLowerCase()).includes(adminSearchTerm.toLowerCase())
   )
 
+  const filteredGachaItems = gachaItems.filter(item =>
+    item.name.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    item.description.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    item.grade.toLowerCase().includes(adminSearchTerm.toLowerCase())
+  )
+
   const statusConfig: Record<string, { label: string; style: string }> = {
     PENDING: { label: '대기 중', style: 'bg-orange-50 text-orange-600 border-orange-200' },
     INVESTIGATING: { label: '검토 중', style: 'bg-blue-50 text-blue-600 border-blue-200' },
@@ -539,6 +729,7 @@ export default function AdminPage() {
     { key: 'locations', label: '장소 관리', icon: MapPin },
     { key: 'records', label: '기록 통합 관리', icon: ListTodo },
     { key: 'suggestions', label: `건의사항 (${suggestions.length})`, icon: MessageSquare },
+    { key: 'gacha', label: '뽑기 보상 관리', icon: Gift },
   ]
 
   if (isSuperAdmin) {
@@ -596,6 +787,8 @@ export default function AdminPage() {
             placeholder={
               activeTab === 'records'
                 ? '이름/닉네임/장소명으로 기록 검색...'
+                : activeTab === 'gacha'
+                ? '보상명/설명/등급으로 보상 검색...'
                 : '이름/닉네임으로 크루원 검색...'
             }
             value={adminSearchTerm}
@@ -1098,7 +1291,7 @@ export default function AdminPage() {
             {filteredSuggestions.length === 0 ? (
               <div className="bg-white/80 border border-slate-200/50 rounded-3xl py-12 px-6 flex flex-col items-center justify-center text-center shadow-sm">
                 <Smile className="w-6 h-6 text-slate-400 mb-2" />
-                <span className="text-xs font-bold text-slate-505">
+                <span className="text-xs font-bold text-slate-500">
                   {suggestions.length === 0 ? '접수된 건의사항이 없습니다.' : '검색 결과가 없습니다.'}
                 </span>
               </div>
@@ -1261,6 +1454,203 @@ export default function AdminPage() {
                 })}
               </div>
             )}
+          </section>
+        )}
+        {/* 코인 뽑기 보상 관리 탭 */}
+        {activeTab === 'gacha' && (
+          <section className="space-y-6">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xs font-black text-slate-900">코인 뽑기 보상 관리</h2>
+              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">
+                플레이그라운드 코인 뽑기에서 당첨되는 보상들을 실시간으로 관리합니다. (등급별 고정 확률: 전설 1% / 영웅 3% / 희귀 5% / 일반 91%)
+              </span>
+            </div>
+
+            {/* 등록/수정 폼 */}
+            <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm space-y-4 text-left">
+              <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
+                <Sparkles className="w-4 h-4 text-[#2563EB]" />
+                {editingGachaId ? '보상 수정하기 (수정 모드)' : '새로운 보상 등록하기'}
+              </h3>
+              
+              <form onSubmit={handleSaveGachaItem} className="space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5 col-span-1">
+                    <label className="text-[9px] font-black text-slate-500 block">이모지 3D</label>
+                    <input
+                      type="text"
+                      placeholder="🎁"
+                      value={gachaEmoji}
+                      onChange={(e) => setGachaEmoji(e.target.value)}
+                      disabled={!hasEditPermission}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 text-center font-bold shadow-inner disabled:opacity-50"
+                    />
+                  </div>
+                  <div className="space-y-1.5 col-span-2">
+                    <label className="text-[9px] font-black text-slate-500 block">등급 설정</label>
+                    <select
+                      value={gachaGrade}
+                      onChange={(e) => setGachaGrade(e.target.value as any)}
+                      disabled={!hasEditPermission}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                    >
+                      <option value="COMMON">일반 (COMMON) - 확률 91%</option>
+                      <option value="RARE">희귀 (RARE) - 확률 5%</option>
+                      <option value="EPIC">영웅 (EPIC) - 확률 3%</option>
+                      <option value="LEGENDARY">전설 (LEGENDARY) - 확률 1%</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 block">보상 아이템명</label>
+                  <input
+                    type="text"
+                    placeholder="예: 👑 [전설] 뷔페 식사권 (등급 말머리 포함 권장)"
+                    value={gachaName}
+                    onChange={(e) => setGachaName(e.target.value)}
+                    disabled={!hasEditPermission}
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 block">보상 설명 (획득 방법 및 상세 내용)</label>
+                  <textarea
+                    rows={3}
+                    placeholder="예: 대박! 다음 정기 모임 뒤풀이 때 특급 호텔 뷔페 식사권을 증정합니다."
+                    value={gachaDescription}
+                    onChange={(e) => setGachaDescription(e.target.value)}
+                    disabled={!hasEditPermission}
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 leading-relaxed font-semibold resize-none shadow-inner disabled:opacity-50"
+                  />
+                </div>
+
+                {editingGachaId && (
+                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <input
+                      type="checkbox"
+                      id="gacha_active_checkbox"
+                      checked={gachaIsActive}
+                      onChange={(e) => setGachaIsActive(e.target.checked)}
+                      disabled={!hasEditPermission}
+                      className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] border-slate-350 rounded cursor-pointer disabled:opacity-50"
+                    />
+                    <label htmlFor="gacha_active_checkbox" className="text-[10px] font-black text-slate-700 cursor-pointer select-none">
+                      이 보상을 활성화하여 추첨 리스트에 포함합니다.
+                    </label>
+                  </div>
+                )}
+
+                <div className="flex gap-2 justify-end pt-2">
+                  {editingGachaId && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEditGacha}
+                      className="py-2 px-4 bg-slate-150 hover:bg-slate-200 text-slate-650 rounded-xl text-[10px] font-bold cursor-pointer transition-all"
+                    >
+                      수정 취소
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={!hasEditPermission}
+                    className={`py-2 px-5 rounded-xl text-[10px] font-black cursor-pointer transition-all shadow-sm ${
+                      !hasEditPermission
+                        ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                        : 'bg-[#2563EB] text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {editingGachaId ? '보상 정보 업데이트 ✓' : '신규 보상 등록하기 +'}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* 목록 영역 */}
+            <div className="space-y-3 pb-8">
+              <div className="flex justify-between items-center px-1">
+                <span className="text-[10px] font-black text-slate-700">전체 보상 목록 ({filteredGachaItems.length}개)</span>
+                {adminSearchTerm && <span className="text-[8px] text-[#2563EB] font-bold">"{adminSearchTerm}" 검색 필터 적용됨</span>}
+              </div>
+
+              {filteredGachaItems.length === 0 ? (
+                <div className="bg-white border border-slate-200 py-12 rounded-3xl text-center text-slate-400 text-xs font-bold shadow-sm">
+                  등록되었거나 활성화된 가챠 보상이 없습니다.
+                </div>
+              ) : (
+                <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                  {filteredGachaItems.map((item) => {
+                    // 등급에 따른 디자인 매핑
+                    const design = 
+                      item.grade === 'LEGENDARY' ? { border: 'border-amber-300 bg-amber-50/20', badge: 'bg-amber-100 text-amber-700 border-amber-250', label: '전설 (1%)' } :
+                      item.grade === 'EPIC' ? { border: 'border-purple-300 bg-purple-50/20', badge: 'bg-purple-100 text-purple-700 border-purple-250', label: '영웅 (3%)' } :
+                      item.grade === 'RARE' ? { border: 'border-cyan-300 bg-cyan-50/20', badge: 'bg-blue-100 text-blue-700 border-blue-250', label: '희귀 (5%)' } :
+                      { border: 'border-slate-200 bg-slate-50/40', badge: 'bg-slate-100 text-slate-600 border-slate-200', label: '일반 (91%)' };
+
+                    return (
+                      <div 
+                        key={item.id}
+                        className={`bg-white border p-4.5 rounded-2xl flex flex-col justify-between gap-3.5 shadow-sm transition-all text-left ${design.border} ${
+                          !item.is_active ? 'opacity-55' : ''
+                        } ${editingGachaId === item.id ? 'ring-2 ring-blue-500/20 border-[#2563EB]' : ''}`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{item.emoji || '🎁'}</span>
+                              <span className={`text-[8px] font-black px-2 py-0.2 rounded border uppercase ${design.badge}`}>
+                                {design.label}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              disabled={!hasEditPermission}
+                              onClick={() => handleToggleGachaActive(item)}
+                              className={`text-[8.5px] font-black px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                                item.is_active
+                                  ? 'bg-emerald-50 text-emerald-600 border-emerald-250 hover:bg-emerald-100'
+                                  : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
+                              } disabled:opacity-50`}
+                            >
+                              {item.is_active ? '● 활성' : '○ 비활성'}
+                            </button>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 leading-snug">
+                              {item.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 justify-end border-t border-slate-100/80 pt-2.5">
+                          <button
+                            type="button"
+                            disabled={!hasEditPermission}
+                            onClick={() => handleStartEditGacha(item)}
+                            className="py-1.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                          >
+                            수정 ⚙️
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!hasEditPermission}
+                            onClick={() => handleDeleteGachaItem(item.id)}
+                            className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </section>
         )}
       </div>

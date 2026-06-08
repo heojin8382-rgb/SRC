@@ -168,3 +168,18 @@ CREATE POLICY delete_suggestions_policy ON public.suggestions
         auth.uid() = user_id OR
         public.get_my_role() = 'ADMIN'::public.user_role
     );
+
+
+-- 7. gacha_items 테이블 RLS 설정
+ALTER TABLE public.gacha_items ENABLE ROW LEVEL SECURITY;
+
+-- 7.1) SELECT: 로그인한 크루원 누구나 가챠 보상 목록 조회 가능
+CREATE POLICY select_gacha_items_policy ON public.gacha_items
+    FOR SELECT
+    USING (public.get_my_role() IN ('REGULAR'::public.user_role, 'PACER'::public.user_role, 'ADMIN'::public.user_role));
+
+-- 7.2) ALL: 오직 ADMIN만 가챠 보상 목록 관리 가능
+CREATE POLICY manage_gacha_items_policy ON public.gacha_items
+    FOR ALL
+    USING (public.get_my_role() = 'ADMIN'::public.user_role)
+    WITH CHECK (public.get_my_role() = 'ADMIN'::public.user_role);
