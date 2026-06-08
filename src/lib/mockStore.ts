@@ -73,6 +73,26 @@ export interface Member {
   }
 }
 
+export interface Suggestion {
+  id: string
+  user_id: string
+  user_nickname: string
+  user_avatar: string
+  user_real_name: string
+  title: string
+  category: string
+  content: string
+  is_anonymous: boolean
+  image_url?: string
+  status: 'PENDING' | 'INVESTIGATING' | 'COMPLETED' | 'REJECTED'
+  reply_content?: string
+  reply_by?: string
+  reply_by_nickname?: string
+  reply_at?: string
+  created_at: string
+  updated_at: string
+}
+
 // 기본 위치 목록 시드 데이터
 const DEFAULT_LOCATIONS: Location[] = [
   { id: 'loc-1', name: '광교호수공원', is_active: true },
@@ -505,5 +525,90 @@ export const mockStore = {
       const updated = otherMembers.map(m => m.id === id ? { ...m, can_view_admin, can_edit_admin } : m)
       setStorageItem<Member[]>('src_other_members', updated)
     }
+  },
+
+  // 6. 건의사항 관리 모킹 함수들
+  getSuggestions(): Suggestion[] {
+    const ym = getMockYearMonth()
+    const defaultSuggestions: Suggestion[] = [
+      {
+        id: 'sug-1',
+        user_id: 'user-regular1',
+        user_nickname: '박정회원/94/여',
+        user_avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+        user_real_name: '박정회원',
+        title: '신대호수공원 코스 가이드라인 추가 문의',
+        category: '기능 제안',
+        content: '신대호수공원 달릴 때 훈련 코스 맵 가이드를 볼 수 있는 탭이 추가되면 좋을 것 같습니다. 정식 벙 뛸 때 페이서분들도 참고할 수 있어서 유용할 것 같아요!',
+        is_anonymous: false,
+        status: 'COMPLETED',
+        reply_content: '좋은 건의 감사드립니다 박정회원님! 추후 업데이트 스케줄에 반영하여 GPX 지도뷰 기능과 연계해서 검토해보도록 하겠습니다.',
+        reply_by: 'user-admin1',
+        reply_by_nickname: '황운영/88/남',
+        reply_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'sug-2',
+        user_id: 'user-pacer',
+        user_nickname: '이페이서/98/남',
+        user_avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+        user_real_name: '이페이서',
+        title: '페이스 기록 로딩 지연 현상',
+        category: '앱 오류',
+        content: '가끔 마이페이지 로딩 시 배지 분석이나 러닝 성장 곡선 불러올 때 로딩 바가 3초 이상 멈춰 있는 현상이 있습니다. 데이터가 많아져서 그런 걸까요?',
+        is_anonymous: true,
+        status: 'PENDING',
+        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ]
+    return getStorageItem<Suggestion[]>('src_suggestions', defaultSuggestions)
+  },
+
+  addSuggestion(suggestion: Omit<Suggestion, 'id' | 'user_id' | 'user_nickname' | 'user_avatar' | 'user_real_name' | 'status' | 'created_at' | 'updated_at'>): Suggestion {
+    const profile = this.getProfile()
+    const all = this.getSuggestions()
+    const newSug: Suggestion = {
+      ...suggestion,
+      id: `sug-${Date.now()}`,
+      user_id: profile.id,
+      user_nickname: profile.nickname,
+      user_avatar: profile.avatar_url,
+      user_real_name: profile.real_name || '김러너',
+      status: 'PENDING',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    const updated = [newSug, ...all]
+    setStorageItem<Suggestion[]>('src_suggestions', updated)
+    return newSug
+  },
+
+  replySuggestion(id: string, replyContent: string, status: 'PENDING' | 'INVESTIGATING' | 'COMPLETED' | 'REJECTED'): void {
+    const profile = this.getProfile()
+    const all = this.getSuggestions()
+    const updated = all.map(s => {
+      if (s.id === id) {
+        return {
+          ...s,
+          status,
+          reply_content: replyContent,
+          reply_by: profile.id,
+          reply_by_nickname: profile.nickname,
+          reply_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      }
+      return s
+    })
+    setStorageItem<Suggestion[]>('src_suggestions', updated)
+  },
+
+  deleteSuggestion(id: string): void {
+    const all = this.getSuggestions()
+    const filtered = all.filter(s => s.id !== id)
+    setStorageItem<Suggestion[]>('src_suggestions', filtered)
   }
 }

@@ -128,3 +128,43 @@ CREATE POLICY manage_marathon_pbs_policy ON public.marathon_pbs
         auth.uid() = user_id OR
         public.get_my_role() = 'ADMIN'::public.user_role
     );
+
+
+-- 6. suggestions 테이블 RLS 설정
+ALTER TABLE public.suggestions ENABLE ROW LEVEL SECURITY;
+
+-- 6.1) SELECT: 본인의 건의사항이거나 ADMIN인 경우만 조회 가능 (1:1 비공개 유지)
+CREATE POLICY select_suggestions_policy ON public.suggestions
+    FOR SELECT
+    USING (
+        auth.uid() = user_id OR
+        public.get_my_role() = 'ADMIN'::public.user_role
+    );
+
+-- 6.2) INSERT: 정회원(REGULAR, PACER, ADMIN)만 본인 명의로 건의사항 작성 가능
+CREATE POLICY insert_suggestions_policy ON public.suggestions
+    FOR INSERT
+    WITH CHECK (
+        auth.uid() = user_id AND
+        public.get_my_role() IN ('REGULAR'::public.user_role, 'PACER'::public.user_role, 'ADMIN'::public.user_role)
+    );
+
+-- 6.3) UPDATE: 본인의 글이거나 ADMIN인 경우만 수정 가능
+CREATE POLICY update_suggestions_policy ON public.suggestions
+    FOR UPDATE
+    USING (
+        auth.uid() = user_id OR
+        public.get_my_role() = 'ADMIN'::public.user_role
+    )
+    WITH CHECK (
+        auth.uid() = user_id OR
+        public.get_my_role() = 'ADMIN'::public.user_role
+    );
+
+-- 6.4) DELETE: 본인의 글이거나 ADMIN인 경우만 삭제 가능
+CREATE POLICY delete_suggestions_policy ON public.suggestions
+    FOR DELETE
+    USING (
+        auth.uid() = user_id OR
+        public.get_my_role() = 'ADMIN'::public.user_role
+    );

@@ -5,11 +5,13 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_updated_at() CASCADE;
 
+DROP TABLE IF EXISTS public.suggestions CASCADE;
 DROP TABLE IF EXISTS public.marathon_pbs CASCADE;
 DROP TABLE IF EXISTS public.running_records CASCADE;
 DROP TABLE IF EXISTS public.locations CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
 
+DROP TYPE IF EXISTS public.suggestion_status CASCADE;
 DROP TYPE IF EXISTS public.marathon_category CASCADE;
 DROP TYPE IF EXISTS public.run_type CASCADE;
 DROP TYPE IF EXISTS public.user_role CASCADE;
@@ -18,6 +20,7 @@ DROP TYPE IF EXISTS public.user_role CASCADE;
 CREATE TYPE public.user_role AS ENUM ('WAITING', 'REGULAR', 'PACER', 'ADMIN');
 CREATE TYPE public.run_type AS ENUM ('PERSONAL', 'REGULAR');
 CREATE TYPE public.marathon_category AS ENUM ('10K', 'Half', 'Full');
+CREATE TYPE public.suggestion_status AS ENUM ('PENDING', 'INVESTIGATING', 'COMPLETED', 'REJECTED');
 
 -- 2. 사용자 프로필 테이블 (profiles)
 CREATE TABLE public.profiles (
@@ -86,6 +89,23 @@ CREATE TABLE public.marathon_pbs (
     UNIQUE (user_id, category)
 );
 
+-- 5-2. 건의사항 테이블 (suggestions)
+CREATE TABLE public.suggestions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    is_anonymous BOOLEAN DEFAULT FALSE NOT NULL,
+    image_url TEXT,
+    status public.suggestion_status DEFAULT 'PENDING' NOT NULL,
+    reply_content TEXT,
+    reply_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    reply_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
 -- 6. updated_at 자동 갱신 트리거 및 헬퍼 함수
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
@@ -105,6 +125,10 @@ CREATE TRIGGER update_running_records_updated_at
 
 CREATE TRIGGER update_marathon_pbs_updated_at
     BEFORE UPDATE ON public.marathon_pbs
+    FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER update_suggestions_updated_at
+    BEFORE UPDATE ON public.suggestions
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- 7. 카카오 신규 가입자 프로필 자동 생성 및 최초 가입자 ADMIN 지정 트리거

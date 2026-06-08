@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { mockStore, Profile, RunningRecord } from '@/lib/mockStore'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles, ChevronDown } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Trash2, Footprints, LogOut, Award, TrendingUp, Sparkles, ChevronDown, MessageSquare } from 'lucide-react'
 import { getBadgesForUser, getBadgesStatusForUser } from '@/lib/utils/badges'
 import BadgeCard from '@/components/ui/BadgeCard'
 
@@ -427,6 +428,25 @@ export default function ProfilePage() {
         >
           {isEditing ? '닫기' : '프로필 수정 ⚙️'}
         </button>
+      </section>
+
+      {/* 건의사항 / 1:1 문의 단축 링크 */}
+      <section className="mb-6 z-10 relative">
+        <Link
+          href="/profile/suggestions"
+          className="w-full flex items-center justify-between p-4 bg-blue-50/40 hover:bg-blue-50/60 border border-blue-150 rounded-2xl transition-all duration-300 shadow-sm cursor-pointer group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center shrink-0 border border-[#2563EB]/10">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-xs font-black text-slate-800">건의사항 & 1:1 문의 💬</span>
+              <span className="text-[9px] text-slate-500 font-bold mt-0.5">앱 오류 제보 및 건의사항을 1:1로 보내보세요.</span>
+            </div>
+          </div>
+          <span className="text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all text-xs font-bold mr-1">➔</span>
+        </Link>
       </section>
 
       {/* 1.5 프로필 수정 양식 */}

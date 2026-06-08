@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { mockStore, Member, Location, RunningRecord, Profile } from '@/lib/mockStore'
+import { mockStore, Member, Location, RunningRecord, Profile, Suggestion } from '@/lib/mockStore'
 import { createClient } from '@/lib/supabase/client'
 import { checkIsMock } from '@/lib/utils/mockCheck'
 import { 
@@ -15,21 +15,28 @@ import {
   Smile, 
   ShieldAlert,
   ListTodo,
-  Search
+  Search,
+  MessageSquare
 } from 'lucide-react'
 
-type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions'
+type TabType = 'waiting' | 'exempted' | 'locations' | 'records' | 'permissions' | 'suggestions'
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('waiting')
   const [members, setMembers] = useState<Member[]>([])
   const [locations, setLocations] = useState<Location[]>([])
   const [records, setRecords] = useState<RunningRecord[]>([])
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [newLocationName, setNewLocationName] = useState('')
   const [isMock, setIsMock] = useState(false)
   const [loading, setLoading] = useState(true)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [adminSearchTerm, setAdminSearchTerm] = useState('')
+
+  // 건의사항 답변 및 편집 상태
+  const [editingSuggestionId, setEditingSuggestionId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [replyStatus, setReplyStatus] = useState<'PENDING' | 'INVESTIGATING' | 'COMPLETED' | 'REJECTED'>('PENDING')
 
   useEffect(() => {
     setAdminSearchTerm('')
@@ -49,6 +56,7 @@ export default function AdminPage() {
       setMembers(mockStore.getMembers())
       setLocations(mockStore.getLocations().filter(l => l.is_active))
       setRecords(mockStore.getRunningRecords())
+      setSuggestions(mockStore.getSuggestions())
       setCurrentProfile(mockStore.getProfile())
       setLoading(false)
     } else {
@@ -124,7 +132,104 @@ export default function AdminPage() {
         setRecords(formattedRecords)
       }
 
+      // 4. 전체 건의사항 조회
+      const { data: dbSugs } = await supabase
+        .from('suggestions')
+        .select('*, profiles(nickname, avatar_url, real_name)')
+        .order('created_at', { ascending: false })
+
+      if (dbSugs) {
+        const formattedSugs: Suggestion[] = dbSugs.map((s: any) => ({
+          id: s.id,
+          user_id: s.user_id,
+          user_nickname: s.profiles?.nickname || '크루원',
+          user_avatar: s.profiles?.avatar_url || '',
+          user_real_name: s.profiles?.real_name || '',
+          title: s.title,
+          category: s.category,
+          content: s.content,
+          is_anonymous: s.is_anonymous,
+          image_url: s.image_url || undefined,
+          status: s.status,
+          reply_content: s.reply_content || undefined,
+          reply_by: s.reply_by || undefined,
+          reply_at: s.reply_at || undefined,
+          created_at: s.created_at,
+          updated_at: s.updated_at
+        }))
+        setSuggestions(formattedSugs)
+      }
+
       setLoading(false)
+    }
+  }
+
+  // 0-1. 건의사항 답변 등록 및 상태 변경 처리
+  const handleReplySuggestion = async (sugId: string) => {
+    if (!hasEditPermission) {
+      alert('수정 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    try {
+      if (isMock) {
+        mockStore.replySuggestion(sugId, replyText.trim(), replyStatus)
+        setEditingSuggestionId(null)
+        setReplyText('')
+        loadData(true)
+      } else {
+        const supabase = createClient()
+        const { error } = await supabase
+          .from('suggestions')
+          .update({
+            reply_content: replyText.trim(),
+            reply_by: currentProfile?.id,
+            reply_at: new Date().toISOString(),
+            status: replyStatus
+          })
+          .eq('id', sugId)
+
+        if (error) {
+          alert('답변 등록에 실패했습니다.')
+        } else {
+          setEditingSuggestionId(null)
+          setReplyText('')
+          loadData(false)
+        }
+      }
+    } catch {
+      alert('답변 저장 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 0-2. 건의사항 삭제 처리
+  const handleDeleteSuggestion = async (sugId: string) => {
+    if (!hasEditPermission) {
+      alert('삭제 권한이 없습니다. 최고 운영자에게 문의해 주세요.')
+      return
+    }
+
+    if (confirm('이 건의사항을 정말 삭제하시겠습니까? 관련 데이터가 영구적으로 삭제됩니다.')) {
+      try {
+        if (isMock) {
+          mockStore.deleteSuggestion(sugId)
+          loadData(true)
+        } else {
+          const supabase = createClient()
+          const { error } = await supabase
+            .from('suggestions')
+            .delete()
+            .eq('id', sugId)
+
+          if (error) {
+            alert('건의사항 삭제에 실패했습니다.')
+          } else {
+            loadData(false)
+          }
+        }
+      } catch {
+        alert('삭제 중 오류가 발생했습니다.')
+      }
     }
   }
 
@@ -415,11 +520,25 @@ export default function AdminPage() {
     (r.location_name && r.location_name.toLowerCase().includes(adminSearchTerm.toLowerCase()))
   )
 
+  const filteredSuggestions = suggestions.filter(s =>
+    s.title.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    s.content.toLowerCase().includes(adminSearchTerm.toLowerCase()) ||
+    (s.is_anonymous ? '익명' : s.user_nickname.toLowerCase()).includes(adminSearchTerm.toLowerCase())
+  )
+
+  const statusConfig: Record<string, { label: string; style: string }> = {
+    PENDING: { label: '대기 중', style: 'bg-orange-50 text-orange-600 border-orange-200' },
+    INVESTIGATING: { label: '검토 중', style: 'bg-blue-50 text-blue-600 border-blue-200' },
+    COMPLETED: { label: '답변 완료', style: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+    REJECTED: { label: '반려됨', style: 'bg-rose-50 text-rose-600 border-rose-200' }
+  }
+
   const tabItems = [
     { key: 'waiting', label: `가입 대기 (${waitingMembers.length})`, icon: UserCheck },
     { key: 'exempted', label: '부상 면제 관리', icon: HeartPulse },
     { key: 'locations', label: '장소 관리', icon: MapPin },
     { key: 'records', label: '기록 통합 관리', icon: ListTodo },
+    { key: 'suggestions', label: `건의사항 (${suggestions.length})`, icon: MessageSquare },
   ]
 
   if (isSuperAdmin) {
@@ -957,6 +1076,185 @@ export default function AdminPage() {
                         <span className="text-[9px] text-slate-400 font-bold block mt-1 text-center bg-slate-50 rounded-lg py-1 border border-slate-200/40">
                           최고 관리자는 항상 모든 권한을 가집니다.
                         </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* 건의사항 관리 탭 */}
+        {activeTab === 'suggestions' && (
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xs font-black text-slate-900">크루원 건의 및 1:1 문의 관리</h2>
+              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">
+                정회원 이상 크루원들이 제출한 건의사항에 답변하고 진행 상태를 업데이트합니다.
+              </span>
+            </div>
+
+            {filteredSuggestions.length === 0 ? (
+              <div className="bg-white/80 border border-slate-200/50 rounded-3xl py-12 px-6 flex flex-col items-center justify-center text-center shadow-sm">
+                <Smile className="w-6 h-6 text-slate-400 mb-2" />
+                <span className="text-xs font-bold text-slate-505">
+                  {suggestions.length === 0 ? '접수된 건의사항이 없습니다.' : '검색 결과가 없습니다.'}
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-3 pb-8">
+                {filteredSuggestions.map((sug) => {
+                  const isEditingThis = editingSuggestionId === sug.id
+                  const status = statusConfig[sug.status] || { label: sug.status, style: 'bg-slate-100 border-slate-200' }
+                  
+                  return (
+                    <div 
+                      key={sug.id} 
+                      className={`bg-white border p-4 rounded-2xl flex flex-col gap-3 shadow-sm transition-all text-left ${
+                        isEditingThis ? 'border-[#2563EB] ring-1 ring-blue-500/10' : 'border-slate-200'
+                      }`}
+                    >
+                      {/* 헤더: 카테고리, 작성일, 처리상태 */}
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] font-black uppercase tracking-wider bg-slate-100 border border-slate-200 px-2 py-0.2 rounded text-slate-500">
+                            {sug.category}
+                          </span>
+                          <span className={`text-[8px] font-black uppercase px-2 py-0.2 rounded border ${status.style}`}>
+                            {status.label}
+                          </span>
+                        </div>
+                        <span className="text-[8px] text-slate-400 font-bold">
+                          {new Date(sug.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+
+                      {/* 본문: 제목 및 내용 */}
+                      <div className="text-left space-y-1.5">
+                        <h3 className="text-xs font-black text-slate-900">{sug.title}</h3>
+                        <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          {sug.content}
+                        </p>
+                        <div className="text-[8px] text-slate-400 font-bold">
+                          작성자: {sug.is_anonymous ? '익명 크루원' : sug.user_real_name ? `${sug.user_real_name} (${sug.user_nickname})` : sug.user_nickname}
+                          {sug.is_anonymous && ' 🔒 (익명 선택됨)'}
+                        </div>
+
+                        {/* 첨부 이미지 */}
+                        {sug.image_url && (
+                          <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 max-h-60 bg-slate-50 flex justify-center items-center">
+                            <img 
+                              src={sug.image_url} 
+                              alt="첨부 이미지" 
+                              className="max-h-60 max-w-full object-contain cursor-pointer shadow-inner"
+                              onClick={() => window.open(sug.image_url, '_blank')}
+                              title="클릭하여 원본보기"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 기존 답변이 있는 경우 */}
+                      {!isEditingThis && sug.reply_content && (
+                        <div className="p-3 bg-blue-50/25 border border-blue-100 rounded-xl text-left space-y-1">
+                          <div className="flex items-center justify-between text-[8px] text-[#2563EB] font-bold uppercase tracking-wider">
+                            <span>✓ 등록된 운영진 답변</span>
+                            <span>
+                              {new Date(sug.reply_at || sug.updated_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">
+                            {sug.reply_content}
+                          </p>
+                          <div className="text-[8px] text-slate-400 text-right font-bold">
+                            답변 작성자: {sug.reply_by_nickname || '운영진'}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 답변 편집 모드 */}
+                      {isEditingThis ? (
+                        <div className="space-y-3 pt-2 border-t border-slate-100 text-left">
+                          <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-500 block">처리 상태 선택</label>
+                            <div className="grid grid-cols-4 gap-1.5">
+                              {(['PENDING', 'INVESTIGATING', 'COMPLETED', 'REJECTED'] as const).map((st) => (
+                                <button
+                                  key={st}
+                                  type="button"
+                                  onClick={() => setReplyStatus(st)}
+                                  className={`py-1.5 rounded-lg text-[9px] font-bold border transition-all cursor-pointer ${
+                                    replyStatus === st
+                                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm font-black'
+                                      : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  {statusConfig[st]?.label || st}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-500 block">답변 내용</label>
+                            <textarea
+                              rows={3}
+                              placeholder="답변 내용을 작성해 주세요..."
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 leading-relaxed resize-none font-semibold shadow-inner"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => setEditingSuggestionId(null)}
+                              className="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-bold cursor-pointer transition-all"
+                            >
+                              취소
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReplySuggestion(sug.id)}
+                              className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[9px] font-black cursor-pointer transition-all shadow-sm animate-pulseFast"
+                            >
+                              저장하기
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 justify-end border-t border-slate-100/70 pt-3">
+                          <button
+                            type="button"
+                            disabled={!hasEditPermission}
+                            onClick={() => {
+                              setEditingSuggestionId(sug.id)
+                              setReplyText(sug.reply_content || '')
+                              setReplyStatus(sug.status)
+                            }}
+                            className={`py-1.5 px-3 rounded-lg text-[9px] font-bold cursor-pointer transition-all border ${
+                              !hasEditPermission
+                                ? 'opacity-30 cursor-not-allowed text-slate-400 bg-slate-50 border-slate-200'
+                                : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            {sug.reply_content ? '답변/상태 수정 ⚙️' : '답변 작성 및 처리 💬'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!hasEditPermission}
+                            onClick={() => handleDeleteSuggestion(sug.id)}
+                            className={`py-1.5 px-3 rounded-lg text-[9px] font-bold cursor-pointer transition-all border ${
+                              !hasEditPermission
+                                ? 'opacity-30 cursor-not-allowed text-slate-400 bg-slate-50 border-slate-200'
+                                : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'
+                            }`}
+                          >
+                            삭제
+                          </button>
+                        </div>
                       )}
                     </div>
                   )
