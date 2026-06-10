@@ -95,6 +95,7 @@ export default function DashboardPage() {
   // 피드 및 스트레칭 가이드 모달 상태
   const [isFeedOpen, setIsFeedOpen] = useState(false)
   const [isStretchingModalOpen, setIsStretchingModalOpen] = useState(false)
+  const [isTierModalOpen, setIsTierModalOpen] = useState(false)
 
   // 컴포넌트 마운트 시 로컬 스토리지 또는 Supabase로부터 실시간 동적 바인딩
   useEffect(() => {
@@ -528,8 +529,9 @@ export default function DashboardPage() {
               </span>
             </div>
             <div 
-              className="flex items-center gap-1.5 mt-1.5 cursor-help"
-              title={tier.next ? `다음 등급(${tier.next})까지 ${remainingDist.toFixed(1)}km 남음!` : '최고 등급 달성! 🎉'}
+              onClick={() => setIsTierModalOpen(true)}
+              className="flex items-center gap-1.5 mt-1.5 cursor-pointer"
+              title={tier.next ? `클릭하여 등급표 보기 (다음 등급까지 ${remainingDist.toFixed(1)}km 남음!)` : '클릭하여 등급표 보기 (최고 등급 달성! 🎉)'}
             >
               <span className="text-[10px] text-slate-500 font-extrabold tracking-tight">누적: {myTotalDistance.toFixed(1)}km</span>
               <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full border shadow-2xs flex items-center gap-1 transition-all hover:scale-105 active:scale-95 ${tier.style}`}>
@@ -1151,6 +1153,84 @@ export default function DashboardPage() {
           )
         })()}
       </section>
+
+      {/* 7. 누적 거리 등급표 모달 */}
+      {isTierModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-5 select-none animate-fadeIn">
+          <div className="absolute inset-0" onClick={() => setIsTierModalOpen(false)} />
+          
+          <div className="relative w-full max-w-sm bg-white rounded-3xl border-2 border-slate-200 shadow-2xl p-6 z-10 flex flex-col max-h-[85vh] animate-scaleUp">
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🏅</span>
+                <div className="text-left">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-800">크루 누적 거리 메달 등급표</h3>
+                  <p className="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">SRC Cumulative Medal Tiers</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsTierModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-[10px] text-slate-500 leading-relaxed font-semibold text-left shrink-0 mb-3.5">
+              크루 가입 이후 달린 전체 누적 거리를 기준으로 등급이 산정됩니다. 열심히 달려서 최고 등급인 <strong className="text-indigo-600 font-extrabold">금비행기 🚀</strong>를 획득해 보세요!
+            </p>
+
+            {/* Scrollable list of tiers */}
+            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 mb-5">
+              {[
+                { name: '동메달', emoji: '🥉', range: '0 ~ 300km 미만', style: 'bg-amber-50 text-amber-800 border-amber-250' },
+                { name: '은메달', emoji: '🥈', range: '300 ~ 600km 미만', style: 'bg-slate-50 text-slate-700 border-slate-300' },
+                { name: '금메달', emoji: '🥇', range: '600 ~ 1,000km 미만', style: 'bg-yellow-50 text-yellow-805 border-yellow-350' },
+                { name: '동트로피', emoji: '🥉🏆', range: '1,000 ~ 1,600km 미만', style: 'bg-amber-100 text-amber-850 border-amber-400' },
+                { name: '은트로피', emoji: '🥈🏆', range: '1,600 ~ 2,300km 미만', style: 'bg-slate-100 text-slate-800 border-slate-400' },
+                { name: '금트로피', emoji: '🥇🏆', range: '2,300 ~ 3,000km 미만', style: 'bg-gradient-to-r from-yellow-50 to-amber-100 text-yellow-905 border-yellow-500 font-black' },
+                { name: '동비행기', emoji: '🛩️', range: '3,000 ~ 4,000km 미만', style: 'bg-gradient-to-r from-sky-50 to-sky-100 text-sky-850 border-sky-350' },
+                { name: '은비행기', emoji: '✈️', range: '4,000 ~ 5,500km 미만', style: 'bg-gradient-to-r from-blue-50 to-indigo-100 text-indigo-850 border-indigo-300' },
+                { name: '금비행기', emoji: '🚀', range: '5,500km 이상', style: 'bg-gradient-to-r from-violet-600 to-indigo-650 text-white border-violet-400 font-black' },
+              ].map((t, idx) => {
+                const isCurrent = tier.name === t.name
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex items-center justify-between p-3.5 border-2 rounded-2xl transition-all ${
+                      isCurrent 
+                        ? 'border-indigo-500 bg-indigo-50/10 ring-2 ring-indigo-500/10' 
+                        : 'border-slate-100/75 bg-slate-50/30'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border shadow-2xs flex items-center gap-1.5 ${t.style}`}>
+                        <span>{t.emoji}</span>
+                        <span>{t.name}</span>
+                      </span>
+                      <span className="text-xs text-slate-605 font-black">{t.range}</span>
+                    </div>
+
+                    {isCurrent && (
+                      <span className="bg-indigo-500 text-white text-[8.5px] font-black px-2 py-0.5 rounded-full shadow-2xs">
+                        내 등급 📍
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <button
+              onClick={() => setIsTierModalOpen(false)}
+              className="w-full h-12 bg-slate-900 text-white font-extrabold text-xs sm:text-sm tracking-wide rounded-2xl hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer shrink-0 shadow-md"
+            >
+              확인 (닫기)
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
