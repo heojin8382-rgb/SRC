@@ -299,7 +299,7 @@ export default function PlaygroundPage() {
               x={textX}
               y={textY}
               fill="#FFFFFF"
-              fontSize="3"
+              fontSize="3.8"
               fontWeight="900"
               textAnchor="middle"
               alignmentBaseline="middle"
@@ -841,31 +841,31 @@ export default function PlaygroundPage() {
   }
 
   return (
-    <div className="p-5 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
+    <div className="p-5 pb-32 flex flex-col min-h-screen relative overflow-hidden select-none bg-white">
       
       {/* 1. 상단 백버튼 및 헤더 */}
-      <header className="flex items-center gap-3 mb-6 z-10 relative">
+      <header className="flex items-center gap-3.5 mb-6 z-10 relative">
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sm shadow-sm hover:scale-105 active:scale-95 transition-all text-slate-500 hover:text-slate-800 cursor-pointer"
+          className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-sm shadow-sm hover:scale-105 active:scale-95 transition-all text-slate-600 hover:text-slate-900 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="flex flex-col">
-          <span className="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase">Playground Game Zone</span>
-          <h1 className="text-sm font-black tracking-tight text-slate-800">🎲 크루 복불복 오락실</h1>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-slate-550 font-black tracking-widest uppercase">Playground Game Zone</span>
+          <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-800">🎲 크루 복불복 오락실</h1>
         </div>
       </header>
 
       {/* 2. 게임 선택 세그먼트 제어기 */}
-      <section className="bg-slate-100 border border-slate-200 p-1.5 rounded-2xl grid grid-cols-4 gap-1.5 mb-6 shadow-inner z-10 relative">
+      <section className="bg-slate-100 border border-slate-200/80 p-2 rounded-3xl grid grid-cols-4 gap-2 mb-6 shadow-inner z-10 relative">
         <button
           disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('roulette')}
-          className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+          className={`py-3 rounded-2xl text-xs sm:text-sm font-black tracking-wider transition-all duration-300 cursor-pointer ${
             activeGame === 'roulette'
-              ? 'bg-[#2563EB] text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-800 disabled:opacity-50'
+              ? 'bg-[#2563EB] text-white shadow-md scale-[1.02]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 disabled:opacity-50'
           }`}
         >
           🥤 음료 룰렛
@@ -873,10 +873,10 @@ export default function PlaygroundPage() {
         <button
           disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('mission')}
-          className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+          className={`py-3 rounded-2xl text-xs sm:text-sm font-black tracking-wider transition-all duration-300 cursor-pointer ${
             activeGame === 'mission'
-              ? 'bg-[#2563EB] text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-800 disabled:opacity-50'
+              ? 'bg-[#2563EB] text-white shadow-md scale-[1.02]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 disabled:opacity-50'
           }`}
         >
           🏃‍♂️ 미션 뽑기
@@ -884,10 +884,10 @@ export default function PlaygroundPage() {
         <button
           disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('lottery')}
-          className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+          className={`py-3 rounded-2xl text-xs sm:text-sm font-black tracking-wider transition-all duration-300 cursor-pointer ${
             activeGame === 'lottery'
-              ? 'bg-[#2563EB] text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-800 disabled:opacity-50'
+              ? 'bg-[#2563EB] text-white shadow-md scale-[1.02]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 disabled:opacity-50'
           }`}
         >
           🎈 역할 추첨
@@ -895,10 +895,10 @@ export default function PlaygroundPage() {
         <button
           disabled={spinning || drawingLottery || gachaSpinning}
           onClick={() => setActiveGame('gacha')}
-          className={`py-2 rounded-xl text-[9px] font-black tracking-widest transition-all duration-300 cursor-pointer ${
+          className={`py-3 rounded-2xl text-xs sm:text-sm font-black tracking-wider transition-all duration-300 cursor-pointer ${
             activeGame === 'gacha'
-              ? 'bg-[#2563EB] text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-800 disabled:opacity-50'
+              ? 'bg-[#2563EB] text-white shadow-md scale-[1.02]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 disabled:opacity-50'
           }`}
         >
           🪙 코인 뽑기
@@ -953,7 +953,7 @@ export default function PlaygroundPage() {
                 <button
                   disabled={spinning || selectedMembers.length < 2}
                   onClick={handleSpin}
-                  className={`mt-5 w-36 h-10 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
+                  className={`mt-6 w-44 h-12 rounded-full font-black text-sm tracking-wider uppercase transition-all duration-300 shadow-md ${
                     spinning
                       ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       : selectedMembers.length < 2
@@ -966,13 +966,13 @@ export default function PlaygroundPage() {
               </section>
 
               {winner && (
-                <div className="bg-gradient-to-r from-rose-50 to-amber-50 border-2 border-amber-200/60 p-4.5 rounded-3xl animate-bounceIn flex flex-col items-center text-center shadow-md">
-                  <Sparkles className="w-6 h-6 text-amber-500 animate-pulse mb-1.5" />
-                  <span className="text-[8px] text-rose-500 font-extrabold uppercase tracking-widest">Congratulations</span>
-                  <h2 className="text-sm font-black text-slate-800 tracking-tight mt-0.5">
+                <div className="bg-gradient-to-r from-rose-50 to-amber-50 border-2 border-amber-300 p-6 rounded-3xl animate-bounceIn flex flex-col items-center text-center shadow-md">
+                  <Sparkles className="w-6 h-6 text-amber-500 animate-pulse mb-2" />
+                  <span className="text-xs text-rose-600 font-extrabold uppercase tracking-widest bg-rose-100/60 px-2.5 py-0.5 rounded-full">Congratulations</span>
+                  <h2 className="text-base sm:text-lg font-black text-slate-800 tracking-tight mt-2.5">
                     🎉 오늘의 당첨자: <span className="text-rose-600 font-black">{winner.nickname}</span>
                   </h2>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1">
+                  <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1.5 leading-relaxed">
                     오늘 모임의 주인공이 되셨습니다! 음료수를 부탁해요~ 🥤🏃‍♂️
                   </p>
                 </div>
@@ -985,20 +985,20 @@ export default function PlaygroundPage() {
             <div className="space-y-6 animate-fadeIn">
               {/* 현재 진행 중인 미션 표시 */}
               {activeChallenge && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-3xl flex items-center justify-between shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center shrink-0">
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-250 p-5 rounded-3xl flex items-center justify-between shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-550/20 flex items-center justify-center shrink-0 text-xl">
                       🎯
                     </div>
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[8px] text-amber-600 font-extrabold uppercase tracking-widest">현재 도전 중인 미션</span>
-                      <h4 className="text-xs font-black text-slate-800 tracking-tight">{activeChallenge.title}</h4>
-                      <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">{activeChallenge.text}</p>
+                      <span className="text-xs text-amber-700 font-extrabold uppercase tracking-widest">현재 도전 중인 미션</span>
+                      <h4 className="text-sm sm:text-base font-black text-slate-800 tracking-tight">{activeChallenge.title}</h4>
+                      <p className="text-xs sm:text-sm text-slate-655 leading-relaxed font-bold">{activeChallenge.text}</p>
                     </div>
                   </div>
                   <button
                     onClick={handleAbandonChallenge}
-                    className="text-[9px] font-black text-rose-500 bg-rose-50 border border-rose-100 hover:bg-rose-100/60 px-3 py-1.5 rounded-xl cursor-pointer transition-colors"
+                    className="text-xs font-black text-rose-655 bg-rose-50 border-2 border-rose-100 hover:bg-rose-100/80 px-4 py-2 rounded-2xl cursor-pointer transition-all active:scale-95 shrink-0"
                   >
                     미션 포기
                   </button>
@@ -1006,58 +1006,58 @@ export default function PlaygroundPage() {
               )}
 
               {/* 미션 드로우 영역 */}
-              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center">
-                <div className="text-center mb-5">
-                  <h3 className="text-xs font-black text-slate-800">✉️ 오늘의 랜덤 러닝 미션 뽑기</h3>
-                  <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Select a card to reveal your mission</p>
+              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6.5 shadow-sm flex flex-col items-center justify-center">
+                <div className="text-center mb-6">
+                  <h3 className="text-sm sm:text-base font-black text-slate-800">✉️ 오늘의 랜덤 러닝 미션 뽑기</h3>
+                  <p className="text-xs text-slate-450 font-black tracking-wide uppercase mt-1.5">Select a card to reveal your mission</p>
                 </div>
 
                 {!drawnMission ? (
-                  <div className="flex justify-center gap-4 w-full py-4">
+                  <div className="flex justify-center gap-5 w-full py-4">
                     {[1, 2, 3].map((envelopeIdx) => (
                       <button
                         key={envelopeIdx}
                         onClick={(e) => handleDrawMission(envelopeIdx, e)}
-                        className={`w-24 h-36 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg flex flex-col items-center justify-center text-white border border-white/20 transition-all duration-300 hover:-translate-y-2 active:scale-95 cursor-pointer relative group ${
+                        className={`w-28 h-42 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-lg flex flex-col items-center justify-center text-white border border-white/20 transition-all duration-300 hover:-translate-y-2 active:scale-95 cursor-pointer relative group ${
                           envelopeSelected !== null && envelopeSelected !== envelopeIdx ? 'opacity-35 scale-95' : ''
                         }`}
                       >
-                        <div className="absolute inset-0 bg-black/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-2xl animate-pulse">🧧</span>
-                        <span className="text-[9px] font-black tracking-wider uppercase mt-2">미션 {envelopeIdx}</span>
+                        <div className="absolute inset-0 bg-black/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-3xl animate-pulse">🧧</span>
+                        <span className="text-xs font-black tracking-wider uppercase mt-3">미션 {envelopeIdx}</span>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="w-full max-w-sm bg-white border border-slate-200 rounded-2xl p-5 shadow-inner flex flex-col items-center text-center animate-scaleUp">
-                    <span className={`text-[8.5px] font-black px-2 py-0.5 rounded-full border mb-3 ${
+                  <div className="w-full max-w-sm bg-white border border-slate-200 rounded-3xl p-6.5 shadow-inner flex flex-col items-center text-center animate-scaleUp">
+                    <span className={`text-xs font-black px-3 py-1 rounded-full border mb-4 ${
                       drawnMission.difficulty === '쉬움'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
                         : drawnMission.difficulty === '보통'
-                        ? 'bg-amber-50 text-amber-600 border-amber-200'
-                        : 'bg-rose-50 text-rose-600 border-rose-200'
+                        ? 'bg-amber-50 text-amber-700 border-amber-250'
+                        : 'bg-rose-50 text-rose-700 border-rose-250'
                     }`}>
                       난이도: {drawnMission.difficulty}
                     </span>
                     
-                    <h3 className="text-sm font-black text-slate-800 tracking-tight mb-2">
+                    <h3 className="text-base font-black text-slate-800 tracking-tight mb-2.5">
                       {drawnMission.title}
                     </h3>
                     
-                    <p className="text-xs font-semibold text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/50 p-4 rounded-xl mb-4 w-full">
+                    <p className="text-sm font-semibold text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-5 rounded-2xl mb-5 w-full">
                       "{drawnMission.text}"
                     </p>
 
-                    <div className="flex gap-2 w-full">
+                    <div className="flex gap-2.5 w-full">
                       <button
                         onClick={() => handleStartChallenge(drawnMission)}
-                        className="flex-1 h-10 bg-[#2563EB] text-white hover:bg-[#2563EB]/95 font-black text-xs rounded-xl shadow-sm cursor-pointer transition-all active:scale-[0.98]"
+                        className="flex-1 h-12 bg-[#2563EB] text-white hover:bg-[#2563EB]/95 font-black text-xs sm:text-sm rounded-xl shadow-sm cursor-pointer transition-all active:scale-[0.98]"
                       >
                         🎯 이 미션에 도전하기
                       </button>
                       <button
                         onClick={handleResetDraw}
-                        className="h-10 bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200 px-4 font-bold text-xs rounded-xl cursor-pointer transition-all active:scale-[0.98]"
+                        className="h-12 bg-slate-100 text-slate-650 hover:bg-slate-200 border border-slate-200 px-5 font-bold text-xs sm:text-sm rounded-xl cursor-pointer transition-all active:scale-[0.98]"
                       >
                         다시 뽑기
                       </button>
@@ -1071,15 +1071,15 @@ export default function PlaygroundPage() {
           {/* ==================== GAME 3: 다음 벙 페이서 / 번개 방장 추첨기 ==================== */}
           {activeGame === 'lottery' && (
             <div className="space-y-6 animate-fadeIn">
-              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-5 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+              <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
                 
                 {/* 추첨 종류 선택 */}
-                <div className="flex bg-slate-200/60 p-1 rounded-xl w-60 justify-center gap-1 mb-5">
+                <div className="flex bg-slate-200/60 p-1 rounded-2xl w-72 justify-center gap-1.5 mb-5.5">
                   <button
                     disabled={drawingLottery}
                     onClick={() => { setLotteryType('pacer'); setLotteryWinner(null); setPacerSuccess(false); }}
-                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black transition-all cursor-pointer ${
-                      lotteryType === 'pacer' ? 'bg-[#2563EB] text-white' : 'text-slate-500 hover:text-slate-800'
+                    className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      lotteryType === 'pacer' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-slate-655 hover:text-slate-900'
                     }`}
                   >
                     🎈 페이서 추첨
@@ -1087,8 +1087,8 @@ export default function PlaygroundPage() {
                   <button
                     disabled={drawingLottery}
                     onClick={() => { setLotteryType('leader'); setLotteryWinner(null); setPacerSuccess(false); }}
-                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black transition-all cursor-pointer ${
-                      lotteryType === 'leader' ? 'bg-[#2563EB] text-white' : 'text-slate-500 hover:text-slate-800'
+                    className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      lotteryType === 'leader' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-slate-655 hover:text-slate-900'
                     }`}
                   >
                     ⚡ 번개 방장 추첨
@@ -1096,30 +1096,30 @@ export default function PlaygroundPage() {
                 </div>
 
                 {/* 추첨 애니메이션 영역 */}
-                <div className="w-56 h-36 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-4 bg-white shadow-inner">
+                <div className="w-64 h-44 border-2 border-dashed border-slate-250 rounded-3xl flex flex-col items-center justify-center p-5 bg-white shadow-inner">
                   {drawingLottery ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <span className="text-xl animate-spin">🌀</span>
-                      <span className="text-xs font-black text-blue-600 animate-pulse">{cycleName}</span>
-                      <span className="text-[7.5px] text-slate-400 font-bold uppercase tracking-wide">추첨 후보 셔플 중...</span>
+                    <div className="flex flex-col items-center gap-2.5">
+                      <span className="text-2xl animate-spin">🌀</span>
+                      <span className="text-sm sm:text-base font-black text-blue-650 animate-pulse">{cycleName}</span>
+                      <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">추첨 후보 셔플 중...</span>
                     </div>
                   ) : lotteryWinner ? (
-                    <div className="flex flex-col items-center text-center gap-1.5 animate-scaleUp">
+                    <div className="flex flex-col items-center text-center gap-2.5 animate-scaleUp">
                       {lotteryWinner.avatar_url ? (
-                        <img src={lotteryWinner.avatar_url} alt="Winner" className="w-12 h-12 rounded-full object-cover border border-slate-200" />
+                        <img src={lotteryWinner.avatar_url} alt="Winner" className="w-20 h-20 rounded-full object-cover border-2 border-[#2563EB]/40 shadow-sm" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-sm border border-slate-200">👤</div>
+                        <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center text-xl border border-slate-200 text-slate-500">👤</div>
                       )}
-                      <h4 className="text-xs font-black text-slate-800">
+                      <h4 className="text-xs font-black text-slate-850">
                         {lotteryType === 'pacer' ? '🎈 당첨 페이서: ' : '⚡ 당첨 번개방장: '}
-                        <span className="text-[#2563EB]">{lotteryWinner.nickname}</span>
+                        <span className="text-[#2563EB] text-base sm:text-lg font-black">{lotteryWinner.nickname}</span>
                       </h4>
-                      <span className="text-[7.5px] text-slate-400 font-extrabold uppercase tracking-wide">당첨을 축하합니다!</span>
+                      <span className="text-xs sm:text-sm text-slate-500 font-extrabold uppercase tracking-wide">당첨을 축하합니다! 🎉</span>
                     </div>
                   ) : (
-                    <div className="text-center flex flex-col gap-1 text-slate-400">
-                      <HelpCircle className="w-6 h-6 mx-auto text-slate-300" />
-                      <span className="text-[10px] font-bold">참가자를 지정하고 추첨을 시작하세요</span>
+                    <div className="text-center flex flex-col gap-1.5 text-slate-400">
+                      <HelpCircle className="w-8 h-8 mx-auto text-slate-300" />
+                      <span className="text-xs sm:text-sm font-bold">참석자를 지정하고 추첨을 시작하세요!</span>
                     </div>
                   )}
                 </div>
@@ -1127,7 +1127,7 @@ export default function PlaygroundPage() {
                 <button
                   disabled={drawingLottery || selectedMembers.length === 0}
                   onClick={handleStartRoleLottery}
-                  className={`mt-5 w-36 h-10 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
+                  className={`mt-6 w-44 h-12 rounded-full font-black text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-md ${
                     drawingLottery
                       ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       : selectedMembers.length === 0
@@ -1135,32 +1135,32 @@ export default function PlaygroundPage() {
                       : 'bg-[#2563EB] text-white hover:bg-[#2563EB]/95 active:scale-97 cursor-pointer hover:shadow-lg'
                   }`}
                 >
-                  {drawingLottery ? '추첨 중...' : '추첨 시작 🎲'}
+                  {drawingLottery ? '추첨 중...' : '추첨 시작 🎯'}
                 </button>
               </section>
 
-              {/* 당첨자 연동 혜택 (페이서 임명 기록 즉시 등록) */}
+              {/* 당첨자에 자동 등록 (페이서 봉사 기록 즉시 등록) */}
               {lotteryWinner && lotteryType === 'pacer' && (
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/80 p-4.5 rounded-3xl animate-fadeIn flex flex-col gap-3 shadow-sm">
-                  <div className="flex gap-2 items-start text-[10px] text-blue-650 leading-relaxed font-bold">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-blue-600 mt-0.5" />
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/80 p-5 rounded-3xl animate-fadeIn flex flex-col gap-3.5 shadow-sm">
+                  <div className="flex gap-2.5 items-start text-xs text-blue-700 leading-relaxed font-bold">
+                    <AlertCircle className="w-5 h-5 shrink-0 text-blue-600 mt-0.5" />
                     <span>
-                      <strong className="text-slate-800 font-black">역할 추첨 연동 혜택:</strong> 아래 버튼을 누르면 당첨 회원에게 3.0km의 페이서 기록이 자동 부여되어 <strong className="text-[#2563EB]">‘봉사왕 페이서’ 뱃지</strong>를 즉시 획득하게 됩니다.
+                      <strong className="text-slate-800 font-black">🎁 추첨 자동 연동:</strong> 아래 버튼을 누르면 당첨 회원에게 3.0km의 페이서 기록이 자동 부여되며, <strong className="text-[#2563EB]">자원봉사왕 타이틀 배지</strong>를 즉시 획득하게 됩니다.
                     </span>
                   </div>
 
                   <button
                     disabled={pacerPending || pacerSuccess}
                     onClick={handleGrantPacerRecord}
-                    className={`w-full h-10 font-black text-xs tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 ${
+                    className={`w-full h-12 font-black text-xs sm:text-sm tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 ${
                       pacerSuccess
                         ? 'bg-emerald-100 text-emerald-700 border border-emerald-200 cursor-default'
                         : pacerPending
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                        : 'bg-[#2563EB] text-white hover:bg-[#2563EB]/95 active:scale-98 cursor-pointer'
+                        : 'bg-[#2563EB] text-white hover:bg-[#2563EB]/95 active:scale-98 cursor-pointer hover:shadow-md'
                     }`}
                   >
-                    {pacerSuccess ? '✓ 페이서 기록 부여 완료!' : pacerPending ? '페이서 임명 처리 중...' : '🎈 페이서 봉사 기록 자동 등록 (배지 부여)'}
+                    {pacerSuccess ? '✨ 페이서 기록 부여 완료!' : pacerPending ? '페이서 서명 처리 중...' : '🎁 페이서 봉사 기록 자동 등록 (배지 부여)'}
                   </button>
                 </div>
               )}
@@ -1171,26 +1171,26 @@ export default function PlaygroundPage() {
           {activeGame === 'gacha' && (
             <div className="space-y-6 animate-fadeIn">
               {/* 코인 지갑 HUD */}
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-3xl p-5 flex items-center justify-between shadow-md">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center font-black text-xl text-white">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-md">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center font-black text-2xl text-white shrink-0">
                     🪙
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[8px] text-amber-100 font-extrabold uppercase tracking-widest">My Crew Points</span>
-                    <h4 className="text-sm font-black text-white tracking-tight">보유 코인: {points} COIN</h4>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs text-amber-100 font-extrabold uppercase tracking-widest">My Crew Points</span>
+                    <h4 className="text-base sm:text-lg font-black text-white tracking-tight">보유 코인: {points} COIN</h4>
                   </div>
                 </div>
                 
                 {/* 운영진 버튼 영역 */}
                 {(profile?.role === 'ADMIN' || profile?.can_edit_admin) && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
                     <button
                       type="button"
                       onClick={() => handleEarnPoints(1)}
-                      className="bg-white text-orange-600 hover:bg-orange-50 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97"
+                      className="bg-white text-orange-600 hover:bg-orange-50 font-black text-xs px-3.5 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm active:scale-97 shrink-0 whitespace-nowrap"
                     >
-                      ⚡ 가상 미션 완료 (+1 코인)
+                      +1 코인 충전 🪙
                     </button>
                     <button
                       type="button"
@@ -1198,9 +1198,9 @@ export default function PlaygroundPage() {
                         setShowAdminPanel(!showAdminPanel)
                         handleCancelEditGacha()
                       }}
-                      className="bg-slate-900 text-white hover:bg-slate-800 border border-white/20 font-black text-[9px] px-3 py-2 rounded-xl transition-all cursor-pointer shadow-sm active:scale-97 flex items-center gap-1"
+                      className="bg-slate-900 text-white hover:bg-slate-800 border border-white/20 font-black text-xs px-3.5 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm active:scale-97 flex items-center gap-1 shrink-0 whitespace-nowrap"
                     >
-                      ⚙️ {showAdminPanel ? '뽑기 화면으로' : '보상 관리'}
+                      {showAdminPanel ? '돌아가기 🎪' : '보상 관리 ⚙️'}
                     </button>
                   </div>
                 )}
@@ -1208,57 +1208,57 @@ export default function PlaygroundPage() {
 
               {!showAdminPanel ? (
                 /* 캡슐 머신 본체 */
-                <section className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
-                  <div className="text-center mb-4">
-                    <h3 className="text-xs font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
-                    <p className="text-[8px] text-slate-400 font-extrabold tracking-wide uppercase mt-1">Spend 1 coin to spin for rare prizes</p>
+                <section className="bg-slate-50 border border-slate-200 rounded-3xl p-7 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="text-center mb-5">
+                    <h3 className="text-sm sm:text-base font-black text-slate-800">🎟️ 크루 이색 혜택 뽑기방</h3>
+                    <p className="text-xs text-slate-450 font-black tracking-wide uppercase mt-1.5">Spend 1 coin to spin for rare prizes</p>
                   </div>
 
                   {/* 캡슐 머신 그래픽 영역 */}
-                  <div className="w-48 h-48 bg-white border border-slate-200 rounded-3xl relative flex flex-col items-center justify-center p-4 shadow-inner overflow-hidden">
+                  <div className="w-56 h-56 bg-white border border-slate-200 rounded-3xl relative flex flex-col items-center justify-center p-5 shadow-inner overflow-hidden">
                     {gachaSpinning ? (
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center gap-3.5">
                         {/* Bouncing capsules simulation */}
-                        <div className="flex gap-2.5 animate-bounce">
-                          <span className="text-3xl filter drop-shadow">🔴</span>
-                          <span className="text-3xl filter drop-shadow">🔵</span>
-                          <span className="text-3xl filter drop-shadow">🟡</span>
+                        <div className="flex gap-3 animate-bounce">
+                          <span className="text-4xl filter drop-shadow">🔴</span>
+                          <span className="text-4xl filter drop-shadow">🔵</span>
+                          <span className="text-4xl filter drop-shadow">🟡</span>
                         </div>
-                        <span className="text-xs font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
+                        <span className="text-xs sm:text-sm font-black text-orange-500 animate-pulse mt-2">두구두구... 캡슐 믹싱 중!</span>
                       </div>
                     ) : gachaResult ? (
                       <div
                         onClick={() => setSelectedHistoryItem(gachaResult)}
-                        className="flex flex-col items-center text-center gap-2 animate-scaleUp w-full cursor-pointer hover:opacity-85 transition-opacity"
+                        className="flex flex-col items-center text-center gap-2.5 animate-scaleUp w-full cursor-pointer hover:opacity-85 transition-opacity"
                         title="크게 보기 (캡처용)"
                       >
-                        <div className="text-4xl filter drop-shadow animate-wiggle">🎁</div>
-                        <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
+                        <div className="text-5xl filter drop-shadow animate-wiggle">🎁</div>
+                        <span className={`text-xs font-black px-3 py-1 rounded-full border ${
                           gachaResult.grade === 'LEGENDARY'
-                            ? 'bg-amber-100 text-amber-700 border-amber-300'
+                            ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-sm'
                             : gachaResult.grade === 'EPIC'
-                            ? 'bg-purple-100 text-purple-700 border-purple-300'
+                            ? 'bg-purple-100 text-purple-800 border-purple-300 shadow-sm'
                             : gachaResult.grade === 'RARE'
-                            ? 'bg-blue-100 text-blue-700 border-blue-300'
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                            ? 'bg-blue-100 text-blue-850 border-blue-300 shadow-sm'
+                            : 'bg-slate-100 text-slate-600 border-slate-250'
                         }`}>
-                          {gachaResult.grade}
+                          {gachaResult.grade === 'LEGENDARY' ? '전설' : gachaResult.grade === 'EPIC' ? '영웅' : gachaResult.grade === 'RARE' ? '희귀' : '일반'}
                         </span>
                         
-                        <h4 className="text-xs font-black text-slate-800 tracking-tight leading-snug">
+                        <h4 className="text-sm sm:text-base font-black text-slate-800 tracking-tight leading-snug">
                           {gachaResult.name}
                         </h4>
-                        <p className="text-[9px] text-slate-500 leading-relaxed font-semibold px-2">
+                        <p className="text-xs sm:text-sm text-slate-600 leading-normal font-bold px-2">
                           {gachaResult.description || gachaResult.desc}
                         </p>
-                        <span className="text-[7.5px] text-slate-400 font-extrabold tracking-wider mt-0.5">
-                          🔍 클릭하여 크게 보기 (캡처)
+                        <span className="text-[10px] text-[#2563EB] font-black tracking-wider mt-1 bg-blue-50 px-2 py-0.5 rounded-md">
+                          🔍 터치하여 캡처용 모달 띄우기
                         </span>
                       </div>
                     ) : (
-                      <div className="text-center flex flex-col gap-2 text-slate-400">
-                        <div className="text-4xl">🎪</div>
-                        <span className="text-[10px] font-bold">1회 뽑기당 1 코인이 사용됩니다.</span>
+                      <div className="text-center flex flex-col gap-2.5 text-slate-400">
+                        <div className="text-5xl">🎪</div>
+                        <span className="text-xs sm:text-sm font-bold leading-relaxed">1회 뽑기당<br /><strong className="text-orange-500 font-extrabold">1 코인</strong>이 사용됩니다.</span>
                       </div>
                     )}
 
@@ -1271,12 +1271,12 @@ export default function PlaygroundPage() {
                   <button
                     disabled={gachaSpinning || points < 1}
                     onClick={(e) => handleDrawGacha(e)}
-                    className={`mt-6 w-44 h-11 rounded-full font-black text-xs tracking-wider uppercase transition-all duration-300 shadow-md ${
+                    className={`mt-6 w-52 h-12 rounded-full font-black text-sm tracking-wider uppercase transition-all duration-300 shadow-md ${
                       gachaSpinning
                         ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         : points < 1
                         ? 'bg-slate-100 text-slate-350 border border-slate-200 cursor-not-allowed shadow-none'
-                        : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-850 active:scale-97 cursor-pointer hover:shadow-lg'
+                        : 'bg-gradient-to-r from-orange-50 to-amber-50 border border-slate-200 hover:border-slate-300 font-black text-slate-855 active:scale-97 cursor-pointer hover:shadow-lg hover:scale-103'
                     }`}
                   >
                     {gachaSpinning ? '추첨 중...' : '1코인으로 뽑기 🎲'}
@@ -1286,87 +1286,87 @@ export default function PlaygroundPage() {
                 /* 운영진 보상 관리 패널 */
                 <div className="space-y-6 animate-fadeIn text-left">
                   {/* 등록/수정 폼 */}
-                  <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm space-y-4">
-                    <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
-                      <Sparkles className="w-4 h-4 text-[#2563EB]" />
-                      {editingGachaId ? '보상 수정하기 (수정 모드)' : '새로운 보상 등록하기'}
+                  <div className="bg-slate-50 border-2 border-slate-200 p-6 sm:p-7 rounded-3xl shadow-sm space-y-5">
+                    <h3 className="text-sm sm:text-base font-black text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-3.5">
+                      <Sparkles className="w-5 h-5 text-[#2563EB]" />
+                      {editingGachaId ? '✏️ 보상 정보 수정하기 (수정 모드)' : '✨ 새로운 보상 등록하기'}
                     </h3>
                     
-                    <form onSubmit={handleSaveGachaItem} className="space-y-4">
-                      <div className="grid grid-cols-3 gap-3">
+                    <form onSubmit={handleSaveGachaItem} className="space-y-4.5">
+                      <div className="grid grid-cols-3 gap-3.5">
                         <div className="space-y-1.5 col-span-1">
-                          <label className="text-[9px] font-black text-slate-500 block">이모지 3D</label>
+                          <label className="text-xs font-black text-slate-600 block">🎁 이모지</label>
                           <input
                             type="text"
                             placeholder="🎁"
                             value={gachaEmoji}
                             onChange={(e) => setGachaEmoji(e.target.value)}
                             disabled={!hasEditPermission}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 text-center font-bold shadow-inner disabled:opacity-50"
+                            className="w-full bg-white border-2 border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 focus:outline-none rounded-xl p-3 text-sm text-slate-900 text-center font-bold shadow-sm transition-all disabled:opacity-50"
                           />
                         </div>
                         <div className="space-y-1.5 col-span-2">
-                          <label className="text-[9px] font-black text-slate-500 block">등급 설정</label>
+                          <label className="text-xs font-black text-slate-600 block">🏅 등급 설정</label>
                           <select
                             value={gachaGrade}
                             onChange={(e) => setGachaGrade(e.target.value as any)}
                             disabled={!hasEditPermission}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                            className="w-full bg-white border-2 border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 focus:outline-none rounded-xl p-3 text-sm text-slate-900 font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                           >
-                            <option value="COMMON">일반 (COMMON) - 확률 91%</option>
-                            <option value="RARE">희귀 (RARE) - 확률 5%</option>
-                            <option value="EPIC">영웅 (EPIC) - 확률 3%</option>
-                            <option value="LEGENDARY">전설 (LEGENDARY) - 확률 1%</option>
+                            <option value="COMMON">일반 (COMMON) - 91%</option>
+                            <option value="RARE">희귀 (RARE) - 5%</option>
+                            <option value="EPIC">영웅 (EPIC) - 3%</option>
+                            <option value="LEGENDARY">전설 (LEGENDARY) - 1%</option>
                           </select>
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-black text-slate-500 block">보상 아이템명</label>
+                        <label className="text-xs font-black text-slate-600 block">🏷️ 보상 아이템명</label>
                         <input
                           type="text"
-                          placeholder="예: 👑 [전설] 뷔페 식사권 (등급 말머리 포함 권장)"
+                          placeholder="예: 뷔페 식사권 (이모지는 왼쪽 칸에 입력)"
                           value={gachaName}
                           onChange={(e) => setGachaName(e.target.value)}
                           disabled={!hasEditPermission}
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 font-semibold shadow-inner disabled:opacity-50"
+                          className="w-full bg-white border-2 border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 focus:outline-none rounded-xl p-3 text-sm text-slate-900 font-semibold shadow-sm transition-all placeholder:text-slate-400 disabled:opacity-50"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-black text-slate-500 block">보상 설명 (획득 방법 및 상세 내용)</label>
+                        <label className="text-xs font-black text-slate-600 block">📝 보상 설명 (상세 혜택 내용)</label>
                         <textarea
                           rows={3}
-                          placeholder="예: 대박! 다음 정기 모임 뒤풀이 때 특급 호텔 뷔페 식사권을 증정합니다."
+                          placeholder="예: 다음 정기 모임 뒤풀이 때 특급 호텔 뷔페 식사권을 증정합니다."
                           value={gachaDescription}
                           onChange={(e) => setGachaDescription(e.target.value)}
                           disabled={!hasEditPermission}
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#2563EB]/40 focus:outline-none rounded-xl p-2.5 text-xs text-slate-900 leading-relaxed font-semibold resize-none shadow-inner disabled:opacity-50"
+                          className="w-full bg-white border-2 border-slate-200 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/10 focus:outline-none rounded-xl p-3 text-sm text-slate-900 leading-relaxed font-semibold resize-none shadow-sm transition-all placeholder:text-slate-400 disabled:opacity-50"
                         />
                       </div>
 
                       {editingGachaId && (
-                        <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-2.5 p-3 bg-blue-50/30 rounded-xl border-2 border-blue-100">
                           <input
                             type="checkbox"
                             id="gacha_active_checkbox"
                             checked={gachaIsActive}
                             onChange={(e) => setGachaIsActive(e.target.checked)}
                             disabled={!hasEditPermission}
-                            className="w-3.5 h-3.5 text-[#2563EB] focus:ring-[#2563EB] border-slate-350 rounded cursor-pointer disabled:opacity-50"
+                            className="w-4.5 h-4.5 text-[#2563EB] focus:ring-[#2563EB]/20 border-slate-350 rounded cursor-pointer disabled:opacity-50"
                           />
-                          <label htmlFor="gacha_active_checkbox" className="text-[10px] font-black text-slate-700 cursor-pointer select-none">
+                          <label htmlFor="gacha_active_checkbox" className="text-xs font-black text-slate-700 cursor-pointer select-none">
                             이 보상을 활성화하여 추첨 리스트에 포함합니다.
                           </label>
                         </div>
                       )}
 
-                      <div className="flex gap-2 justify-end pt-2">
+                      <div className="flex gap-2.5 justify-end pt-2">
                         {editingGachaId && (
                           <button
                             type="button"
                             onClick={handleCancelEditGacha}
-                            className="py-2 px-4 bg-slate-150 hover:bg-slate-200 text-slate-650 rounded-xl text-[10px] font-bold cursor-pointer transition-all"
+                            className="py-2.5 px-4.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-sm"
                           >
                             수정 취소
                           </button>
@@ -1374,10 +1374,10 @@ export default function PlaygroundPage() {
                         <button
                           type="submit"
                           disabled={!hasEditPermission}
-                          className={`py-2 px-5 rounded-xl text-[10px] font-black cursor-pointer transition-all shadow-sm ${
+                          className={`py-2.5 px-5.5 rounded-xl text-xs font-black cursor-pointer transition-all shadow-sm active:scale-95 ${
                             !hasEditPermission
-                              ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                              : 'bg-[#2563EB] text-white hover:bg-blue-700'
+                              ? 'bg-slate-100 border-2 border-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                              : 'bg-[#2563EB] text-white hover:bg-blue-700 hover:shadow-md'
                           }`}
                         >
                           {editingGachaId ? '보상 정보 업데이트 ✓' : '신규 보상 등록하기 +'}
@@ -1387,14 +1387,14 @@ export default function PlaygroundPage() {
                   </div>
 
                   {/* 목록 영역 */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex justify-between items-center px-1">
-                      <span className="text-[10px] font-black text-slate-700">전체 보상 목록 ({gachaItems.length}개)</span>
+                      <span className="text-sm sm:text-base font-black text-slate-800">📋 전체 보상 목록 ({gachaItems.length}개)</span>
                       {hasEditPermission && (
                         <button
                           type="button"
                           onClick={handleImportDefaultGachaItems}
-                          className="text-[8.5px] font-black text-[#2563EB] hover:underline cursor-pointer flex items-center gap-1"
+                          className="text-xs font-black text-[#2563EB] hover:underline cursor-pointer flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 hover:bg-blue-100/60 shadow-xs"
                         >
                           📦 기본 보상 로드
                         </button>
@@ -1402,40 +1402,40 @@ export default function PlaygroundPage() {
                     </div>
 
                     {gachaItems.length === 0 ? (
-                      <div className="bg-white border border-slate-200 py-10 rounded-3xl text-center text-slate-400 text-xs font-bold shadow-sm space-y-3 px-4">
+                      <div className="bg-white border-2 border-slate-200 py-12 rounded-3xl text-center text-slate-400 text-xs sm:text-sm font-bold shadow-sm space-y-4.5 px-4">
                         <p>등록되었거나 활성화된 가챠 보상이 없습니다.</p>
                         {hasEditPermission && (
                           <button
                             type="button"
                             onClick={handleImportDefaultGachaItems}
-                            className="py-2 px-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#2563EB] rounded-xl text-[9px] font-black cursor-pointer transition-all shadow-sm block mx-auto active:scale-97"
+                            className="py-2.5 px-5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#2563EB] rounded-xl text-xs font-black cursor-pointer transition-all shadow-sm block mx-auto active:scale-97"
                           >
                             📦 기본 보상 17개 일괄 가져오기
                           </button>
                         )}
                       </div>
                     ) : (
-                      <div className="grid gap-3 grid-cols-1">
+                      <div className="grid gap-3.5 grid-cols-1">
                         {gachaItems.map((item) => {
                           // 등급에 따른 디자인 매핑
                           const design = 
-                            item.grade === 'LEGENDARY' ? { border: 'border-amber-300 bg-amber-50/20', badge: 'bg-amber-100 text-amber-700 border-amber-250', label: '전설 (1%)' } :
-                            item.grade === 'EPIC' ? { border: 'border-purple-300 bg-purple-50/20', badge: 'bg-purple-100 text-purple-700 border-purple-250', label: '영웅 (3%)' } :
-                            item.grade === 'RARE' ? { border: 'border-cyan-300 bg-cyan-50/20', badge: 'bg-blue-100 text-blue-700 border-blue-250', label: '희귀 (5%)' } :
-                            { border: 'border-slate-200 bg-slate-50/40', badge: 'bg-slate-100 text-slate-600 border-slate-200', label: '일반 (91%)' };
+                            item.grade === 'LEGENDARY' ? { border: 'border-amber-400 bg-amber-50/15', badge: 'bg-amber-100 text-amber-850 border-amber-300 shadow-xs', label: '전설 (1%)' } :
+                            item.grade === 'EPIC' ? { border: 'border-purple-400 bg-purple-50/15', badge: 'bg-purple-100 text-purple-855 border-purple-300 shadow-xs', label: '영웅 (3%)' } :
+                            item.grade === 'RARE' ? { border: 'border-blue-400 bg-blue-50/15', badge: 'bg-blue-100 text-blue-855 border-blue-300 shadow-xs', label: '희귀 (5%)' } :
+                            { border: 'border-slate-250 bg-slate-50/30', badge: 'bg-slate-100 text-slate-700 border-slate-250', label: '일반 (91%)' };
 
                           return (
                             <div 
                               key={item.id}
-                              className={`bg-white border p-4.5 rounded-2xl flex flex-col justify-between gap-3.5 shadow-sm transition-all text-left ${design.border} ${
-                                !item.is_active ? 'opacity-55' : ''
-                              } ${editingGachaId === item.id ? 'ring-2 ring-blue-500/20 border-[#2563EB]' : ''}`}
+                              className={`bg-white border-2 p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-sm transition-all text-left ${design.border} ${
+                                !item.is_active ? 'opacity-50 bg-slate-50/60' : ''
+                              } ${editingGachaId === item.id ? 'ring-4 ring-blue-500/20 border-[#2563EB]' : ''}`}
                             >
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-2xl">{item.emoji || '🎁'}</span>
-                                    <span className={`text-[8px] font-black px-2 py-0.2 rounded border uppercase ${design.badge}`}>
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="text-3xl filter drop-shadow-sm">{item.emoji || '🎁'}</span>
+                                    <span className={`text-xs font-black px-2.5 py-0.5 rounded border uppercase ${design.badge}`}>
                                       {design.label}
                                     </span>
                                   </div>
@@ -1443,32 +1443,32 @@ export default function PlaygroundPage() {
                                     type="button"
                                     disabled={!hasEditPermission}
                                     onClick={() => handleToggleGachaActive(item)}
-                                    className={`text-[8.5px] font-black px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                                    className={`text-xs font-black px-3.5 py-1.5 rounded-xl border-2 transition-all cursor-pointer shadow-xs ${
                                       item.is_active
-                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-250 hover:bg-emerald-100'
-                                        : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
-                                    } disabled:opacity-50`}
+                                        ? 'bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600'
+                                        : 'bg-slate-100 text-slate-500 border-slate-250 hover:bg-slate-200'
+                                    } disabled:opacity-50 active:scale-95`}
                                   >
-                                    {item.is_active ? '● 활성' : '○ 비활성'}
+                                    {item.is_active ? '활성화됨 ✓' : '비활성화됨'}
                                   </button>
                                 </div>
                                 
-                                <div className="space-y-1">
-                                  <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 leading-snug">
+                                <div className="space-y-1.5">
+                                  <h4 className="text-sm sm:text-base font-black text-slate-905 flex items-center gap-1.5 leading-snug">
                                     {item.name}
                                   </h4>
-                                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                  <p className="text-xs sm:text-sm text-slate-600 font-bold leading-relaxed">
                                     {item.description || (item as any).desc}
                                   </p>
                                 </div>
                               </div>
 
-                              <div className="flex gap-2 justify-end border-t border-slate-100/80 pt-2.5">
+                              <div className="flex gap-2 justify-end border-t border-slate-100/80 pt-3.5">
                                 <button
                                   type="button"
                                   disabled={!hasEditPermission}
                                   onClick={() => handleStartEditGacha(item)}
-                                  className="py-1.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                                  className="py-2 px-4 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 text-slate-700 rounded-xl text-xs font-black cursor-pointer transition-all disabled:opacity-50 active:scale-95 shadow-xs"
                                 >
                                   수정 ⚙️
                                 </button>
@@ -1476,9 +1476,9 @@ export default function PlaygroundPage() {
                                   type="button"
                                   disabled={!hasEditPermission}
                                   onClick={() => handleDeleteGachaItem(item.id)}
-                                  className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 rounded-lg text-[9px] font-bold cursor-pointer transition-all disabled:opacity-50"
+                                  className="py-2 px-4 bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-650 rounded-xl text-xs font-black cursor-pointer transition-all disabled:opacity-50 active:scale-95 shadow-xs"
                                 >
-                                  삭제
+                                  삭제 🗑️
                                 </button>
                               </div>
                             </div>
@@ -1490,35 +1490,35 @@ export default function PlaygroundPage() {
                 </div>
               )}
 
-              {/* 최근 뽑기 내역 */}
-              <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3.5">
-                <h3 className="text-xs font-black text-slate-800">📜 최근 당첨 내역 (최대 10개)</h3>
+              {/* 최근 당첨 내역 */}
+              <section className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <h3 className="text-sm sm:text-base font-black text-slate-800">📜 최근 당첨 내역 (최대 10개)</h3>
                 
                 {gachaHistory.length === 0 ? (
-                  <p className="text-[10px] text-slate-400 text-center py-4">아직 당첨 이력이 없습니다. 첫 뽑기를 완료하세요!</p>
+                  <p className="text-xs text-slate-450 text-center py-5">아직 당첨 이력이 없습니다. 첫 뽑기를 완료하세요!</p>
                 ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
                     {gachaHistory.map((item, index) => (
                       <div
                         key={index}
                         onClick={() => setSelectedHistoryItem(item)}
-                        className="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 hover:border-slate-350 rounded-xl cursor-pointer transition-all duration-200"
+                        className="flex justify-between items-center p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 hover:border-slate-350 rounded-2xl cursor-pointer transition-all duration-200"
                         title="클릭하여 대형 인증서 보기 (캡처용)"
                       >
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[10px] font-black text-slate-800">{item.name}</span>
-                          <span className="text-[8px] text-slate-400 font-medium">{item.timestamp} 당첨</span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs sm:text-sm font-black text-slate-850">{item.name}</span>
+                          <span className="text-[10px] text-slate-455 font-bold">{item.timestamp} 당첨</span>
                         </div>
-                        <span className={`text-[7px] font-black px-1.5 py-0.2 rounded border uppercase ${
+                        <span className={`text-xs font-black px-2 py-0.5 rounded border uppercase ${
                           item.grade === 'LEGENDARY'
-                            ? 'bg-amber-100 text-amber-600 border-amber-250'
+                            ? 'bg-amber-100 text-amber-800 border-amber-250 shadow-xs'
                             : item.grade === 'EPIC'
-                            ? 'bg-purple-100 text-purple-600 border-purple-250'
+                            ? 'bg-purple-100 text-purple-800 border-purple-250 shadow-xs'
                             : item.grade === 'RARE'
-                            ? 'bg-blue-100 text-blue-600 border-blue-250'
-                            : item.grade === 'slate-100 text-slate-500 border-slate-200'
+                            ? 'bg-blue-100 text-blue-850 border-blue-250 shadow-xs'
+                            : 'bg-slate-100 text-slate-650 border-slate-200'
                         }`}>
-                          {item.grade}
+                          {item.grade === 'LEGENDARY' ? '전설' : item.grade === 'EPIC' ? '영웅' : item.grade === 'RARE' ? '희귀' : '일반'}
                         </span>
                       </div>
                     ))}
@@ -1528,38 +1528,40 @@ export default function PlaygroundPage() {
             </div>
           )}
 
-          {/* ==================== C. 공통 설정 영역 (Game 1, 3, 4에서 가리기 위해 condition 수정) ==================== */}
+          {/* ==================== C. 공통 설정 영역 ==================== */}
           {activeGame !== 'mission' && activeGame !== 'gacha' && (
             <>
               {activeGame === 'roulette' && (
-                <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
+                <section className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-0.5">
-                      <h3 className="text-xs font-black text-slate-800">1. 러닝량 비례 확률 가중치 적용</h3>
-                      <span className="text-[8px] text-slate-500 font-bold">
-                        활성화 시, 이달의 러닝 거리가 적은 사람의 룰렛 지분이 넓어집니다! ⚖️
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-sm sm:text-base font-black text-slate-850 flex items-center gap-1.5">
+                        ⚖️ 1. 러닝량 비례 확률 가중치 적용
+                      </h3>
+                      <span className="text-xs text-slate-500 font-bold">
+                        활성화 시, 이달의 러닝 거리가 적은 사람의 룰렛 지분이 넓어집니다!
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => !spinning && setUseDistanceWeight(!useDistanceWeight)}
-                      className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-                        useDistanceWeight ? 'bg-[#2563EB]' : 'bg-slate-300'
+                      className={`w-11 h-6.5 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                        useDistanceWeight ? 'bg-[#2563EB]' : 'bg-slate-350'
                       } ${spinning ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div
-                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                          useDistanceWeight ? 'translate-x-4' : 'translate-x-0'
+                        className={`bg-white w-4.5 h-4.5 rounded-full shadow-md transform transition-transform duration-300 ${
+                          useDistanceWeight ? 'translate-x-4.5' : 'translate-x-0'
                         }`}
                       />
                     </button>
                   </div>
 
                   {useDistanceWeight && (
-                    <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-2xl flex gap-2 items-start text-[10px] text-blue-650 leading-relaxed font-bold">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-blue-600 mt-0.5" />
+                    <div className="bg-blue-50/50 border border-blue-200 p-4 rounded-2xl flex gap-3 items-start text-xs text-blue-700 leading-relaxed font-bold">
+                      <AlertCircle className="w-5 h-5 shrink-0 text-blue-600 mt-0.5" />
                       <span>
-                        <strong className="text-slate-800 font-black">달려야 산다 법칙:</strong> 30km 이하로 달린 크루원들은 덜 달린 수치만큼 패널티 확률 지분이 추가로 부과됩니다. (30km 이상 러너는 최소 기본 확률만 적용)
+                        <strong className="text-slate-850 font-black">달려야 산다 법칙:</strong> 30km 이하로 달린 크루원들은 덜 달린 수치만큼 패널티 확률 지분이 추가로 부과됩니다. (30km 이상 러너는 최소 기본 확률만 적용)
                       </span>
                     </div>
                   )}
@@ -1567,23 +1569,23 @@ export default function PlaygroundPage() {
               )}
 
               {/* D. 참가자 명단 선택 */}
-              <section className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4 flex-1 flex flex-col min-h-[300px]">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-black text-slate-800">
-                    2. 오늘 참석한 크루원 선택 ({selectedIds.length} / {members.length}명)
+              <section className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 flex-1 flex flex-col min-h-[300px]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h3 className="text-sm sm:text-base font-black text-slate-850">
+                    👥 2. 오늘 참석한 크루원 선택 ({selectedIds.length} / {members.length}명)
                   </h3>
                   <div className="flex gap-2">
                     <button
                       onClick={handleSelectAll}
                       disabled={spinning || drawingLottery}
-                      className="text-[9px] font-black text-slate-550 hover:text-slate-800 bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl cursor-pointer disabled:opacity-50"
+                      className="text-xs font-black text-slate-700 hover:text-slate-900 hover:bg-slate-100 bg-slate-50 border border-slate-250 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-50 active:scale-95 shadow-sm"
                     >
                       전체 선택
                     </button>
                     <button
                       onClick={handleClearAll}
                       disabled={spinning || drawingLottery}
-                      className="text-[9px] font-black text-slate-555 hover:text-rose-600 bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl cursor-pointer disabled:opacity-50"
+                      className="text-xs font-black text-rose-655 hover:text-rose-700 hover:bg-rose-50 bg-slate-50 border border-slate-255 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-50 active:scale-95 shadow-sm"
                     >
                       선택 해제
                     </button>
@@ -1597,13 +1599,13 @@ export default function PlaygroundPage() {
                     placeholder="이름으로 크루원 검색..."
                     value={gameSearchTerm}
                     onChange={(e) => setGameSearchTerm(e.target.value)}
-                    className="w-full h-9 pl-9 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition-all text-slate-800 font-semibold"
+                    className="w-full h-11 pl-10 pr-9 bg-slate-50 border border-slate-350 rounded-xl text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all text-slate-900 font-semibold shadow-inner placeholder:text-slate-400"
                   />
-                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  <Search className="w-4 h-4 text-slate-450 absolute left-3.5 top-3.5" />
                   {gameSearchTerm && (
                     <button
                       onClick={() => setGameSearchTerm('')}
-                      className="absolute right-2.5 top-2.2 text-slate-400 hover:text-slate-600 font-extrabold text-[10px] cursor-pointer"
+                      className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 font-extrabold text-xs cursor-pointer"
                     >
                       ✕
                     </button>
@@ -1611,11 +1613,11 @@ export default function PlaygroundPage() {
                 </div>
 
                 {filteredMembers.length === 0 ? (
-                  <p className="text-[10px] text-slate-400 text-center py-6">
+                  <p className="text-xs text-slate-400 text-center py-8 font-bold">
                     {members.length === 0 ? "등록된 활성 크루 멤버가 없습니다." : "검색 결과가 없습니다."}
                   </p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2.5 overflow-y-auto max-h-60 pr-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 overflow-y-auto max-h-80 pr-1">
                     {filteredMembers.map(m => {
                       const isSelected = selectedIds.includes(m.id)
                       const dist = memberDistances[m.id] || 0
@@ -1630,28 +1632,28 @@ export default function PlaygroundPage() {
                         <div
                           key={m.id}
                           onClick={() => handleToggleSelect(m.id)}
-                          className={`p-2.5 border rounded-2xl flex items-center justify-between transition-all cursor-pointer ${
+                          className={`p-3.5 border-2 rounded-2xl flex items-center justify-between transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-[#2563EB] bg-blue-50/20 shadow-sm'
-                              : 'border-slate-200 hover:border-slate-300 opacity-60'
-                          } ${spinning || drawingLottery ? 'pointer-events-none' : ''}`}
+                              ? 'border-[#2563EB] bg-blue-50/15 shadow-sm opacity-100 ring-2 ring-blue-500/10'
+                              : 'border-slate-200 hover:border-slate-300 opacity-80 bg-white hover:opacity-100'
+                          } ${spinning || drawingLottery ? 'pointer-events-none opacity-50' : ''}`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <div className="relative">
                               {m.avatar_url ? (
-                                <img src={m.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-slate-200" />
+                                <img src={m.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-250 shadow-sm" />
                               ) : (
-                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] border border-slate-200">👤</div>
+                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs border border-slate-250 shadow-sm text-slate-600">👤</div>
                               )}
                               {isSelected && (
-                                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#2563EB] border border-white rounded-full flex items-center justify-center shadow-sm">
+                                <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 bg-[#2563EB] border-2 border-white rounded-full flex items-center justify-center shadow-sm">
                                   <Check className="w-2.5 h-2.5 text-white" />
                                 </div>
                               )}
                             </div>
                             <div className="flex flex-col gap-0.5">
-                              <span className="text-[10px] font-black text-slate-800">{m.nickname}</span>
-                              <span className="text-[7.5px] text-slate-400 font-extrabold uppercase tracking-wide">
+                              <span className="text-xs sm:text-sm font-black text-slate-800">{m.nickname}</span>
+                              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wide">
                                 {currentMonthDisplay}: {dist.toFixed(1)}k
                               </span>
                             </div>
@@ -1659,12 +1661,12 @@ export default function PlaygroundPage() {
                           
                           {isSelected && activeGame === 'roulette' && (
                             <div className="text-right">
-                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-lg border ${
+                              <span className={`text-xs font-black px-2 py-0.5 rounded-lg border-2 ${
                                 probability >= 30 
-                                  ? 'bg-rose-50 text-rose-600 border-rose-200' 
+                                  ? 'bg-rose-50 text-rose-700 border-rose-350 shadow-xs' 
                                   : probability >= 15
-                                  ? 'bg-amber-50 text-amber-600 border-amber-200'
-                                  : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-350 shadow-xs'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-355 shadow-xs'
                               }`}>
                                 {probability}%
                               </span>
@@ -1684,41 +1686,41 @@ export default function PlaygroundPage() {
 
       {/* 3. 당첨 상세 모달 (캡처용) */}
       {selectedHistoryItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5 select-none animate-fadeIn">
-          <div className="bg-white border-2 border-amber-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col items-center text-center animate-scaleUp">
-            {/* Watermark / Background Deco */}
-            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-slate-50 rounded-full opacity-35 pointer-events-none" />
-            <div className="absolute -left-8 -top-8 w-32 h-32 bg-slate-50 rounded-full opacity-35 pointer-events-none" />
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-5 select-none animate-fadeIn">
+          <div className="bg-gradient-to-b from-white to-amber-50/20 border-4 border-amber-400 w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col items-center text-center animate-scaleUp bg-white">
+            {/* Background Accent Lines/Deco */}
+            <div className="absolute -right-10 -bottom-10 w-36 h-36 bg-amber-100/30 rounded-full opacity-50 pointer-events-none" />
+            <div className="absolute -left-10 -top-10 w-36 h-36 bg-blue-50/30 rounded-full opacity-50 pointer-events-none" />
             
             {/* Ribbon/Crown Icon */}
-            <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-sm mb-4 animate-bounce">
+            <div className="w-20 h-20 rounded-full bg-amber-50 border-2 border-amber-250 flex items-center justify-center text-4xl shadow-md mb-5 animate-bounce">
               {selectedHistoryItem.emoji || '🎁'}
             </div>
 
-            <span className="text-[9px] text-[#2563EB] font-black uppercase tracking-widest bg-blue-50 border border-blue-150 px-2.5 py-0.5 rounded-full mb-3">
+            <span className="text-[10px] text-[#2563EB] font-black uppercase tracking-widest bg-blue-50 border-2 border-blue-200 px-3.5 py-1 rounded-full mb-4">
               Suwon Running Crew Certificate
             </span>
             
-            <h2 className="text-sm font-black text-slate-900 tracking-tight leading-snug mb-3">
+            <h2 className="text-base sm:text-lg font-black text-slate-905 tracking-tight leading-snug mb-4">
               {selectedHistoryItem.name}
             </h2>
             
-            <div className="w-full border-t border-dashed border-slate-200 my-2" />
+            <div className="w-full border-t-2 border-dashed border-slate-200 my-2" />
             
-            <p className="text-[11px] font-semibold text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/50 p-4.5 rounded-2xl my-3 w-full text-left">
+            <p className="text-xs sm:text-sm font-semibold text-slate-750 leading-relaxed bg-slate-50 border border-slate-250 p-5 rounded-2xl my-4 w-full text-left">
               {selectedHistoryItem.description || selectedHistoryItem.desc}
             </p>
             
-            <div className="w-full border-t border-dashed border-slate-200 my-2" />
+            <div className="w-full border-t-2 border-dashed border-slate-200 my-2" />
 
-            <div className="flex flex-col gap-1 my-2">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">당첨 일시</span>
-              <span className="text-[10px] text-slate-700 font-extrabold">{currentMonthDisplay} {selectedHistoryItem.timestamp || '당첨 완료'}</span>
+            <div className="flex flex-col gap-1 my-3">
+              <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider">당첨 일시</span>
+              <span className="text-xs text-slate-800 font-black">{currentMonthDisplay} {selectedHistoryItem.timestamp || '당첨 완료'}</span>
             </div>
 
             <button
               onClick={() => setSelectedHistoryItem(null)}
-              className="mt-5 w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs tracking-widest uppercase rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
+              className="mt-6 w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs sm:text-sm tracking-widest uppercase rounded-2xl transition-all shadow-md active:scale-97 cursor-pointer hover:shadow-lg"
             >
               확인 (닫기)
             </button>

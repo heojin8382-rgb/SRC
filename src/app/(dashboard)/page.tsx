@@ -420,6 +420,86 @@ export default function DashboardPage() {
     .filter(r => r.user_id === profile.id)
     .reduce((sum, r) => sum + r.distance, 0)
 
+  // 크레이지아케이드 풍 누적 거리 메달 등급 연산
+  const getDistanceTier = (dist: number) => {
+    if (dist < 300) {
+      return { 
+        name: '동메달', 
+        emoji: '🥉', 
+        style: 'bg-amber-50 text-amber-800 border-amber-250',
+        next: '은메달',
+        target: 300
+      }
+    } else if (dist < 600) {
+      return { 
+        name: '은메달', 
+        emoji: '🥈', 
+        style: 'bg-slate-50 text-slate-700 border-slate-300',
+        next: '금메달',
+        target: 600
+      }
+    } else if (dist < 1000) {
+      return { 
+        name: '금메달', 
+        emoji: '🥇', 
+        style: 'bg-yellow-50 text-yellow-805 border-yellow-350 shadow-2xs',
+        next: '동트로피',
+        target: 1000
+      }
+    } else if (dist < 1600) {
+      return { 
+        name: '동트로피', 
+        emoji: '🥉🏆', 
+        style: 'bg-amber-100 text-amber-850 border-amber-400 shadow-2xs',
+        next: '은트로피',
+        target: 1600
+      }
+    } else if (dist < 2300) {
+      return { 
+        name: '은트로피', 
+        emoji: '🥈🏆', 
+        style: 'bg-slate-100 text-slate-800 border-slate-400 shadow-2xs',
+        next: '금트로피',
+        target: 2300
+      }
+    } else if (dist < 3000) {
+      return { 
+        name: '금트로피', 
+        emoji: '🥇🏆', 
+        style: 'bg-gradient-to-r from-yellow-50 to-amber-100 text-yellow-905 border-yellow-500 shadow-sm font-black',
+        next: '동비행기',
+        target: 3000
+      }
+    } else if (dist < 4000) {
+      return { 
+        name: '동비행기', 
+        emoji: '🛩️', 
+        style: 'bg-gradient-to-r from-sky-50 to-sky-100 text-sky-850 border-sky-350 shadow-sm',
+        next: '은비행기',
+        target: 4000
+      }
+    } else if (dist < 5500) {
+      return { 
+        name: '은비행기', 
+        emoji: '✈️', 
+        style: 'bg-gradient-to-r from-blue-50 to-indigo-100 text-indigo-850 border-indigo-300 shadow-sm',
+        next: '금비행기',
+        target: 5500
+      }
+    } else {
+      return { 
+        name: '금비행기', 
+        emoji: '🚀', 
+        style: 'bg-gradient-to-r from-violet-600 to-indigo-650 text-white border-violet-400 shadow-md shadow-indigo-500/10 animate-pulse font-black',
+        next: null,
+        target: 5500
+      }
+    }
+  }
+
+  const tier = getDistanceTier(myTotalDistance)
+  const remainingDist = tier.next ? tier.target - myTotalDistance : 0
+
   return (
     <div className="p-5 flex flex-col relative select-none bg-white">
       
@@ -447,7 +527,16 @@ export default function DashboardPage() {
                 {currentRoleBadge.label}
               </span>
             </div>
-            <span className="text-[8px] text-slate-400 font-extrabold tracking-wider mt-0.5">내 누적 기록: {myTotalDistance.toFixed(1)} km</span>
+            <div 
+              className="flex items-center gap-1.5 mt-1.5 cursor-help"
+              title={tier.next ? `다음 등급(${tier.next})까지 ${remainingDist.toFixed(1)}km 남음!` : '최고 등급 달성! 🎉'}
+            >
+              <span className="text-[10px] text-slate-500 font-extrabold tracking-tight">누적: {myTotalDistance.toFixed(1)}km</span>
+              <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full border shadow-2xs flex items-center gap-1 transition-all hover:scale-105 active:scale-95 ${tier.style}`}>
+                <span>{tier.emoji}</span>
+                <span>{tier.name}</span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -643,35 +732,39 @@ export default function DashboardPage() {
       <section className="grid grid-cols-2 gap-4 mb-6 z-10 relative">
         <Link
           href="/record"
-          className="bg-white border border-slate-200 hover:border-blue-300 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
+          className="bg-white border-2 border-slate-200 hover:border-blue-400 rounded-3xl p-5 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all duration-300 group shadow-sm hover:shadow-md hover:-translate-y-0.5 relative overflow-hidden"
         >
-          <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-650 border border-blue-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-100 group-hover:shadow-[0_0_15px_rgba(37,99,235,0.15)] transition-all duration-300">
-            <PlusCircle className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-150 flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] transition-all duration-300 shadow-inner">
+            <PlusCircle className="w-5.5 h-5.5" />
           </div>
-          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">러닝 기록 인증</span>
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">거리/날짜 자동 파싱</span>
+          <span className="text-xs sm:text-sm font-black text-slate-850 mt-1">🏃‍♂️ 러닝 기록 인증</span>
+          <span className="text-[9.5px] text-slate-450 font-bold uppercase tracking-wide">거리/날짜 자동 파싱</span>
         </Link>
         
         <Link
           href="/members"
-          className="bg-white border border-slate-200 hover:border-amber-300 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
+          className="bg-white border-2 border-slate-200 hover:border-amber-400 rounded-3xl p-5 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all duration-300 group shadow-sm hover:shadow-md hover:-translate-y-0.5 relative overflow-hidden"
         >
-          <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-100 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300">
-            <Trophy className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-150 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(245,158,11,0.25)] transition-all duration-300 shadow-inner">
+            <Trophy className="w-5.5 h-5.5" />
           </div>
-          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">크루원 PB 보드</span>
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">마라톤 3대 기록 경쟁</span>
+          <span className="text-xs sm:text-sm font-black text-slate-850 mt-1">🏆 크루원 PB 보드</span>
+          <span className="text-[9.5px] text-slate-455 font-bold uppercase tracking-wide">마라톤 3대 기록 경쟁</span>
         </Link>
 
         <Link
           href="/playground"
-          className="bg-white border border-slate-200 hover:border-indigo-300 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
+          className="bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-3xl p-5 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all duration-300 group shadow-sm hover:shadow-md hover:-translate-y-0.5 relative overflow-hidden ring-offset-2 hover:ring-2 hover:ring-indigo-500/10"
         >
-          <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-650 border border-indigo-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-100 group-hover:shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-300">
-            <Sparkles className="w-5 h-5" />
+          {/* Fun/Hot animated badge */}
+          <span className="absolute top-2.5 right-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs animate-pulse">
+            HOT 🔥
+          </span>
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-650 border border-indigo-150 flex items-center justify-center group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all duration-300 shadow-inner">
+            <Sparkles className="w-5.5 h-5.5" />
           </div>
-          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">복불복 게임 존</span>
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">음료 룰렛 & 뽑기</span>
+          <span className="text-xs sm:text-sm font-black text-slate-850 mt-1">🎮 크루 복불복 오락실</span>
+          <span className="text-[9.5px] text-slate-450 font-bold uppercase tracking-wide">음료 룰렛 & 코인 뽑기</span>
         </Link>
 
         <button
@@ -679,13 +772,13 @@ export default function DashboardPage() {
             setIsStretchingModalOpen(true);
             triggerReactionParticles(window.innerWidth / 2, window.innerHeight / 2, 'clap');
           }}
-          className="bg-white border border-slate-200 hover:border-emerald-350 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group shadow-sm hover:-translate-y-0.5"
+          className="bg-white border-2 border-slate-200 hover:border-emerald-400 rounded-3xl p-5 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all duration-300 group shadow-sm hover:shadow-md hover:-translate-y-0.5 relative overflow-hidden"
         >
-          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-650 border border-emerald-100 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-100 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300">
-            <Activity className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-650 border border-emerald-150 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(16,185,129,0.25)] transition-all duration-300 shadow-inner">
+            <Activity className="w-5.5 h-5.5" />
           </div>
-          <span className="text-xs font-black tracking-wide text-slate-800 mt-1">스트레칭 가이드</span>
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest">동적 웜업 10단계</span>
+          <span className="text-xs sm:text-sm font-black text-slate-850 mt-1">🧘‍♂️ 스트레칭 가이드</span>
+          <span className="text-[9.5px] text-slate-455 font-bold uppercase tracking-wide">동적 웜업 10단계</span>
         </button>
       </section>
 
